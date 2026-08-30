@@ -4,9 +4,10 @@ import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
-// Aplica o tema salvo antes da primeira pintura (evita flash de tema errado).
+// Tema escuro é o padrão. Antes da primeira pintura: mantém 'dark' a menos
+// que a pessoa tenha escolhido 'light' explicitamente (via ThemeToggle).
 const themeScript =
-  "try{if(localStorage.getItem('nortgo-theme')==='dark'){document.documentElement.dataset.theme='dark'}}catch(e){}";
+  "try{if(localStorage.getItem('nortgo-theme')==='light'){document.documentElement.removeAttribute('data-theme')}else{document.documentElement.setAttribute('data-theme','dark')}}catch(e){document.documentElement.setAttribute('data-theme','dark')}";
 
 const siteUrl = "https://nortgo.app";
 const title = "NortGo · Sua vida, organizada num só lugar";
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#060606",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="pt-BR"
       className="h-full antialiased"
+      data-theme="dark"
       suppressHydrationWarning
     >
       <head>

@@ -12,7 +12,7 @@ export default function IpadMockup() {
     <div className="relative mx-auto w-full max-w-4xl">
       {/* corpo do aparelho — alumínio "bronze escuro" em vez do grafite frio
           da Apple, pra não brigar com a paleta quente do site */}
-      <div className="relative rounded-[1.55rem] bg-gradient-to-b from-[#1f1813] via-[#130f0d] to-[#0a0807] p-[0.8%] shadow-[0_0_140px_-8px_rgba(255,221,183,0.34),0_0_55px_-14px_rgba(232,123,0,0.45),0_2px_6px_rgba(0,0,0,0.5),0_30px_60px_-24px_rgba(0,0,0,0.75),0_70px_140px_-40px_rgba(0,0,0,0.9)] ring-1 ring-[#E87B00]/20">
+      <div className="relative rounded-[1.55rem] bg-gradient-to-b from-[#1f1813] via-[#130f0d] to-[#0a0807] p-[0.8%] shadow-[0_0_150px_-6px_rgba(232,123,0,0.38),0_0_55px_-14px_rgba(232,123,0,0.45),0_2px_6px_rgba(0,0,0,0.5),0_30px_60px_-24px_rgba(0,0,0,0.75),0_70px_140px_-40px_rgba(0,0,0,0.9)] ring-1 ring-[#E87B00]/25">
         {/* moldura da tela */}
         <div className="relative overflow-hidden rounded-[1.35rem] bg-black ring-1 ring-white/5">
           {/* câmera frontal, centralizada na borda longa superior */}

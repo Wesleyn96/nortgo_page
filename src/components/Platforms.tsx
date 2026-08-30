@@ -10,22 +10,22 @@ export default function Platforms() {
         <Image
           src={icon}
           alt=""
-          width={56}
-          height={56}
-          className="mx-auto h-12 w-12 object-contain md:h-14 md:w-14"
+          width={112}
+          height={112}
+          className="mx-auto h-20 w-20 object-contain md:h-24 md:w-24"
         />
 
-        <p className="eyebrow mt-6 text-copper-ink">Onde você usa</p>
+        <p className="eyebrow mt-7">Onde você usa</p>
         <h2 className="section-title mt-3">
           <span className="text-grad">Um NortGo.</span> Onde você estiver.
         </h2>
-        <p className="lead mx-auto mt-4 max-w-lg text-ink-dim">
+        <p className="lead mx-auto mt-4 max-w-lg">
           Web, App Store e Google Play — o mesmo sistema, no dispositivo que
           fizer sentido em cada momento do seu dia.
         </p>
 
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <span className="eyebrow rounded-lg border border-line-strong px-4 py-2.5 text-ink-dim">
+          <span className="eyebrow rounded-lg border border-white/15 px-4 py-2.5">
             Web
           </span>
           <Image
