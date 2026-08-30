@@ -41,7 +41,9 @@ export default function Faq() {
       <div className="mx-auto max-w-3xl px-6 py-20 md:py-28">
         <div className="text-center">
           <p className="eyebrow text-copper-ink">Perguntas frequentes</p>
-          <h2 className="section-title mt-4">Antes de entrar na lista</h2>
+          <h2 className="section-title mt-4">
+            Antes de <span className="text-grad">entrar na lista</span>
+          </h2>
         </div>
 
         <div className="mt-12 flex flex-col divide-y divide-line border-t border-line">

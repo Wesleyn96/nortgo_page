@@ -12,8 +12,8 @@ export default function Problem() {
       />
       <div className="relative mx-auto max-w-3xl px-6 py-20 text-center md:py-28">
         <p className="section-title">
-          Sua cabeça não é lugar para guardar recado, prazo e preocupação ao
-          mesmo tempo.
+          <span className="text-grad">Sua cabeça</span> não é lugar para guardar
+          recado, prazo e preocupação ao mesmo tempo.
         </p>
         <p className="lead mx-auto mt-6 max-w-xl text-ink-dim">
           A maioria dos apps de produtividade te dá mais uma lista para olhar.

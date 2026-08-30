@@ -92,7 +92,8 @@ export default function SixApps() {
       <section>
         <div className="mx-auto max-w-3xl px-6 py-24 text-center md:py-32">
           <h2 className="section-title">
-            Uma vida não deveria precisar de seis aplicativos.
+            <span className="text-grad">Uma vida</span> não deveria precisar de
+            seis aplicativos.
           </h2>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             {apps.map((app) => (
@@ -125,7 +126,8 @@ export default function SixApps() {
           style={{ opacity: headlineOpacity }}
           className="section-title max-w-2xl text-balance"
         >
-          Uma vida não deveria precisar de seis aplicativos.
+          <span className="text-grad">Uma vida</span> não deveria precisar de
+          seis aplicativos.
         </motion.h2>
 
         <div className="relative mt-16 flex h-[22rem] w-full max-w-xl items-center justify-center sm:mt-20">

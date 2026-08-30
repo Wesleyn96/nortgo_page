@@ -61,7 +61,9 @@ export default function Features() {
     <section id="recursos">
       <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
         <div className="mx-auto mb-14 max-w-xl text-center">
-          <h2 className="section-title">Seis áreas. Um sistema só.</h2>
+          <h2 className="section-title">
+            Seis áreas. <span className="text-grad">Um sistema só.</span>
+          </h2>
         </div>
 
         {/* Grid uniforme 3×2 (2×3 no tablet, 1 coluna no celular) — todos os

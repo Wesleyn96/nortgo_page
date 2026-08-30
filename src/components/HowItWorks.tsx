@@ -28,7 +28,7 @@ export default function HowItWorks() {
     <section id="como-funciona">
       <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
         <h2 className="section-title mx-auto max-w-lg text-center">
-          Do caos ao essencial, em três passos
+          Do caos ao <span className="text-grad">essencial</span>, em três passos
         </h2>
 
         {/* Mesmo modelo de grid/cards da seção Features. Gap maior (gap-12)
