@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NortGo — Site
 
-## Getting Started
+Landing page de conversão do NortGo, construída em [Next.js](https://nextjs.org) (App Router) + TypeScript + Tailwind CSS.
 
-First, run the development server:
+## Rodando localmente
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estrutura de pastas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+  app/                 rotas (App Router)
+    page.tsx           home
+    privacidade/       política de privacidade
+    layout.tsx          fontes, metadata, Nav/Footer globais
+    globals.css        tokens de design (cor, tipografia, animação)
+  components/          componentes de UI, um arquivo por seção
+public/
+  brand/               logo e assets de marca (não editar sem atualizar Nav/Footer/Preview)
+```
 
-## Learn More
+Sem pasta `lib/`, `api/` ou banco de dados ainda — o site atual é 100% estático,
+focado em design e captura de lista de espera. Essa separação (`app/` só para
+rotas, `components/` para UI) já deixa espaço para crescer sem reorganizar:
+quando entrar integração de pagamento (Mercado Pago) ou backend próprio, a
+lógica de servidor entra em `src/app/api/` e segredos em variáveis de
+ambiente — nunca em código.
 
-To learn more about Next.js, take a look at the following resources:
+## Segurança
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Sem segredos no repositório.** `.env*` está no `.gitignore`; use
+  `.env.example` como referência do que será necessário quando o backend de
+  pagamento for implementado (nada disso é usado hoje).
+- **Cabeçalhos de segurança** (CSP, `X-Frame-Options`, `Referrer-Policy`,
+  `Permissions-Policy`, HSTS) são aplicados globalmente em `next.config.ts`.
+- **Formulário de lista de espera** usa Formspree com honeypot anti-spam;
+  o endpoint do formulário é público por design (não é um segredo).
+- Ao adicionar o webhook do Mercado Pago no futuro, valide sempre a
+  assinatura da notificação no servidor antes de gravar qualquer dado.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Recomendado: [Vercel](https://vercel.com/new) (HTTPS automático, preview
+por PR). Qualquer host compatível com Next.js funciona.

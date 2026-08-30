@@ -1,26 +1,499 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand palette — see anotações.txt §03. Warm only: no blue/purple.
+     Light theme: white canvas, warm-neutral inks, copper as the single accent. */
+
+  /* Surfaces */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #faf6f2; /* alternating section bands */
+  --color-bg-raised: #ffffff; /* cards (rely on border + shadow, not fill) */
+  --color-bg-raised-2: #f4eee7; /* nested / hover fill */
+  --color-copper-wash: #fbeee2; /* badges, "agora" card, success box */
+
+  /* Copper family */
+  --color-copper: #c9682c; /* accent fills: dots, rules, chart lines */
+  --color-copper-light: #ee8a44; /* hover / gradient bright stop */
+  --color-copper-deep: #a94e1c; /* primary button fill (white text = AA) */
+  --color-copper-ink: #8f3f15; /* copper used as TEXT on white (AA) */
+  --color-bronze: #8f4b24;
+  --color-copper-dark: #7a3a17; /* deep copper: borders, gradient dark stop */
+
+  /* Ink — warm near-black, never cold gray */
+  --color-ink: #1c1613;
+  --color-ink-dim: #665c54; /* body copy — AA on white */
+  --color-ink-faint: #978b82; /* eyebrows / captions — decorative */
+  --color-line: rgba(28, 22, 19, 0.1);
+  --color-line-strong: rgba(28, 22, 19, 0.16);
+
+  /* Motion system — see anotações.txt §19 */
+  --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-fast: 200ms;
+  --motion-normal: 400ms;
+  --motion-cinematic: 900ms;
+
+  /* Elevation — warm-tinted shadows, tokenised so components stop
+     hardcoding rgba(0,0,0,·) values tuned for a black canvas. */
+  --shadow-card: 0 1px 2px rgba(28, 22, 19, 0.04),
+    0 10px 30px -14px rgba(28, 22, 19, 0.14);
+  --shadow-float: 0 32px 80px -30px rgba(122, 58, 23, 0.3),
+    0 14px 36px -18px rgba(28, 22, 19, 0.16);
+
+  /* Tipografia — Helvetica no site inteiro (stack de sistema, sem download).
+     Um valor só; os outros tokens (nomes mantidos pra não mexer nas classes)
+     todos apontam pra ele. */
+  --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-titles: var(--font-display);
+  --font-sf: var(--font-display);
+  --font-mono: var(--font-display);
+
+  /* Degradê aplicado nos títulos com background-clip:text (spec do cliente).
+     Laranja → creme claro no meio (brilho) → laranja. Mesmo nos dois temas. */
+  --gradient-text: linear-gradient(
+    90deg,
+    #e87b00 0%,
+    #ffddb7 50%,
+    #e67b00 100%
+  );
+}
+
+/* ── Versão dark ("black") — estilo SaaS técnico premium (ref.: Better Stack),
+   com o BRONZE do NortGo no lugar do indigo. Ativada por
+   <html data-theme="dark"> (botão flutuante ThemeToggle + localStorage).
+   Só redefine tokens: o resto do site herda tudo daqui. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces — tudo #060606 (preto chapado). Cards/nav se distinguem só
+     pela borda, não por fill. raised-2 fica um fio mais claro só pra
+     hover/estado ativo registrar. */
+  --color-bg: #060606;
+  --color-bg-secondary: #060606;
+  --color-bg-raised: #060606;
+  --color-bg-raised-2: #131313; /* nested / hover */
+  --color-copper-wash: #241608; /* badge, card "agora", caixa de sucesso */
+
+  /* Bronze — mais claro/luminoso que no tema claro pra "acender" sobre o preto */
+  --color-copper: #e0824a; /* fills: pontos, réguas, linhas */
+  --color-copper-light: #f3a267; /* hover / stop claro do gradiente */
+  --color-copper-deep: #bf6631; /* botão primário (texto branco, componente AA) */
+  --color-copper-ink: #ef9f66; /* bronze como TEXTO sobre o escuro (AA) */
+  --color-bronze: #c07a4c;
+  --color-copper-dark: #8a4620; /* stop escuro do gradiente / bordas quentes */
+
+  /* Ink — branco quente pro texto principal, cinza levemente frio pro
+     secundário (o estilo de referência puxa pro azul-acinzentado). */
+  --color-ink: #f5f3f0;
+  --color-ink-dim: #a6a4af; /* corpo de texto — AA sobre o fundo */
+  --color-ink-faint: #7b7986; /* eyebrows / captions */
+  --color-line: rgba(255, 255, 255, 0.09);
+  --color-line-strong: rgba(255, 255, 255, 0.16);
+
+  /* Elevação — sombra preta profunda + um fio de brilho cobre na borda,
+     no lugar de bordas duras. */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5),
+    0 14px 34px -16px rgba(0, 0, 0, 0.65);
+  --shadow-float: 0 40px 90px -32px rgba(0, 0, 0, 0.75),
+    0 16px 44px -20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(224, 130, 74, 0.06);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--color-bg);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-raised: var(--color-bg-raised);
+  --color-bg-raised-2: var(--color-bg-raised-2);
+  --color-copper-wash: var(--color-copper-wash);
+  --color-copper: var(--color-copper);
+  --color-copper-light: var(--color-copper-light);
+  --color-copper-deep: var(--color-copper-deep);
+  --color-copper-ink: var(--color-copper-ink);
+  --color-bronze: var(--color-bronze);
+  --color-copper-dark: var(--color-copper-dark);
+  --color-ink: var(--color-ink);
+  --color-ink-dim: var(--color-ink-dim);
+  --color-ink-faint: var(--color-ink-faint);
+  --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+  --font-sf: var(--font-sf);
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--color-line);
+}
+
+html {
+  background: var(--color-bg);
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+}
+
+::selection {
+  background: var(--color-copper);
+  color: #ffffff;
+}
+
+/* Fundo em degradê da seção "Sua cabeça não é lugar…" (ref.: Gradient_bg.svg).
+   Elipse larga e achatada: centro transparente → laranja #FF8A06 →
+   escurece de volta no fim (vinheta). Brilho quente vindo de cima. */
+.gradient-bg {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  /* Tom laranja #E87B00 do degradê das fontes, sólido do miolo até a borda
+     (sem creme claro no fim — antes puxava pro branco). */
+  background: radial-gradient(
+    135% 68% at 50% -8%,
+    transparent 37%,
+    rgba(232, 123, 0, 0.22) 65%,
+    rgba(232, 123, 0, 0.15) 100%
+  );
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-copper-deep);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+
+/* ── Botão primário "Liquid Glass" (ref.: iOS 26 Liquid Glass Buttons) ────
+   Vidro fosco translúcido: acompanha a luminância da página (claro no tema
+   claro, escuro no dark) e o texto segue o contraste via var(--color-ink).
+   O relevo vem todo do box-shadow em camadas (tradução dos inner-shadows do
+   modelo do Figma). Fonte SF Pro (system, sem download). */
+.btn-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 21px;
+  border-radius: 100px;
+  font-family: var(--font-sf);
+  font-weight: 500;
+  color: var(--color-ink);
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0) 42%
+    ),
+    rgba(150, 150, 150, 0.22);
+  -webkit-backdrop-filter: blur(6px) saturate(1.4);
+  backdrop-filter: blur(6px) saturate(1.4);
+  box-shadow:
+    3px 3px 0.5px -3.5px #fff inset,
+    2px 2px 0.5px -2px rgba(38, 38, 38, 0.5) inset,
+    -2px -2px 0.5px -2px rgba(38, 38, 38, 0.5) inset,
+    0 0 0 1px rgba(166, 166, 166, 0.5) inset,
+    0 0 8px 0 rgba(242, 242, 242, 0.55) inset,
+    0 0 2px 0 rgba(0, 0, 0, 0.1),
+    0 1px 8px 0 rgba(0, 0, 0, 0.12);
+  transition:
+    filter var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.06);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+:root[data-theme="dark"] .btn-primary {
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.14),
+      rgba(255, 255, 255, 0) 42%
+    ),
+    rgba(51, 51, 51, 0.28);
+  box-shadow:
+    3px 3px 0.5px -3.5px rgba(255, 255, 255, 0.8) inset,
+    1px 1px 1px 0.5px rgba(255, 255, 255, 0.7) inset,
+    -1px -1px 1px 0.5px rgba(255, 255, 255, 0.7) inset,
+    0 0 1px 1px rgba(255, 255, 255, 0.14) inset,
+    0 0 1px 1px rgba(153, 153, 153, 0.45) inset,
+    0 0 16px 0 rgba(242, 242, 242, 0.16) inset,
+    0 0 2px 0 rgba(0, 0, 0, 0.2),
+    0 1px 8px 0 rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .btn-primary:hover {
+  filter: brightness(1.14);
+}
+
+/* Variante do botão "liquid glass" com o fill = degradê laranja dos títulos
+   (--gradient-text). Mesma linguagem de relevo (highlight, aro de 1px, glow
+   quente, sombra). Texto marrom escuro pra ler no meio claro do degradê.
+   Não trava padding — quem usa define o tamanho pelas utilities. */
+.btn-glass-copper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 100px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: #2b1708;
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.28),
+      rgba(255, 255, 255, 0) 46%
+    ),
+    var(--gradient-text);
+  -webkit-backdrop-filter: blur(6px) saturate(1.4);
+  backdrop-filter: blur(6px) saturate(1.4);
+  box-shadow:
+    2px 2px 0.5px -2px rgba(255, 255, 255, 0.9) inset,
+    -1px -1px 0.5px -1px rgba(0, 0, 0, 0.3) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.28) inset,
+    0 0 8px 0 rgba(255, 224, 190, 0.4) inset,
+    0 0 2px 0 rgba(0, 0, 0, 0.15),
+    0 2px 10px 0 rgba(255, 138, 6, 0.3);
+  transition:
+    filter var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
+}
+
+.btn-glass-copper:hover {
+  filter: brightness(1.1);
+}
+
+.btn-glass-copper:active {
+  transform: translateY(1px);
+}
+
+/* ══ Escala tipográfica — PADRÃO DO SITE ═════════════════════════════════
+   Nível          classe           mobile → sm → md+        uso
+   Título página  .display-title   ~2.9rem → 4.5rem → 6.04rem   hero h1
+   Título seção   .section-title   2.25rem → 3rem  → 3.75rem    h2 das seções
+   Sub-título     .sub-heading     1.5rem  →       → 2.08rem    h3 / mini-título
+   Lead           .lead            1.1875rem (19px)             parágrafo de intro
+   Corpo          text-base (Tailwind, 16px)                    texto comum
+   Legenda        .caption         0.875rem (14px)              nota / rodapé
+   Eyebrow        .eyebrow         0.75rem (12px), mono, CAPS   rótulo acima do título
+   Componentes só somam classes de LAYOUT (mt-*, max-w-*, text-center, cor…). */
+
+.display-title {
+  font-family: var(--font-titles);
+  font-weight: 400;
+  /* Fluido de ponta a ponta: ~44px no celular, ~76px num notebook 1440px,
+     e só chega nos 6.04rem (~97px) em telas grandes (~1920px+). */
+  font-size: clamp(2.75rem, 4.2vw + 0.9rem, 6.04rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+.section-title {
+  font-family: var(--font-titles);
+  font-weight: 500;
+  font-size: 1.875rem;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+}
+
+/* Aplicado só em trechos específicos de título (span) — o degradê laranja
+   do cliente. O resto do título fica na cor de texto normal. */
+.text-grad {
+  background-image: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.sub-heading {
+  font-family: var(--font-titles);
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.lead {
+  font-size: 1.1875rem; /* 19px */
+  line-height: 1.6;
+}
+
+.caption {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.6;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; /* 12px */
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+@media (min-width: 640px) {
+  .section-title {
+    font-size: 2.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: 2.75rem;
+  }
+  .sub-heading {
+    font-size: 1.1875rem;
+  }
+}
+
+/* Hero atmosphere — bloom quente vindo do topo + linhas verticais finas
+   ("papel pautado") dando estrutura ao fundo. A 2ª camada (linear-gradient
+   to bottom) faz as linhas DISSOLVEREM na parte de baixo: transparente em
+   cima (linhas visíveis) → cor do fundo embaixo (linhas somem). */
+.hero-wash {
+  background:
+    radial-gradient(
+      62% 46% at 50% 0%,
+      rgba(238, 138, 68, 0.16),
+      rgba(201, 104, 44, 0.05) 45%,
+      transparent 74%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 40%,
+      var(--color-bg) 92%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 119px,
+      var(--color-line) 119px 120px
+    );
+}
+
+/* No dark, o bloom quente vindo do topo é o detalhe "premium" do estilo. */
+:root[data-theme="dark"] .hero-wash {
+  background:
+    radial-gradient(
+      72% 52% at 50% -6%,
+      rgba(240, 150, 92, 0.16),
+      rgba(200, 110, 50, 0.06) 40%,
+      transparent 72%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 40%,
+      var(--color-bg) 92%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 119px,
+      var(--color-line) 119px 120px
+    );
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise var(--motion-cinematic) var(--ease-cinematic) both;
+}
+
+/* Card "em breve nas lojas" (seção Platforms) — retângulo grande com fundo
+   em degradê quente (ref.: print do cliente), nos tons do --gradient-text. */
+.stores-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(232, 123, 0, 0.16);
+  background:
+    radial-gradient(
+      95% 78% at 50% 28%,
+      rgba(232, 123, 0, 0.3),
+      rgba(232, 123, 0, 0.09) 55%,
+      transparent 82%
+    ),
+    linear-gradient(180deg, #150e08, #0b0805);
+  box-shadow:
+    0 30px 80px -40px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 221, 183, 0.08);
+}
+
+/* Brilho vetorial atrás do mockup de iPad no hero — nos tons do degradê das
+   fontes (--gradient-text): creme #FFDDB7 no miolo, laranja #E87B00 em volta.
+   Grande e bem visível, dissolve nas bordas. Fica atrás do mockup (z-0). */
+.mockup-glow {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 2%;
+  width: 108%;
+  max-width: 1350px;
+  height: 94%;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 221, 183, 0.3),
+    rgba(232, 123, 0, 0.24) 38%,
+    rgba(232, 123, 0, 0.09) 60%,
+    transparent 78%
+  );
+}
+
+/* "Estrela" atrás de cada palavra da animação SixApps — brilho de nebulosa
+   bem suave. Reversível: some junto com a const STAR_GLOW em SixApps.tsx.
+   A cor entra por `background` inline (radial-gradient por palavra). */
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.36;
+  }
+  50% {
+    opacity: 0.62;
+  }
+}
+
+.star-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 155%;
+  min-width: 12rem;
+  height: 5rem;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  filter: blur(38px);
+  opacity: 0.48;
+  pointer-events: none;
+  animation: star-twinkle 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise {
+    animation: none !important;
+  }
+  .star-glow {
+    animation: none;
+  }
 }
