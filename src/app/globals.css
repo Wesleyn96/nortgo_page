@@ -47,13 +47,13 @@
   --font-sf: var(--font-display);
   --font-mono: var(--font-display);
 
-  /* Degradê aplicado nos títulos com background-clip:text (spec do cliente).
-     Laranja → creme claro no meio (brilho) → laranja. Mesmo nos dois temas. */
+  /* Degradê dos títulos (background-clip:text) — mesmo tom dos botões
+     (#E87B00), com um realce laranja mais claro no meio. Sem creme. */
   --gradient-text: linear-gradient(
     90deg,
     #e87b00 0%,
-    #ffddb7 50%,
-    #e67b00 100%
+    #ffa640 50%,
+    #e87b00 100%
   );
 }
 
