@@ -43,3 +43,6 @@ PROJETO.local.md
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ignorar docs de referência locais (planos, briefings) — não versionar
+docs/referencia/

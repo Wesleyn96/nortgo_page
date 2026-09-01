@@ -1,12 +1,12 @@
 # NortGo — Documento de Acompanhamento do Projeto
 
 > Documento vivo. Registra **onde o projeto está**, **por que as decisões foram
-> tomadas** e **para onde vamos**. Deve ser atualizado sempre que algo relevante
-> mudar (nova feature, decisão de produto/design, mudança de rumo, marco atingido).
+> tomadas** e **para onde vamos**. Atualizar sempre que algo relevante mudar
+> (feature, decisão de produto/design, mudança de rumo, marco atingido).
 
 - **Última atualização:** 2026-09-01
 - **Responsável pelo projeto:** Wesley Nascimento
-- **Repositório:** git, branch principal `main`
+- **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
 - **Domínio de produção previsto:** https://nortgo.app
 
 ---
@@ -14,314 +14,348 @@
 ## Como manter este documento
 
 1. **O que entra aqui:** direção do produto, decisões e o motivo delas, status de
-   cada frente, roadmap, riscos e pendências. Nada que o próprio código/git já
-   conte sozinho (estrutura de pastas trivial, histórico de commit).
-2. **O que NÃO entra aqui:** segredos (tokens, senhas, `DATABASE_URL`), estratégia
-   comercial sensível, dados de pessoas. Isso vai em **`PROJETO.local.md`** (na
-   raiz, fora do git) ou, no caso de credenciais, em `.env.local`.
-3. **Ritmo:** a cada sessão de trabalho significativa, atualize a seção afetada e
-   registre a mudança em [Registro de decisões](#registro-de-decisões) e/ou
-   [Histórico do documento](#histórico-do-documento). Atualize a data no topo.
-4. **Ao usar o Codex/agente:** peça uma releitura do estado atual e concilie com
-   o que está escrito aqui — este arquivo é a fonte de verdade da *intenção*, o
-   código é a fonte de verdade da *implementação*.
+   cada frente, roadmap, riscos, pendências. Nada que o código/git já conte
+   sozinho.
+2. **O que NÃO entra aqui:** segredos (tokens, senhas, `DATABASE_URL`),
+   estratégia comercial sensível, dados de pessoas, números não divulgados. Isso
+   vai em **`PROJETO.local.md`** (raiz, fora do git); credenciais em `.env.local`.
+3. **Referências locais** (não versionadas, em `docs/referencia/`): o Plano Mestre
+   de Lançamento (PDF do dono), o levantamento Mercado Pago/hospedagem, e a
+   posição do Claude no debate de próximos passos.
+4. **Ritmo:** a cada sessão significativa, atualize a seção afetada, registre em
+   [Registro de decisões](#11-registro-de-decisões) / [Histórico](#12-histórico-do-documento)
+   e atualize a data no topo.
+5. **Fonte de verdade:** este arquivo é a verdade da *intenção*; o código é a
+   verdade da *implementação da landing*; o Base44 é a verdade da *implementação
+   do app*.
 
 ---
 
 ## 1. Visão geral do produto
 
 **NortGo** é um sistema pessoal de organização da vida: reúne **rotina, tarefas,
-notas, agenda, finanças e saúde** num único lugar e mostra **apenas o que merece
-atenção agora**, sem exigir que o usuário organize nada manualmente.
+notas, agenda, finanças e saúde** num só lugar e mostra **apenas o que merece
+atenção agora**, sem exigir que o usuário organize nada.
 
 - **Proposta central:** reduzir carga mental. "Você joga tudo nele → o NortGo
   filtra por prazo/rotina/prioridade → você vê só o essencial do dia."
-- **Também existem "Espaços":** áreas da vida que o usuário organiza do próprio
-  jeito, para o que não cabe nas seis categorias.
-- **Plataformas-alvo:** Web, App Store (iOS) e Google Play (Android) — mesmo
-  sistema em todos.
-- **Estado atual do produto:** **não existe app**. O que existe é a **landing
-  page de conversão** (este repositório), focada em captar lista de espera até o
-  lançamento.
-- **Modelo de negócio pretendido:** plano essencial gratuito + plano pago
-  ("NortGo Plus"), pagamento via Mercado Pago dentro do app. Preços ainda não
-  definidos. Quem entra na lista de espera ganha condição especial de lançamento.
-
-### Público e posicionamento
-
-- Pessoas sobrecarregadas por ter a vida espalhada em vários apps.
-- Diferencial de mensagem: os concorrentes "te dão mais uma lista para olhar"; o
-  NortGo "faz o oposto" — recebe tudo e devolve só o essencial.
-- Tom da marca: editorial, calmo, quente. Sem hype de produtividade agressiva.
+- **"Espaços":** áreas da vida que o usuário organiza do próprio jeito, para o
+  que não cabe nas seis categorias.
+- **Plataformas-alvo:** Web, iOS (App Store), Android (Google Play); Desktop via
+  PWA depois.
+- **Modelo de negócio:** plano "Essencial" gratuito + "NortGo Plus" pago,
+  pagamento via **Mercado Pago**. Preços **não definidos** — ver [§8](#8-pagamento-e-cobrança).
+  Lista de espera ganha condição especial de lançamento.
+- **Posicionamento:** para quem está sobrecarregado com a vida espalhada em
+  vários apps. Diferencial de mensagem: os concorrentes "te dão mais uma lista
+  para olhar"; o NortGo "faz o oposto". Tom de marca: editorial, calmo, quente.
 
 ---
 
-## 2. Situação atual — resumo executivo
+## 2. Escopo e fronteiras de responsabilidade
+
+O NortGo tem **duas frentes** + uma zona compartilhada. Este documento cobre
+tudo, mas com um estado de implementação por frente.
+
+| Frente | Onde vive | Estado | Este documento… |
+|---|---|---|---|
+| **App / produto** | **Base44** (plataforma no-code) | **Pronto, faltando lançar** — segundo o dono (2026-09-01) | …rastreia como dependência externa; detalhes pendem de inventário factual (passo 1) |
+| **Landing / presença Web** | **Este repositório** (Next.js 16) | Funcional, faltam itens de produção | …é a fonte de verdade — código + este doc |
+| **Operação de lançamento** | Compartilhado (marca, domínio, contas, jurídico, billing, lojas, monitoramento) | Não iniciada de forma estruturada | …rastreia via o plano da [§7](#7-próximos-passos--plano-convergido) |
+
+- O **Plano Mestre de Lançamento** (`docs/referencia/plano-mestre-lancamento-base44.txt`)
+  descreve a operação de lançamento inteira (~20 workstreams). Ele é
+  **referência**, não status deste repo. A landing = seção 8 + roadmap fase 7
+  ("Presença Web") do Plano Mestre.
+- ⚠️ **Contradição resolvida em 2026-09-01:** versões anteriores deste doc diziam
+  "não existe app". O dono confirmou que o app no Base44 está em **fase final
+  (pronto, faltando lançar)**. "Pronto" aqui é a avaliação do dono; a validação
+  de segurança e portabilidade (passos 1, 2 e 5) segue sendo **condição de
+  go-live** conforme o Plano Mestre §6 e §20.
+
+---
+
+## 3. Situação atual — resumo executivo
 
 | Frente | Status | Observação |
 |---|---|---|
-| Landing page (design + copy) | 🟢 Funcional e coesa | Todas as seções implementadas |
-| Captação de leads (waitlist) | 🟢 Operacional | Via Formspree; falta fluxo de exportação/contato |
-| SEO técnico | 🟢 Encaminhado | metadata, OG, Twitter, sitemap, robots, JSON-LD |
-| Cabeçalhos de segurança | 🟢 Aplicados | CSP, HSTS, etc. em `next.config.ts` |
-| Política de privacidade | 🟡 Modelo inicial | Campos `[destaque]` a preencher + revisão jurídica |
-| Preços / planos | 🔴 Em aberto | `Pricing.tsx` existe mas está desativado; Plus "A definir" |
-| Backend / pagamento | 🔴 Não iniciado | Só planejado (`.env.example`) |
-| Testes automatizados | 🔴 Inexistentes | Nenhum framework configurado |
-| Analytics / métricas | 🔴 Não integrado | Há `data-track` no HTML, sem biblioteca |
-| App (produto real) | 🔴 Não iniciado | Fora do escopo deste repo hoje |
+| App no Base44 | 🟡 Pronto p/ dono; go-live não validado | Falta inventário factual, prova de portabilidade, auditoria de segurança |
+| Landing (design + copy) | 🟢 Funcional e coesa | Todas as seções implementadas |
+| Captação de leads (waitlist) | 🟡 Operacional, sem backup | Via Formspree; sem exportação/restauração/responsável |
+| SEO técnico | 🟢 Encaminhado em código | metadata, OG, Twitter, sitemap, robots, JSON-LD — não validado em produção |
+| Cabeçalhos de segurança (landing) | 🟢 Em código | CSP, HSTS, etc. em `next.config.ts` — não verificado em produção |
+| Política de privacidade | 🟡 Modelo inicial | Placeholders `[destaque]` + revisão jurídica pendente |
+| Termos de Uso | 🔴 Não existe | Rodapé só tem "Privacidade" |
+| Copy vs. realidade | 🔴 Afirma recursos não comprovados | FAQ fala de Mercado Pago, criptografia, IA como se já existissem |
+| Preços / cobrança | 🔴 Em aberto | Taxas MP levantadas ([§8](#8-pagamento-e-cobrança)); modelo e valores não definidos |
+| Propriedade de ativos | 🔴 Não estruturada | Domínio, contas corporativas, MFA, GitHub org — a confirmar |
+| Analytics / métricas | 🔴 Não integrado | `data-track` no HTML, sem funil/eventos definidos, sem ferramenta |
+| Monitoramento / uptime | 🔴 Inexistente | Nenhum alerta de indisponibilidade da landing ou do app |
+| Backup / DR | 🔴 Não definido | Sem RPO/RTO, sem teste de restauração (landing e app) |
+| Testes / CI | 🔴 Inexistentes | `package.json` sem script `test` |
 
 Legenda: 🟢 ok · 🟡 atenção · 🔴 pendente/não iniciado
 
 ---
 
-## 3. Stack técnica
+## 4. Stack técnica (landing)
 
 - **Framework:** Next.js `16.3.3` (App Router, `src/app/`). Versão fixada.
-- **UI:** React `19.2.8`, TypeScript `^5` (strict), Tailwind CSS `^4`
-  (`@import "tailwindcss"` + `@tailwindcss/postcss`).
-- **Animação:** Motion `^13.1.1` (`motion/react`). Easing cinematográfico
-  compartilhado em `src/lib/motion.ts` (`[0.22, 1, 0.36, 1]`).
+- **UI:** React `19.2.8`, TypeScript `^5` (strict), Tailwind CSS `^4`.
+- **Animação:** Motion `^13.1.1` (`motion/react`); easing `[0.22, 1, 0.36, 1]` em
+  `src/lib/motion.ts`.
 - **Imagens:** `next/image` com imports estáticos.
-- **Lint:** ESLint `^9` Flat Config (`eslint.config.mjs`), regras
-  `core-web-vitals` + TS do `eslint-config-next`.
-- **Gerenciador de pacotes:** npm (`package-lock.json`).
-- **Scripts:** `dev`, `build`, `start`, `lint`. **Sem** script de testes ou
-  type-check dedicado.
-- **Hospedagem recomendada:** Vercel (HTTPS automático, preview por PR).
-- **Integrações externas:** apenas **Formspree** (formulário da waitlist),
-  endpoint em `src/lib/waitlist.ts`.
+- **Lint:** ESLint `^9` Flat Config. **Sem** script de testes ou type-check.
+- **Pacotes:** npm. **Hospedagem prevista:** Vercel.
+- **Integrações externas:** apenas **Formspree** (`src/lib/waitlist.ts`).
 
 ### ⚠️ Este Next.js tem breaking changes (ver `AGENTS.md`)
 
-Antes de escrever código, consultar `node_modules/next/dist/docs/`. Pontos que
-mordem:
+Antes de codar, consultar `node_modules/next/dist/docs/`:
 
 - Turbopack é o bundler padrão de `dev` **e** `build`.
 - `params`, `searchParams`, `cookies()`, `headers()`, `draftMode()` são
   **exclusivamente assíncronos**.
-- `middleware.ts` foi depreciado → convenção nova é **`proxy.ts`**.
-- `next lint` foi removido (o projeto já chama `eslint` direto).
-- Requer Node.js `20.9+`, TypeScript `5.1+`.
-- React Compiler e Cache Components/PPR são suportados mas **não estão
-  habilitados**.
+- `middleware.ts` depreciado → convenção nova é **`proxy.ts`**.
+- `next lint` removido (o projeto já chama `eslint` direto).
+- Node `20.9+`, TS `5.1+`. React Compiler e Cache Components **não habilitados**.
 
 ---
 
-## 4. Estrutura de arquivos (mapa)
+## 5. Estrutura de arquivos (landing)
 
 ```
 src/
   app/
-    layout.tsx           layout raiz: pt-BR, metadata, favicons, JSON-LD
-                         SoftwareApplication, script anti-flash de tema,
-                         Nav + Footer + ThemeToggle
-    page.tsx             composição e ordem das seções da home
-                         (Pricing importado mas comentado)
-    globals.css          tokens dos temas claro/escuro, tipografia, gradientes,
-                         botões liquid-glass, sombras, animações CSS
+    layout.tsx           layout raiz: pt-BR, metadata, favicons, JSON-LD,
+                         script anti-flash de tema, Nav + Footer + ThemeToggle
+    page.tsx             composição das seções (Pricing importado mas comentado)
+    globals.css          tokens dos temas, tipografia, gradientes, botões, animações
     privacidade/page.tsx política de privacidade (noindex) — MODELO INICIAL
-    robots.ts            permite home, bloqueia /privacidade
-    sitemap.ts           só a home entra no índice
-    opengraph-image.tsx  imagem social 1200×630 gerada
-    twitter-image.tsx    reaproveita a arte OG
-  components/            um arquivo por seção/peça visual
+    robots.ts / sitemap.ts   home indexável, /privacidade fora
+    opengraph-image.tsx / twitter-image.tsx   imagem social 1200×630
+  components/            uma seção por arquivo
     Hero, Preview, Problem, SixApps, Features, HowItWorks,
-    CtaBand, Platforms, Faq, CtaFinal            → seções da página ativa
+    CtaBand, Platforms, Faq, CtaFinal            → página ativa
     Nav, Footer, ThemeToggle, Waitlist, WaitlistProof → compartilhados
-    IpadMockup, IphoneMockup, AppMockup          → mockups do produto
+    IpadMockup, IphoneMockup, AppMockup          → mockups
     Pricing.tsx                                  → implementado, NÃO renderizado
   lib/
-    motion.ts            easing cinematográfico compartilhado
-    waitlist.ts          endpoint Formspree + lógica ética da prova social
+    motion.ts / waitlist.ts
 public/
-  brand/                 ícone, wordmark, logo completo, badges das lojas, seta
-  features/              6 imagens: rotina, tarefa, nota, agenda, financa, saude
-  nortgo-demo.mp4        vídeo do hero (~23,5 MB) ⚠️ pesado
-  nortgo-app-mobile.png  screenshot do mockup de iPhone
+  brand/  features/  nortgo-demo.mp4 (~23,5 MB ⚠️)  nortgo-app-mobile.png
 .env.example             variáveis FUTURAS (Mercado Pago, banco) — nada usado hoje
 next.config.ts           poweredByHeader:false + cabeçalhos de segurança globais
 ```
 
-Separação intencional: `app/` só rotas, `components/` só UI. Quando entrar
-backend/pagamento, a lógica de servidor vai para `src/app/api/` e segredos para
-variáveis de ambiente — nunca no código.
+Separação intencional: `app/` só rotas, `components/` só UI. Lógica de servidor
+futura em `src/app/api/`, segredos em variáveis de ambiente.
 
 ---
 
-## 5. Funcionalidades implementadas
+## 6. O que já está implementado / decidido
 
-- **Navegação sticky** que muda fundo/borda/sombra após 24 px de scroll; links
-  internos (Recursos, Como funciona, FAQ) + CTA para a lista.
-- **Hero:** headline com frase-chave em gradiente, argumento de valor, formulário
-  compacto, entrada escalonada (Motion), mockup de iPad tocando
-  `/nortgo-demo.mp4` (autoplay, mudo, loop, inline).
-- **Preview mobile:** mockup de iPhone + aviso explícito de que o produto pode
-  mudar até o lançamento.
-- **Problema central:** seção editorial sobre carga mental, com glow/fade quente.
-- **SixApps:** as seis categorias convergem para a marca conforme o scroll
-  (`useScroll`/`useTransform`, sem prender a seção); versão estática para
-  `prefers-reduced-motion`.
-- **Recursos:** grade responsiva 3×2 com os seis cards + animação ao entrar na
-  viewport. Nota sobre "Espaços".
-- **Como funciona:** fluxo em três passos com setas responsivas.
-- **CTAs (3 pontos de captura):** hero, faixa intermediária (`CtaBand`),
-  fechamento (`CtaFinal`).
-- **Lista de espera (`Waitlist`):** POST assíncrono ao Formspree; e-mail
-  obrigatório (máx. 254 chars, `autocomplete`); checkbox de consentimento
-  obrigatório ligado à política; honeypot `_gotcha` anti-spam; estados
-  loading/sucesso/erro com `role="status"`/`role="alert"`; variantes
-  `default` e `compact`.
-- **Prova social (`WaitlistProof`):** texto derivado de `formatWaitlistProof()`.
-  Enquanto `WAITLIST_COUNT === null`, mostra "Lista de lançamento aberta" —
-  **nenhum número fictício**.
-- **Plataformas:** card âmbar comunicando Web + App Store + Google Play (em
-  breve).
-- **FAQ:** 5 perguntas em `<details>/<summary>` + JSON-LD `FAQPage`.
-- **Tema:** dark é o padrão; toggle flutuante para light; persistência em
-  `localStorage` (`nortgo-theme`); script inline no `<head>` evita flash.
-- **SEO:** `metadata` + `viewport` no layout, keywords, Open Graph, Twitter Card,
-  `sitemap.ts`, `robots.ts`, favicons, JSON-LD `SoftwareApplication` e
-  `FAQPage`.
-- **Rodapé:** colunas Produto/Suporte/Legal + badges das lojas + copyright
-  dinâmico. Ícones sociais só renderizam se `href` for preenchido.
-- **Segurança:** CSP (com `'unsafe-inline'` em script por causa da hidratação RSC
-  do Next; `'unsafe-eval'` só em dev), `X-Content-Type-Options`,
-  `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, HSTS
-  `preload`. `connect-src`/`form-action` liberam só `formspree.io`.
+### 6.1 Funcionalidades da landing
 
----
+- Nav sticky; Hero com vídeo em mockup de iPad; Preview mobile; seção "Problema";
+  SixApps (animação por scroll, com fallback `prefers-reduced-motion`); Recursos
+  (6 cards); Como funciona (3 passos); 3 CTAs de captura; FAQ (`<details>` +
+  JSON-LD); tema dark padrão + toggle; SEO completo; rodapé.
+- **Waitlist:** POST ao Formspree; e-mail obrigatório (máx. 254); consentimento
+  obrigatório ligado à política; honeypot `_gotcha`; estados acessíveis.
+- **Prova social honesta:** sem `WAITLIST_COUNT` comprovado → copy sem número.
+- **Segurança (código):** CSP (`'unsafe-inline'` em script pela hidratação RSC do
+  Next; `'unsafe-eval'` só em dev), `X-Frame-Options: DENY`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`, HSTS `preload`. `connect-src`/
+  `form-action` só `formspree.io`.
 
-## 6. Decisões de design (registro)
+### 6.2 Decisões de design
 
 | Área | Decisão | Motivo |
 |---|---|---|
-| Tema | Dark é o padrão (`<html data-theme="dark">`) | Estética "SaaS técnico premium"; light preservado para comparar |
-| Toggle de tema | Existe como **controle de prévia** | Ainda não decidido se vira feature real ou sai — ver backlog |
-| Superfície dark | Fundo chapado `#060606`; cards se distinguem por borda + sombra | Visual limpo, sem hierarquia por fill |
-| Paleta | Só quente: cobre/bronze como único acento. **Azul e roxo proibidos** | Identidade da marca (comentário explícito no CSS) |
-| Gradiente dos títulos | `#E87B00 → #FFC77E → #E87B00`, só na frase-chave (`.text-grad`) | Mesmo tom dos botões; realce pontual, não o título inteiro |
-| Botões | "Liquid glass" (iOS 26): `.btn-primary` translúcido, `.btn-glass-copper` com fill laranja | Relevo todo via `box-shadow` em camadas |
-| Tipografia | Stack de sistema (Helvetica Neue / Helvetica / Arial). **Sem webfont** | Zero download, performance |
-| Escala tipográfica | Classes semânticas próprias (`display-title`, `section-title`, `sub-heading`, `lead`, `caption`, `eyebrow`) + `clamp` fluido | Componentes só somam classes de layout |
-| Motion | Easing `[0.22, 1, 0.36, 1]` compartilhado; tempos 200/400/900 ms | Consistência cinematográfica |
-| Prova social | Nunca inflar `WAITLIST_COUNT`; sem número comprovável → copy sem número | Confiança + CDC art. 37 (publicidade enganosa) |
-| Seção "Planos" | Desativada em `page.tsx`, `Nav.tsx`, `Footer.tsx` (código mantido) | Preços não definidos; evita prometer o que não existe |
+| Tema | Dark padrão (`<html data-theme="dark">`) | Estética "SaaS técnico premium"; light preservado |
+| Toggle de tema | Existe como **controle de prévia** | Não decidido se vira feature ou sai |
+| Superfície dark | Fundo `#060606`; cards por borda + sombra | Visual limpo |
+| Paleta | Só quente: cobre/bronze. **Azul e roxo proibidos** | Identidade da marca |
+| Gradiente dos títulos | `#E87B00 → #FFC77E → #E87B00`, só na frase-chave | Mesmo tom dos botões |
+| Botões | "Liquid glass" (iOS 26) | Relevo via `box-shadow` em camadas |
+| Tipografia | Stack de sistema (Helvetica). **Sem webfont** | Zero download |
+| Prova social | Nunca inflar contagem | Confiança + CDC art. 37 |
+| Seção "Planos" | Desativada (código mantido) | Preços não definidos |
 
-### Tokens principais (tema escuro)
+Tokens (dark): `cobre #e0824a` · `cobre claro #f3a267` · `cobre profundo #bf6631`
+· `texto cobre #ef9f66` · `texto principal #f5f3f0` · `secundário #a6a4af` ·
+`fundo #060606`.
 
-`cobre #e0824a` · `cobre claro #f3a267` · `cobre profundo #bf6631` ·
-`texto cobre #ef9f66` · `texto principal #f5f3f0` · `texto secundário #a6a4af` ·
-`fundo #060606`
+### 6.3 Estado do Git (landing)
 
----
+Commits de produto até `d1dc1f8` (30/08/2026, "Gradient-highlight the key phrase
+in every section title"). Em 2026-09-01: adicionados `docs/PROJETO.md` e
+`.gitignore` no branch `docs/projeto-acompanhamento` — **nada de código mudou**.
 
-## 7. Estado do Git
-
-- **Branch:** `main`, alinhada com `origin/main`, working tree limpo (no momento
-  desta análise).
-- **Commits até agora:**
-  1. `1072be6` — Initial commit from Create Next App
-  2. `ffdf2ba` — Build NortGo landing page *(entrega principal)*
-  3. `efd2f5a` — Dark theme default, stores card, gradient/motion polish
-  4. `423abd4` — Match font gradient tone to the buttons (#E87B00)
-  5. `f69c04a` — Lighten font gradient mid-stop (#FFC77E)
-  6. `d1dc1f8` — Gradient-highlight the key phrase in every section title *(30/08/2026)*
-
-> ⚠️ Build/lint/testes **não foram executados** na análise — não há garantia
-> registrada de que o estado atual compila sem erros. Rodar `npm run lint` +
-> `npm run build` numa próxima sessão e anotar o resultado aqui.
+> ⚠️ `npm run lint` + `npm run build` **não foram executados** recentemente —
+> sem garantia registrada de que compila. Rodar e anotar.
 
 ---
 
-## 8. Roadmap / backlog
+## 7. Próximos passos — plano convergido
 
-### Antes de divulgar a landing publicamente
+> Resultado do debate Claude Code × Codex (2026-09-01). Detalhe do debate em
+> `docs/referencia/_debate-proximos-passos-claude.md` + réplica do Codex no
+> histórico da conversa. Ordem pensada para **escalabilidade** e **cobrir todas
+> as camadas** de um produto comercial.
 
-- [ ] **Política de privacidade:** preencher todos os `[destaque]` de
-      `src/app/privacidade/page.tsx` (razão social, CNPJ, DPO) e revisar com
-      advogado de proteção de dados.
-- [ ] **Revisar afirmações da copy** ainda hipotéticas: criptografia,
-      sincronização, prioridades por IA, migração automática. Não prometer o que
-      não existe.
-- [ ] **Redes sociais:** preencher `href` de Instagram e X em `Footer.tsx` (ou
-      remover as entradas).
-- [ ] **Rodar `lint` + `build`** e registrar resultado.
-- [ ] **Comprimir o vídeo do hero** (~23,5 MB hoje): gerar versão menor,
-      `poster`, formatos alternativos, carregamento condicionado.
-- [ ] Auditar peso das imagens PNG de `brand/` e `features/`.
+| # | Passo | Entrega / por quê |
+|---|---|---|
+| **0** *(semana 1, paralelo, barato)* | **(a)** ~~Definir estado real do app~~ ✅ feito: pronto p/ lançar · **(b)** corrigir promessas não comprovadas da landing (FAQ: Mercado Pago, criptografia, IA → linguagem condicional) · **(c)** domínio `nortgo.app` + contas corporativas + MFA + repo para org da empresa · **(d)** merge do `docs/PROJETO.md` na `main` | Remove contradição, risco legal barato e dependência de conta pessoal |
+| **1** | **Inventário factual do Base44** — telas, entidades, campos sensíveis, auth, papéis, automações, integrações, arquivos, limites do plano, capacidade de exportação | Fonte de verdade para todo o resto |
+| **2** | **Prova de saída documental** — exportar amostra real de código/schema/dados/arquivos; registrar o que **não** sai; como recriar auth/automações; definir gatilhos **quantitativos** de migração | Mede lock-in de verdade, não por intenção |
+| **3** | **Jurídico + dados** — finalizar política de privacidade; redigir Termos de Uso; inventário LGPD; classificação de dados (**notas/saúde/finanças = sensível**); registrar residência e subprocessadores do Base44; fluxo de exclusão/exportação de conta | Bloqueia divulgação ampla e submissão às lojas |
+| **4** | **Landing pronta para tráfego** — definir funil/eventos **antes** de instalar analytics (sem cookie, ex. Plausible/Umami); uptime + alerta; backup dos leads (responsável, frequência, formato portátil, dedup, teste de restauração — cópia **fora** do Formspree); otimizar `nortgo-demo.mp4` + poster; testes básicos + CI mínima; acessibilidade (nav mobile, foco pós-sucesso, FAQ) | O entregável "Presença Web" |
+| **5** | **MVP + gates de go-live** (app) — fluxos essenciais; matriz CRUD + RLS/FLS; testes IDOR/BOLA entre 2+ contas; backup/restore + RPO/RTO; observabilidade **separada** (landing / app / billing / Base44); suporte com **menor privilégio** | Condição para cobrar e para o rollout |
+| **6** | **Oferta + billing ponta a ponta** — preço mensal + anual; **unit economics** (taxa MP + custo Base44/usuário + IA + arquivos + suporte + imposto + chargeback + CAC); fonte de verdade do entitlement; webhook **idempotente** + conciliação; reembolso/cancelamento/downgrade/NF; **piloto pago 5–20 usuários** (entitlement manual aceitável nesse tamanho) antes de tráfego amplo | Receita com segurança |
+| **contínuo** | **Reavaliar Base44** nos marcos — protótipo · beta fechado · 50 usuários · 100 usuários — medindo custo, latência, limites e exportabilidade. Não esperar 1.000. | Decisão de migração por dado |
 
-### Decisões de produto em aberto
+### Consenso do debate (D1–D6)
 
-- [ ] **Preços** do plano Plus (hoje "A definir"). Definir → reativar
-      `Pricing.tsx` em `page.tsx`, `Nav.tsx` e `Footer.tsx`.
-- [ ] **Toggle de tema:** vira feature definitiva (com preferência do sistema) ou
-      sai antes do lançamento?
-- [ ] **Analytics:** escolher solução compatível com consentimento (LGPD),
-      definir eventos de conversão e ligar aos `data-track` já existentes.
-- [ ] **Operação da waitlist:** definir fluxo de exportação dos e-mails do
-      Formspree e como esses leads serão contatados no lançamento.
-
-### Qualidade / técnica
-
-- [ ] **Testes:** escolher framework. Prioridades: `formatWaitlistProof`,
-      submissão/erros do formulário, persistência de tema, navegação por âncoras,
-      abrir/fechar FAQ.
-- [ ] **Acessibilidade:** contraste real dos gradientes/botões nos dois temas;
-      foco após sucesso do formulário; teclado + leitor de tela no FAQ;
-      **navegação móvel** (os links principais somem abaixo de `md` — hoje só
-      logo + CTA); estender `prefers-reduced-motion` a Hero, Features e
-      HowItWorks.
-- [ ] **SEO:** validar OG/Twitter/JSON-LD em produção (Rich Results Test etc.).
-- [ ] **`README.md`:** corrigir o trecho que diz "sem pasta `lib/`" (já existe).
-- [ ] **Core Web Vitals:** medir; avaliar custo das animações ligadas ao scroll.
-
-### Futuro (quando houver produto)
-
-- [ ] Backend próprio (API em `src/app/api/`, banco — `DATABASE_URL`).
-- [ ] Integração Mercado Pago: **sempre validar a assinatura do webhook no
-      servidor** antes de gravar qualquer dado.
-- [ ] O app em si (Web + iOS + Android) — provavelmente fora deste repositório.
+- **D1 — Base44 agora:** sim, mas lock-in **não** se resolve só com "código
+  versionado + dados exportáveis" — exige a prova de saída (passo 2).
+- **D2 — Cobrança:** desenhar **as duas modalidades** (mensal recorrente + anual
+  à vista) desde já; **ativar só** depois de entitlement + conciliação seguros
+  (passo 6). Não vender antes do go-live validado. Piloto pode ter entitlement
+  manual.
+- **D3 — Formspree:** manter temporariamente **com** exportação automática +
+  restauração testada + prazo de reavaliação. Gatilhos de migração: volume,
+  custo, automação, LGPD — não só "app ter auth".
+- **D4 — Locaweb:** **não** agora. O levantamento não tem cota real, SLA, backup
+  ou capacidade comprovada — nem é hoje uma alternativa comparável.
+- **D5 — Ordem:** ativos + inventário + segurança + "verdade da oferta" **antes**
+  de tráfego; jurídico em paralelo; pagamento **desenhado** cedo, **ativado**
+  tarde.
+- **D6 — Camadas:** ver [§9](#9-camadas-de-um-projeto-completo).
 
 ---
 
-## 9. Riscos e pontos de atenção
+## 8. Pagamento e cobrança
 
-- **Promessas vs. realidade:** o FAQ e a copy já falam de plano grátis, plano
-  pago, Mercado Pago, IA e segurança de dados. Nada disso existe. Risco de
-  imagem/legal se a landing for muito divulgada nesse estado.
-- **Vídeo de 23,5 MB no hero com autoplay:** impacto direto em LCP e consumo de
-  dados no mobile.
-- **Política de privacidade incompleta** coletando e-mails reais: risco de LGPD.
-- **Sem testes nem CI:** qualquer refactor grande é feito no escuro.
-- **Formspree como único canal de leads:** dependência de terceiro; sem backup
-  próprio dos e-mails captados.
+> Intel completa em `docs/referencia/mercado-pago-e-hospedagem.md`. Decisões de
+> valor/estratégia vão em `PROJETO.local.md`.
+
+**Modelo pretendido:** duas opções separadas — **plano anual à vista** (link de
+pagamento; Pix a 0%) + **plano recorrente mensal no cartão** (assinatura;
+**não parcela**).
+
+**Taxas Mercado Pago (painel consultado 01/09/2026):**
+
+| Forma | Taxa (recebimento "na hora") |
+|---|---|
+| Pix | **0,00%** |
+| Débito | 1,99% |
+| Assinatura no cartão | 4,98% (na hora) · 4,49% (14 d) · 3,98% (30 d) |
+| Crédito à vista | 4,98% |
+| Crédito 2–6× | 2,99% · 7–12× 3,09% · 13–18× 3,19% |
+| Parcelado Comprador | até 5,31% |
+
+**Implicação:** anual à vista via Pix é o cenário de menor custo; assinatura no
+cartão "na hora" é o mais caro (~5%). Prazos de recebimento mais longos reduzem
+bastante a taxa.
+
+**Pendências:** valores (mensal/anual), fonte de verdade do entitlement,
+integração (Checkout Pro primeiro), webhook idempotente, conciliação, fluxos
+comerciais (reembolso, arrependimento, inadimplência, downgrade, NF), regras das
+lojas para pagamento dentro do app.
 
 ---
 
-## 10. Registro de decisões
+## 9. Camadas de um projeto completo
 
-> Formato: data — decisão — motivo — impacto. Adicionar no topo.
+Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
+`PROJETO.local.md` se envolver pessoas.)
 
-- **2026-09-01** — Criado este documento de acompanhamento (`docs/PROJETO.md`
-  versionado + `PROJETO.local.md` local para o que for sensível). — Motivo: ter
-  uma fonte de verdade da intenção do projeto que evolui junto com o código. —
-  Impacto: toda mudança relevante passa a ser registrada aqui.
-- *(decisões anteriores a esta data estão consolidadas nas seções 6 e 7 a partir
-  da leitura do código; não há registro datado individual delas)*
+| Camada | Onde | Estado |
+|---|---|---|
+| Gestão de produto / escopo (o que é o MVP) | Compartilhado | 🔴 |
+| Identidade / autenticação | Base44 | 🟡 a inventariar |
+| Autorização por dado (CRUD, RLS/FLS, IDOR/BOLA) | Base44 | 🔴 não validado |
+| Arquitetura de dados / portabilidade | Base44 | 🔴 prova de saída pendente |
+| Ciclo de vida de dados (retenção, exclusão, exportação) | Base44 + jurídico | 🔴 |
+| Billing / assinatura / unit economics | Compartilhado + Mercado Pago | 🔴 |
+| Observabilidade (landing / app / billing / Base44 — separadas) | Compartilhado | 🔴 |
+| Backup / DR (RPO/RTO, restauração testada) | Base44 + landing | 🔴 |
+| Performance / capacidade (Core Web Vitals, carga, créditos Base44) | Ambos | 🔴 |
+| Suporte com menor privilégio | Compartilhado | 🔴 |
+| Jurídico / LGPD (política, Termos, inventário, subprocessadores) | Compartilhado | 🟡 |
+| Segurança de desenvolvimento (staging, rollback, regressão pós-alteração Base44) | Ambos | 🔴 |
+| CI / qualidade / testes | Landing (e app se possível) | 🔴 |
+| Acessibilidade | Landing + app | 🟡 parcial na landing |
+| Distribuição (Google Play, App Store, PWA) | Compartilhado | 🔴 |
+| Aquisição / ativação / retenção (funil, métricas) | Compartilhado | 🔴 |
+| Gestão de fornecedores / continuidade (Base44, Formspree, MP, Vercel) | Compartilhado | 🔴 |
+| Propriedade de ativos (domínio, contas, MFA, recuperação) | Compartilhado | 🔴 |
 
 ---
 
-## 11. Histórico do documento
+## 10. Riscos e pontos de atenção
+
+- **Portabilidade não comprovada (lock-in Base44):** sem evidência de exportação
+  completa de schema, relações, automações, auth, arquivos, logs. Exportar código
+  ≠ poder reconstruir o serviço.
+- **Acoplamento de identidade e de billing:** migração futura pode invalidar
+  IDs/sessões; indefinido qual sistema é a fonte de verdade da assinatura.
+- **Dados sensíveis:** notas, saúde e finanças elevam o impacto de vazamento,
+  retenção indevida e acesso admin — falta classificação/minimização por campo.
+- **Promessas vs. realidade na landing:** FAQ afirma Mercado Pago, criptografia e
+  IA como se existissem. Risco legal/reputacional. Corrigir no passo 0(b).
+- **Formspree como cópia única dos leads:** o Plano Mestre proíbe manter o único
+  backup no mesmo provedor.
+- **Contas em namespace pessoal:** repo remoto `Wesleyn96/nortgo_page`; provável
+  dependência de conta individual. Migrar para org da empresa + branch protection.
+- **Unit economics desconhecida:** taxa MP é só uma parcela; falta custo
+  Base44/usuário, IA, suporte, imposto, chargeback, CAC.
+- **Sem observabilidade:** uptime externo não mede erros internos, latência por
+  fluxo, consumo de créditos Base44, falhas silenciosas.
+- **Vídeo de 23,5 MB no hero com autoplay:** impacto direto em LCP/dados.
+- **Política de privacidade incompleta** coletando e-mails reais: risco LGPD.
+- **Sem testes nem CI:** refactor grande é feito no escuro.
+
+---
+
+## 11. Registro de decisões
+
+> Formato: data — decisão — motivo — impacto. Mais recente no topo.
+
+- **2026-09-01** — Estado real do app esclarecido: **pronto, faltando lançar** no
+  Base44 (avaliação do dono). — Motivo: os documentos se contradiziam ("não
+  existe" × "em construção" × "fase final"). — Impacto: o foco do projeto passa a
+  ser a **operação de lançamento**; validação de segurança/portabilidade continua
+  sendo condição de go-live.
+- **2026-09-01** — Plano de próximos passos definido por debate Claude Code ×
+  Codex (passos 0–6 + reavaliação contínua do Base44). — Motivo: alinhar
+  prioridade com escalabilidade e cobertura de todas as camadas. — Impacto:
+  substitui o backlog solto anterior; ver [§7](#7-próximos-passos--plano-convergido).
+- **2026-09-01** — Modelo de cobrança: desenhar mensal recorrente + anual à vista
+  desde já; ativar só após entitlement seguro. Locaweb descartada por ora. —
+  Motivo: taxas MP levantadas; anual/Pix = 0%, recorrência ~4–5%. — Impacto:
+  billing entra no passo 6, não antes.
+- **2026-09-01** — Criado o acompanhamento (`docs/PROJETO.md` versionado +
+  `PROJETO.local.md` local + `docs/referencia/` para material bruto). — Impacto:
+  toda mudança relevante passa a ser registrada aqui.
+- *(decisões de design anteriores estão consolidadas na [§6.2](#62-decisões-de-design)
+  a partir da leitura do código; sem registro datado individual)*
+
+---
+
+## 12. Histórico do documento
 
 | Data | Alteração | Por |
 |---|---|---|
+| 2026-09-01 | Reestruturação: escopo/fronteiras, resumo executivo revisado, plano convergido de próximos passos (debate Claude × Codex), camadas do projeto, seção de pagamento (Mercado Pago), riscos de lock-in. Estado do app corrigido para "pronto, faltando lançar". | Claude + Codex + Wesley |
 | 2026-09-01 | Versão inicial: panorama completo a partir da análise do código (Codex + revisão manual). | Claude + Wesley |
 
 ---
 
-## 12. Anexo sensível
+## 13. Anexo sensível
 
-Informações que **não** ficam neste arquivo (porque ele é versionado):
-`PROJETO.local.md` na raiz do projeto (ignorado pelo git). Credenciais reais
-vão em `.env.local`.
+`PROJETO.local.md` (raiz, ignorado pelo git): contas/serviços, dados da empresa,
+números não divulgados, precificação, donos das camadas. Credenciais em
+`.env.local`.
