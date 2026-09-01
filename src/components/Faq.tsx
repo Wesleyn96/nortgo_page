@@ -13,11 +13,11 @@ const faqs = [
   },
   {
     q: "Vai ser pago?",
-    a: "O plano de preços ainda está sendo fechado. A intenção é ter uma versão gratuita para começar e uma versão paga mais completa, com pagamento via Mercado Pago. Quem entrar na lista de espera garante uma condição especial de lançamento.",
+    a: "O plano de preços ainda está sendo fechado. A intenção é ter uma versão gratuita para começar e uma versão paga mais completa. Quem entra na lista de espera recebe as condições de lançamento em primeira mão.",
   },
   {
     q: "Meus dados ficam seguros?",
-    a: "Levamos isso a sério. Este site usa conexão criptografada (HTTPS) e hoje coleta apenas o seu e-mail para avisar do lançamento — nada de senha ou dados de pagamento. O tratamento completo dos seus dados dentro do app será detalhado na Política de Privacidade e nos Termos de Uso antes do lançamento. Não vendemos nem compartilhamos seus dados com terceiros para publicidade.",
+    a: "Levamos isso a sério. Este site usa conexão criptografada (HTTPS) e, no formulário, pede só o seu e-mail — nada de senha ou dados de pagamento. O serviço que processa o envio também registra o IP e dados técnicos do navegador, como explica a Política de Privacidade. O tratamento dos seus dados dentro do app será detalhado na Política de Privacidade e nos Termos de Uso antes do lançamento. Não vendemos nem compartilhamos o e-mail da lista de espera para marketing de outras empresas.",
   },
 ];
 

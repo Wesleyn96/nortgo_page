@@ -59,12 +59,14 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+// `operatingSystem` omitido de propósito: é um claim estruturado (lido por
+// buscadores) de compatibilidade que ainda não pode ser comprovado — o app
+// não está publicado em nenhuma loja. Readicionar quando houver versão no ar.
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   name: "NortGo",
   applicationCategory: "LifestyleApplication",
-  operatingSystem: "Web, iOS, Android",
   description,
 };
 
