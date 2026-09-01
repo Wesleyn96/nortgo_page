@@ -1,7 +1,7 @@
 const faqs = [
   {
     q: "O NortGo substitui meu calendário e minha lista de tarefas?",
-    a: "Sim. Ele reúne o que hoje fica espalhado entre calendário, apps de tarefas e notas soltas, e organiza tudo num único lugar, sem que você precise migrar nada manualmente no dia do lançamento.",
+    a: "Essa é a proposta: reunir num único lugar o que hoje fica espalhado entre calendário, apps de tarefas e notas soltas.",
   },
   {
     q: "Preciso organizar as informações que eu colocar?",
@@ -9,15 +9,15 @@ const faqs = [
   },
   {
     q: "Quando o NortGo é lançado?",
-    a: "Estamos em desenvolvimento ativo. Quem entra na lista de espera recebe o convite de acesso antecipado antes do lançamento público na Web, App Store e Google Play.",
+    a: "O NortGo está nos ajustes finais para o lançamento. Quem entra na lista de espera recebe o convite de acesso antecipado antes da abertura pública na Web, App Store e Google Play.",
   },
   {
     q: "Vai ser pago?",
-    a: "Haverá um plano essencial gratuito e um plano completo pago, com pagamento via Mercado Pago direto pelo app. Quem entrar na lista de espera garante uma condição especial de lançamento.",
+    a: "O plano de preços ainda está sendo fechado. A intenção é ter uma versão gratuita para começar e uma versão paga mais completa, com pagamento via Mercado Pago. Quem entrar na lista de espera garante uma condição especial de lançamento.",
   },
   {
     q: "Meus dados ficam seguros?",
-    a: "Sim. Suas informações são tratadas com criptografia em trânsito e acesso restrito, seguindo a nossa Política de Privacidade. Nunca vendemos ou compartilhamos seus dados com terceiros para publicidade.",
+    a: "Levamos isso a sério. Este site usa conexão criptografada (HTTPS) e hoje coleta apenas o seu e-mail para avisar do lançamento — nada de senha ou dados de pagamento. O tratamento completo dos seus dados dentro do app será detalhado na Política de Privacidade e nos Termos de Uso antes do lançamento. Não vendemos nem compartilhamos seus dados com terceiros para publicidade.",
   },
 ];
 
