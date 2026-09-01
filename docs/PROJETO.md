@@ -9,6 +9,12 @@
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
 - **Domínio de produção previsto:** https://nortgo.app
 
+> **⏸ Estado ao pausar (2026-09-01):** dois branches abertos, **nada mergeado na
+> `main`** — `docs/projeto-acompanhamento` (este doc) e `fix/faq-copy-claims`
+> (correções de copy do FAQ + JSON-LD, `npm run build` passa). Detalhe de
+> continuidade e comandos de merge em `docs/referencia/_estado-da-sessao.md`
+> (local). Próxima ação: decidir o merge e seguir para o passo 0(c).
+
 ---
 
 ## Como manter este documento
@@ -207,7 +213,7 @@ in every section title"). Em 2026-09-01: adicionados `docs/PROJETO.md` e
 
 | # | Passo | Entrega / por quê |
 |---|---|---|
-| **0** *(semana 1, paralelo, barato)* | **(a)** ~~Definir estado real do app~~ ✅ feito: pronto p/ lançar · **(b)** corrigir promessas não comprovadas da landing (FAQ: Mercado Pago, criptografia, IA → linguagem condicional) · **(c)** domínio `nortgo.app` + contas corporativas + MFA + repo para org da empresa · **(d)** merge do `docs/PROJETO.md` na `main` | Remove contradição, risco legal barato e dependência de conta pessoal |
+| **0** *(semana 1, paralelo, barato)* | **(a)** ~~Definir estado real do app~~ ✅ pronto p/ lançar · **(b)** 🟡 corrigir promessas não comprovadas da landing — FAQ + JSON-LD feitos (branch `fix/faq-copy-claims`, revisado pelo Codex); **falta** o passe de voz da marca no resto da landing (decisão do dono) e a política de privacidade (vai no passo 3) · **(c)** domínio `nortgo.app` + contas corporativas + MFA + repo para org da empresa · **(d)** merge dos branches na `main` | Remove contradição, risco legal barato e dependência de conta pessoal |
 | **1** | **Inventário factual do Base44** — telas, entidades, campos sensíveis, auth, papéis, automações, integrações, arquivos, limites do plano, capacidade de exportação | Fonte de verdade para todo o resto |
 | **2** | **Prova de saída documental** — exportar amostra real de código/schema/dados/arquivos; registrar o que **não** sai; como recriar auth/automações; definir gatilhos **quantitativos** de migração | Mede lock-in de verdade, não por intenção |
 | **3** | **Jurídico + dados** — finalizar política de privacidade; redigir Termos de Uso; inventário LGPD; classificação de dados (**notas/saúde/finanças = sensível**); registrar residência e subprocessadores do Base44; fluxo de exclusão/exportação de conta | Bloqueia divulgação ampla e submissão às lojas |
@@ -324,6 +330,13 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-01** — Correção de copy da landing: escopo "só o essencial factual"
+  (escolha do dono). Feito: 4 inconsistências do FAQ ("garante condição especial",
+  "coleta apenas o e-mail" vs. política, "seus dados", "via Mercado Pago") +
+  remoção de `operatingSystem` do JSON-LD. — Motivo: revisão do Codex apontou
+  contradição com a própria política e risco de oferta vinculante (CDC art. 37).
+  — Impacto: o passe de voz da marca (abrandar absolutos no resto da landing)
+  fica adiado como decisão do dono; a política de privacidade vai no passo 3.
 - **2026-09-01** — Estado real do app esclarecido: **pronto, faltando lançar** no
   Base44 (avaliação do dono). — Motivo: os documentos se contradiziam ("não
   existe" × "em construção" × "fase final"). — Impacto: o foco do projeto passa a
@@ -349,6 +362,7 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 | Data | Alteração | Por |
 |---|---|---|
+| 2026-09-01 | Nota de continuidade no topo (branches abertos); passo 0(b) marcado como parcial; registro da correção de copy do FAQ + JSON-LD. | Claude + Wesley |
 | 2026-09-01 | Reestruturação: escopo/fronteiras, resumo executivo revisado, plano convergido de próximos passos (debate Claude × Codex), camadas do projeto, seção de pagamento (Mercado Pago), riscos de lock-in. Estado do app corrigido para "pronto, faltando lançar". | Claude + Codex + Wesley |
 | 2026-09-01 | Versão inicial: panorama completo a partir da análise do código (Codex + revisão manual). | Claude + Wesley |
 
