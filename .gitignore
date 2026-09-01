@@ -33,6 +33,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# documento de acompanhamento — anexo local com informação sensível
+# (a parte pública fica versionada em docs/PROJETO.md)
+PROJETO.local.md
+
 # vercel
 .vercel
 
