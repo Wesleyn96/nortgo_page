@@ -4,16 +4,17 @@
 > tomadas** e **para onde vamos**. Atualizar sempre que algo relevante mudar
 > (feature, decisão de produto/design, mudança de rumo, marco atingido).
 
-- **Última atualização:** 2026-09-01
+- **Última atualização:** 2026-09-02
 - **Responsável pelo projeto:** Wesley Nascimento
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
 - **Domínio de produção previsto:** https://nortgo.app
 
-> **⏸ Estado ao pausar (2026-09-01):** dois branches abertos, **nada mergeado na
-> `main`** — `docs/projeto-acompanhamento` (este doc) e `fix/faq-copy-claims`
-> (correções de copy do FAQ + JSON-LD, `npm run build` passa). Detalhe de
-> continuidade e comandos de merge em `docs/referencia/_estado-da-sessao.md`
-> (local). Próxima ação: decidir o merge e seguir para o passo 0(c).
+> **▶ Estado (2026-09-02):** os dois branches pendentes foram **mergeados na
+> `main`** (history linear até `b47dc64`); `main` está **à frente de
+> `origin/main` — push ainda não feito**. Passo 4 em andamento no branch
+> `chore/step4-traffic-ready`: lint pré-existente corrigido, Vitest + CI
+> mínima adicionados. Pendente do passo 4: reencode do vídeo do hero
+> (`scripts/optimize-demo-video.sh` — precisa de ffmpeg, ação do dono).
 
 ---
 
@@ -92,13 +93,14 @@ tudo, mas com um estado de implementação por frente.
 | Cabeçalhos de segurança (landing) | 🟢 Em código | CSP, HSTS, etc. em `next.config.ts` — não verificado em produção |
 | Política de privacidade | 🟡 Modelo inicial | Placeholders `[destaque]` + revisão jurídica pendente |
 | Termos de Uso | 🔴 Não existe | Rodapé só tem "Privacidade" |
-| Copy vs. realidade | 🔴 Afirma recursos não comprovados | FAQ fala de Mercado Pago, criptografia, IA como se já existissem |
+| Copy vs. realidade | 🟡 FAQ corrigido; resto pendente | FAQ + JSON-LD ajustados (mergeado). Falta o passe de voz da marca no resto da landing |
 | Preços / cobrança | 🔴 Em aberto | Taxas MP levantadas ([§8](#8-pagamento-e-cobrança)); modelo e valores não definidos |
 | Propriedade de ativos | 🔴 Não estruturada | Domínio, contas corporativas, MFA, GitHub org — a confirmar |
 | Analytics / métricas | 🔴 Não integrado | `data-track` no HTML, sem funil/eventos definidos, sem ferramenta |
 | Monitoramento / uptime | 🔴 Inexistente | Nenhum alerta de indisponibilidade da landing ou do app |
 | Backup / DR | 🔴 Não definido | Sem RPO/RTO, sem teste de restauração (landing e app) |
-| Testes / CI | 🔴 Inexistentes | `package.json` sem script `test` |
+| Testes / CI | 🟡 Base montada | Vitest + Testing Library (15 testes: waitlist, FAQ, footer, tema); CI (`.github/workflows/ci.yml`) roda lint + typecheck + testes + build. Falta cobertura mais ampla e o branch chegar na `main` |
+| Performance do hero | 🔴 Vídeo de 23,5 MB | `nortgo-demo.mp4` (30 s, 1524×980) com autoplay; receita de reencode pronta em `scripts/optimize-demo-video.sh` |
 
 Legenda: 🟢 ok · 🟡 atenção · 🔴 pendente/não iniciado
 
@@ -111,7 +113,13 @@ Legenda: 🟢 ok · 🟡 atenção · 🔴 pendente/não iniciado
 - **Animação:** Motion `^13.1.1` (`motion/react`); easing `[0.22, 1, 0.36, 1]` em
   `src/lib/motion.ts`.
 - **Imagens:** `next/image` com imports estáticos.
-- **Lint:** ESLint `^9` Flat Config. **Sem** script de testes ou type-check.
+- **Lint:** ESLint `^9` Flat Config (`npm run lint`).
+- **Type-check:** `npm run typecheck` (`tsc --noEmit`).
+- **Testes:** Vitest `^4` + React Testing Library + jsdom (`npm test` /
+  `npm run test:watch`); config em `vitest.config.mts`, setup em
+  `vitest.setup.ts`; testes colocados em `src/**/*.test.{ts,tsx}`.
+- **CI:** GitHub Actions (`.github/workflows/ci.yml`) — lint, typecheck,
+  testes e build em push na `main` e em todo PR.
 - **Pacotes:** npm. **Hospedagem prevista:** Vercel.
 - **Integrações externas:** apenas **Formspree** (`src/lib/waitlist.ts`).
 
@@ -195,12 +203,14 @@ Tokens (dark): `cobre #e0824a` · `cobre claro #f3a267` · `cobre profundo #bf66
 
 ### 6.3 Estado do Git (landing)
 
-Commits de produto até `d1dc1f8` (30/08/2026, "Gradient-highlight the key phrase
-in every section title"). Em 2026-09-01: adicionados `docs/PROJETO.md` e
-`.gitignore` no branch `docs/projeto-acompanhamento` — **nada de código mudou**.
+Commits de produto até `d1dc1f8` (30/08/2026). Em 2026-09-02: mergeados na `main`
+o doc de acompanhamento e as correções de copy do FAQ + JSON-LD (history linear,
+`main` até `b47dc64`, **ainda não empurrada para `origin`**). Passo 4 em
+`chore/step4-traffic-ready`: correção do lint pré-existente do `ThemeToggle`
+(migrado para `useSyncExternalStore`), Vitest + CI mínima.
 
-> ⚠️ `npm run lint` + `npm run build` **não foram executados** recentemente —
-> sem garantia registrada de que compila. Rodar e anotar.
+> ✅ `npm run lint`, `npm run typecheck`, `npm test` e `npm run build` passam
+> (verificado em 2026-09-02, branch `chore/step4-traffic-ready`).
 
 ---
 
@@ -213,11 +223,11 @@ in every section title"). Em 2026-09-01: adicionados `docs/PROJETO.md` e
 
 | # | Passo | Entrega / por quê |
 |---|---|---|
-| **0** *(semana 1, paralelo, barato)* | **(a)** ~~Definir estado real do app~~ ✅ pronto p/ lançar · **(b)** 🟡 corrigir promessas não comprovadas da landing — FAQ + JSON-LD feitos (branch `fix/faq-copy-claims`, revisado pelo Codex); **falta** o passe de voz da marca no resto da landing (decisão do dono) e a política de privacidade (vai no passo 3) · **(c)** domínio `nortgo.app` + contas corporativas + MFA + repo para org da empresa · **(d)** merge dos branches na `main` | Remove contradição, risco legal barato e dependência de conta pessoal |
+| **0** *(semana 1, paralelo, barato)* | **(a)** ~~Definir estado real do app~~ ✅ pronto p/ lançar · **(b)** 🟡 corrigir promessas não comprovadas da landing — FAQ + JSON-LD ✅ (mergeado); **falta** o passe de voz da marca no resto da landing (decisão do dono) e a política de privacidade (vai no passo 3) · **(c)** 🔴 domínio `nortgo.app` + contas corporativas + MFA + repo para org da empresa · **(d)** ~~merge dos branches na `main`~~ ✅ feito 2026-09-02 (falta `git push`) | Remove contradição, risco legal barato e dependência de conta pessoal |
 | **1** | **Inventário factual do Base44** — telas, entidades, campos sensíveis, auth, papéis, automações, integrações, arquivos, limites do plano, capacidade de exportação | Fonte de verdade para todo o resto |
 | **2** | **Prova de saída documental** — exportar amostra real de código/schema/dados/arquivos; registrar o que **não** sai; como recriar auth/automações; definir gatilhos **quantitativos** de migração | Mede lock-in de verdade, não por intenção |
 | **3** | **Jurídico + dados** — finalizar política de privacidade; redigir Termos de Uso; inventário LGPD; classificação de dados (**notas/saúde/finanças = sensível**); registrar residência e subprocessadores do Base44; fluxo de exclusão/exportação de conta | Bloqueia divulgação ampla e submissão às lojas |
-| **4** | **Landing pronta para tráfego** — definir funil/eventos **antes** de instalar analytics (sem cookie, ex. Plausible/Umami); uptime + alerta; backup dos leads (responsável, frequência, formato portátil, dedup, teste de restauração — cópia **fora** do Formspree); otimizar `nortgo-demo.mp4` + poster; testes básicos + CI mínima; acessibilidade (nav mobile, foco pós-sucesso, FAQ) | O entregável "Presença Web" |
+| **4** 🟡 *em andamento* | **Landing pronta para tráfego** — ✅ testes básicos + CI mínima (`chore/step4-traffic-ready`); ✅ lint pré-existente corrigido · **falta:** definir funil/eventos **antes** de instalar analytics (sem cookie, ex. Plausible/Umami); uptime + alerta; backup dos leads (responsável, frequência, formato portátil, dedup, teste de restauração — cópia **fora** do Formspree); reencode do `nortgo-demo.mp4` + poster (`scripts/optimize-demo-video.sh`); acessibilidade (nav mobile, foco pós-sucesso, FAQ) | O entregável "Presença Web" |
 | **5** | **MVP + gates de go-live** (app) — fluxos essenciais; matriz CRUD + RLS/FLS; testes IDOR/BOLA entre 2+ contas; backup/restore + RPO/RTO; observabilidade **separada** (landing / app / billing / Base44); suporte com **menor privilégio** | Condição para cobrar e para o rollout |
 | **6** | **Oferta + billing ponta a ponta** — preço mensal + anual; **unit economics** (taxa MP + custo Base44/usuário + IA + arquivos + suporte + imposto + chargeback + CAC); fonte de verdade do entitlement; webhook **idempotente** + conciliação; reembolso/cancelamento/downgrade/NF; **piloto pago 5–20 usuários** (entitlement manual aceitável nesse tamanho) antes de tráfego amplo | Receita com segurança |
 | **contínuo** | **Reavaliar Base44** nos marcos — protótipo · beta fechado · 50 usuários · 100 usuários — medindo custo, latência, limites e exportabilidade. Não esperar 1.000. | Decisão de migração por dado |
@@ -321,8 +331,10 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 - **Sem observabilidade:** uptime externo não mede erros internos, latência por
   fluxo, consumo de créditos Base44, falhas silenciosas.
 - **Vídeo de 23,5 MB no hero com autoplay:** impacto direto em LCP/dados.
+  Mitigação pronta (não aplicada): `scripts/optimize-demo-video.sh`.
 - **Política de privacidade incompleta** coletando e-mails reais: risco LGPD.
-- **Sem testes nem CI:** refactor grande é feito no escuro.
+- ~~**Sem testes nem CI**~~ — mitigado: Vitest + CI em `chore/step4-traffic-ready`
+  (branch ainda não mergeado). Cobertura ainda estreita.
 
 ---
 
@@ -330,6 +342,21 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-02** — Merge dos dois branches pendentes na `main` (history linear:
+  ff no doc, rebase + ff no `fix/faq-copy-claims`). — Motivo: baixo risco (doc +
+  copy já revisada, build passa); mantê-los abertos só criava divergência. —
+  Impacto: `main` até `b47dc64`; **push para `origin` ainda pendente** de decisão
+  do dono.
+- **2026-09-02** — Início do passo 4 no branch `chore/step4-traffic-ready`:
+  (a) lint pré-existente do `ThemeToggle` corrigido trocando `useState` +
+  `useEffect` por `useSyncExternalStore` — a fonte de verdade do tema é o
+  atributo `data-theme` que o script anti-flash escreve; (b) Vitest + Testing
+  Library + jsdom, 15 testes na superfície de tráfego (waitlist, FAQ, footer,
+  tema, prova social); (c) CI mínima em GitHub Actions (lint, typecheck, testes,
+  build); (d) `scripts/optimize-demo-video.sh` com a receita de reencode do
+  vídeo do hero. — Motivo: destravar a CI e ter rede de segurança antes de
+  mexer mais na landing. — Impacto: passo 4 passa a 🟡; falta analytics, uptime,
+  backup dos leads, reencode do vídeo e acessibilidade.
 - **2026-09-01** — Correção de copy da landing: escopo "só o essencial factual"
   (escolha do dono). Feito: 4 inconsistências do FAQ ("garante condição especial",
   "coleta apenas o e-mail" vs. política, "seus dados", "via Mercado Pago") +
@@ -362,6 +389,7 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 | Data | Alteração | Por |
 |---|---|---|
+| 2026-09-02 | Merge dos branches na `main`; passo 4 iniciado (lint corrigido, Vitest + CI, script de reencode do vídeo); §3, §4, §6.3, §7, §10, §11 atualizadas. | Claude + Wesley |
 | 2026-09-01 | Nota de continuidade no topo (branches abertos); passo 0(b) marcado como parcial; registro da correção de copy do FAQ + JSON-LD. | Claude + Wesley |
 | 2026-09-01 | Reestruturação: escopo/fronteiras, resumo executivo revisado, plano convergido de próximos passos (debate Claude × Codex), camadas do projeto, seção de pagamento (Mercado Pago), riscos de lock-in. Estado do app corrigido para "pronto, faltando lançar". | Claude + Codex + Wesley |
 | 2026-09-01 | Versão inicial: panorama completo a partir da análise do código (Codex + revisão manual). | Claude + Wesley |

@@ -37,6 +37,10 @@ yarn-error.log*
 # (a parte pública fica versionada em docs/PROJETO.md)
 PROJETO.local.md
 
+# fonte pesada do vídeo do hero — só o resultado otimizado é versionado
+# (ver scripts/optimize-demo-video.sh)
+public/nortgo-demo-original.mp4
+
 # vercel
 .vercel
 
