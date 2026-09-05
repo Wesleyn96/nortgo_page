@@ -4,17 +4,25 @@
 > tomadas** e **para onde vamos**. Atualizar sempre que algo relevante mudar
 > (feature, decisão de produto/design, mudança de rumo, marco atingido).
 
-- **Última atualização:** 2026-09-02
+- **Última atualização:** 2026-09-05
 - **Responsável pelo projeto:** Wesley Nascimento
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
-- **Domínio de produção previsto:** https://nortgo.app
+- **Domínios:** site em `www.nortgo.com` (hoje página temporária na Locaweb) · app (Base44) em `www.nortgo.com.br` · alvo: `nortgo.com` = site, `app.nortgo.com` = app, `.com.br` redireciona. `nortgo.app` era só pretensão e foi removido do código.
 
-> **▶ Estado (2026-09-02):** os branches pendentes e o trabalho do passo 4 foram
-> **mergeados na `main` e empurrados para `origin`** (`main` = `origin/main` =
-> `0380b0e`, history linear, sem branches abertos). Feito no passo 4: lint
-> pré-existente corrigido, Vitest + CI mínima. Pendente do passo 4: reencode do
-> vídeo do hero (`scripts/optimize-demo-video.sh` — precisa de ffmpeg, ação do
-> dono), acessibilidade, analytics sem cookie, uptime, backup dos leads.
+> **▶ Estado (2026-09-03):** mudança de rumo na landing (decisão do dono). A
+> landing longa deu lugar a uma **tela de entrada curta** (`src/components/Entrada.tsx`):
+> proposta em uma frase + 3 exemplos ("você fala/escreve → o NortGo organiza") +
+> `Começar` / `Já tenho conta` que vão **direto ao app no Base44**. Waitlist e
+> Formspree **removidos** (só pararam de ser importados; arquivos no repo).
+> Domínio trocado `nortgo.app` → `www.nortgo.com` em todo o código. Política de
+> privacidade reescrita para "site não coleta dados; cadastro é no app".
+> **Aprovado pelo dono e commitado** em `feat/tela-entrada` (2026-09-05, ainda
+> não mergeado): wordmark virou ícone + texto (acompanha o tema), CSP sem o
+> `formspree.io` morto. Passo 4 muda de forma:
+> analytics/uptime continuam pendentes; "backup dos leads" **deixou de existir**
+> (não há mais lista); reencode de vídeo **saiu de escopo** (a tela não tem vídeo).
+> Ambiente de dev: Codex stop-review gate LIGADO, `npm run verify`, regras de
+> processo no `CLAUDE.md`.
 
 ---
 
@@ -227,7 +235,7 @@ Vitest + CI mínima.
 | **1** | **Inventário factual do Base44** — telas, entidades, campos sensíveis, auth, papéis, automações, integrações, arquivos, limites do plano, capacidade de exportação | Fonte de verdade para todo o resto |
 | **2** | **Prova de saída documental** — exportar amostra real de código/schema/dados/arquivos; registrar o que **não** sai; como recriar auth/automações; definir gatilhos **quantitativos** de migração | Mede lock-in de verdade, não por intenção |
 | **3** | **Jurídico + dados** — finalizar política de privacidade; redigir Termos de Uso; inventário LGPD; classificação de dados (**notas/saúde/finanças = sensível**); registrar residência e subprocessadores do Base44; fluxo de exclusão/exportação de conta | Bloqueia divulgação ampla e submissão às lojas |
-| **4** 🟡 *em andamento* | **Landing pronta para tráfego** — ✅ testes básicos + CI mínima (na `main`); ✅ lint pré-existente corrigido · **falta:** definir funil/eventos **antes** de instalar analytics (sem cookie, ex. Plausible/Umami); uptime + alerta; backup dos leads (responsável, frequência, formato portátil, dedup, teste de restauração — cópia **fora** do Formspree); reencode do `nortgo-demo.mp4` + poster (`scripts/optimize-demo-video.sh`); acessibilidade (nav mobile, foco pós-sucesso, FAQ) | O entregável "Presença Web" |
+| **4** 🟡 *em andamento — reescopado 2026-09-03* | **Site pronto para tráfego** — ✅ testes + CI; ✅ tela de entrada curta (`Entrada.tsx`); ✅ domínio `www.nortgo.com` no código; ✅ política de privacidade alinhada ao novo fluxo · **falta:** migrar hospedagem para Cloudflare Pages + apontar `nortgo.com`/`app.nortgo.com`/`.com.br`; e-mail `contato@nortgo.com` (Cloudflare Email Routing); definir funil/eventos antes de instalar analytics (Cloudflare Web Analytics, sem cookie); uptime + alerta (UptimeRobot); acessibilidade da nova tela · **saiu de escopo:** backup dos leads (não há mais lista), reencode de vídeo (a tela não tem vídeo), nav mobile (não há nav) | O entregável "Presença Web" |
 | **5** | **MVP + gates de go-live** (app) — fluxos essenciais; matriz CRUD + RLS/FLS; testes IDOR/BOLA entre 2+ contas; backup/restore + RPO/RTO; observabilidade **separada** (landing / app / billing / Base44); suporte com **menor privilégio** | Condição para cobrar e para o rollout |
 | **6** | **Oferta + billing ponta a ponta** — preço mensal + anual; **unit economics** (taxa MP + custo Base44/usuário + IA + arquivos + suporte + imposto + chargeback + CAC); fonte de verdade do entitlement; webhook **idempotente** + conciliação; reembolso/cancelamento/downgrade/NF; **piloto pago 5–20 usuários** (entitlement manual aceitável nesse tamanho) antes de tráfego amplo | Receita com segurança |
 | **contínuo** | **Reavaliar Base44** nos marcos — protótipo · beta fechado · 50 usuários · 100 usuários — medindo custo, latência, limites e exportabilidade. Não esperar 1.000. | Decisão de migração por dado |
@@ -342,6 +350,34 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-03** — **Arquitetura de domínios definida.** Site = `nortgo.com`;
+  app (Base44) = `app.nortgo.com`; `nortgo.com.br` vira redirecionamento para
+  `.com`. `nortgo.app` (que o dono não tem) removido do código. — Motivo: uma
+  marca, um domínio principal; subdomínios do mesmo domínio pai permitem
+  compartilhar login/cookies/medição entre site e app no futuro, o que dois TLDs
+  separados travariam. — Impacto: código aponta para `www.nortgo.com`; URL do
+  app centralizada em `src/lib/links.ts` (hoje `www.nortgo.com.br`). Guia de
+  infraestrutura (hospedagem + custos, linguagem simples) entregue ao dono.
+- **2026-09-03** — **Hospedagem do site: sair da Locaweb para Cloudflare Pages.**
+  — Motivo: site é 100% estático; Cloudflare Pages é grátis para uso comercial,
+  com CDN/HTTPS/deploy-por-git; Vercel Hobby é proibido para uso comercial. —
+  Impacto: custo de infra do site ~R$ 0/mês; único gasto fixo é a renovação dos
+  domínios (~R$ 130/ano). Ainda não migrado.
+- **2026-09-03** — **Landing longa → tela de entrada curta** (decisão do dono).
+  Uma frase de proposta + 3 exemplos ("você fala/escreve → o NortGo organiza") +
+  `Começar` / `Já tenho conta` levando **direto ao cadastro no Base44**. — Motivo:
+  a landing longa contrariava a tese de simplicidade do produto; o problema real
+  era o "antes e depois do cadastro", não o cadastro. — Impacto: `Entrada.tsx`
+  nova; Nav e as 11 seções antigas + Waitlist/Formspree pararam de ser importados
+  (arquivos mantidos no repo). **Sem lista de e-mails** — "backup dos leads" sai
+  do passo 4; reencode do vídeo sai de escopo. Política de privacidade reescrita
+  para refletir "site não coleta dados; cadastro é no app". Pré-condição: o app
+  no Base44 precisa suportar cadastro público de verdade (passo 5).
+- **2026-09-03** — **Ambiente de dev profissionalizado** (auditoria + Prioridade 1).
+  Codex stop-review gate LIGADO (revisão automática ao fim de cada tarefa),
+  `npm run verify` como gate de conclusão, regras de processo no `CLAUDE.md`. —
+  Impacto: toda mudança passa por verify + revisão independente do Codex antes de
+  "concluída". Falta `.claude/settings.json` de permissões (o dono cria).
 - **2026-09-02** — Merge dos dois branches pendentes na `main` (history linear:
   ff no doc, rebase + ff no `fix/faq-copy-claims`). — Motivo: baixo risco (doc +
   copy já revisada, build passa); mantê-los abertos só criava divergência. —
@@ -388,6 +424,8 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 | Data | Alteração | Por |
 |---|---|---|
+| 2026-09-05 | Dono aprovou a tela de entrada. Wordmark PNG branco → ícone + texto (some no tema claro); CSP sem `formspree.io`; `<mark>` de amostra da política com contraste. `npm run verify` ok. Commitado em `feat/tela-entrada` (não mergeado). | Claude + Wesley |
+| 2026-09-03 | Mudança de rumo: landing longa → tela de entrada curta; waitlist/Formspree removidos; CTA vai ao Base44. Domínio `nortgo.app` → `www.nortgo.com`; arquitetura de domínios + hospedagem (Cloudflare Pages) decididas; guia de infra entregue. Política de privacidade reescrita. Ambiente de dev profissionalizado (Codex gate, `npm run verify`, `CLAUDE.md`). Topo, §11, §12 atualizados. | Claude + Wesley |
 | 2026-09-02 | Merge dos branches na `main`; passo 4 iniciado (lint corrigido, Vitest + CI, script de reencode do vídeo); §3, §4, §6.3, §7, §10, §11 atualizadas. | Claude + Wesley |
 | 2026-09-01 | Nota de continuidade no topo (branches abertos); passo 0(b) marcado como parcial; registro da correção de copy do FAQ + JSON-LD. | Claude + Wesley |
 | 2026-09-01 | Reestruturação: escopo/fronteiras, resumo executivo revisado, plano convergido de próximos passos (debate Claude × Codex), camadas do projeto, seção de pagamento (Mercado Pago), riscos de lock-in. Estado do app corrigido para "pronto, faltando lançar". | Claude + Codex + Wesley |

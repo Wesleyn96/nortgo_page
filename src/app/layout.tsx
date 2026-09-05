@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
@@ -9,7 +8,7 @@ import "./globals.css";
 const themeScript =
   "try{if(localStorage.getItem('nortgo-theme')==='light'){document.documentElement.removeAttribute('data-theme')}else{document.documentElement.setAttribute('data-theme','dark')}}catch(e){document.documentElement.setAttribute('data-theme','dark')}";
 
-const siteUrl = "https://nortgo.app";
+const siteUrl = "https://www.nortgo.com";
 const title = "NortGo · Sua vida, organizada num só lugar";
 const description =
   "NortGo reúne rotina, tarefas, notas, agenda, finanças e saúde num único sistema pessoal, e mostra apenas o que merece sua atenção agora. Em breve na Web, App Store e Google Play.";
@@ -89,7 +88,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="min-h-full flex flex-col bg-bg text-ink font-display">
-        <Nav />
         <main className="flex-1">{children}</main>
         <Footer />
         <ThemeToggle />

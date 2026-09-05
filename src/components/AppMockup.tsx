@@ -34,7 +34,7 @@ export default function AppMockup() {
           <span className="h-2.5 w-2.5 rounded-full bg-line-strong" />
         </div>
         <div className="mx-auto hidden rounded-full border border-line px-4 py-1 font-mono text-[11px] text-ink-faint sm:block">
-          nortgo.app/hoje
+          app.nortgo.com/hoje
         </div>
       </div>
 

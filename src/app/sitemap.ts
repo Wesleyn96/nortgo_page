@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl = "https://nortgo.app";
+const siteUrl = "https://www.nortgo.com";
 
 // Site pequeno e estático: só a home entra no índice. A política de
 // privacidade fica de fora de propósito (noindex).

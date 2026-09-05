@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl = "https://nortgo.app";
+const siteUrl = "https://www.nortgo.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {
