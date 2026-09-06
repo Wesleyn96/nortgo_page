@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { APP_SIGNUP_URL } from "@/lib/links";
+import { APP_BASE_URL, APP_SIGNUP_URL } from "@/lib/links";
 
 export const metadata: Metadata = {
   title: "Política de Privacidade",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacidadePage() {
-  const appHost = APP_SIGNUP_URL.replace(/^https?:\/\//, "");
+  const appHost = APP_BASE_URL.replace(/^https?:\/\//, "");
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-16 md:py-24">
