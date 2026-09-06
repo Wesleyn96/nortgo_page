@@ -9,15 +9,17 @@
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
 - **Domínios:** site em `www.nortgo.com` (hoje página temporária na Locaweb) · app (Base44) em `www.nortgo.com.br` · alvo: `nortgo.com` = site, `app.nortgo.com` = app, `.com.br` redireciona. `nortgo.app` era só pretensão e foi removido do código.
 
-> **▶ Estado (2026-09-06):** deploy no Cloudflare Pages **em andamento**.
-> Tela de entrada + build export estático (`output: "export"` → `out/`;
-> cabeçalhos em `public/_headers`; `.nvmrc` = 22) **mergeados na `main` e
-> empurrados para `origin`** (`main` = `origin/main` = `399049c`, history
-> linear; branch `feat/tela-entrada` apagada). `npm run verify` passa.
-> **Falta (ação do dono):** conectar o repo no Cloudflare Pages (build
-> `npm run build`, output `out`, preset None) e apontar o domínio `nortgo.com`
-> (trocar nameservers na Locaweb → Cloudflare). App Base44 já aceita cadastro
-> público (confirmado pelo dono). Revisão do Codex dos 3 commits: pendente.
+> **▶ Estado (2026-09-06):** **site NO AR** em
+> `https://nortgo-page.wesleynascimentojob.workers.dev` (Cloudflare Workers —
+> a conta nova só oferece o fluxo Workers, não Pages; `wrangler.jsonc` publica
+> a pasta `out/` como assets estáticos). Cabeçalhos de segurança do
+> `public/_headers` confirmados na resposta; `/robots.txt`, `/sitemap.xml`,
+> OG image (com `Content-Type: image/png`) e 404 ok. Build no Cloudflare:
+> `npm run build`, deploy `npx wrangler deploy` — redeploy automático a cada
+> push na `main`.
+> **Falta:** apontar o domínio `nortgo.com` (trocar nameservers Locaweb →
+> Cloudflare; checar MX/e-mail antes). Revisão do Codex dos commits: pendente.
+> Teste de escrita do isolamento de dados (item 2): pendente.
 >
 > **▶ Estado (2026-09-03):** mudança de rumo na landing (decisão do dono). A
 > landing longa deu lugar a uma **tela de entrada curta** (`src/components/Entrada.tsx`):
@@ -138,7 +140,9 @@ Legenda: 🟢 ok · 🟡 atenção · 🔴 pendente/não iniciado
   `vitest.setup.ts`; testes colocados em `src/**/*.test.{ts,tsx}`.
 - **CI:** GitHub Actions (`.github/workflows/ci.yml`) — lint, typecheck,
   testes e build em push na `main` e em todo PR.
-- **Pacotes:** npm. **Hospedagem prevista:** Vercel.
+- **Pacotes:** npm. **Hospedagem:** Cloudflare Workers (assets estáticos via
+  `wrangler.jsonc`, publica `out/`). No ar em
+  `nortgo-page.wesleynascimentojob.workers.dev`; domínio `nortgo.com` pendente.
 - **Integrações externas:** apenas **Formspree** (`src/lib/waitlist.ts`).
 
 ### ⚠️ Este Next.js tem breaking changes (ver `AGENTS.md`)
@@ -360,6 +364,14 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-06** — **Site no ar no Cloudflare Workers.** A conta nova do
+  Cloudflare só oferece o fluxo Workers (Pages absorvido). Como o site é
+  `output: "export"` (estático), foi feito um "Worker de assets": `wrangler.jsonc`
+  com `assets.directory: "./out"`, deploy `npx wrangler deploy`, redeploy
+  automático a cada push na `main`. URL: `nortgo-page.wesleynascimentojob.workers.dev`.
+  — Motivo: implementa a decisão de 2026-09-03 (sair da Locaweb). — Impacto:
+  cabeçalhos de `public/_headers` confirmados em produção; custo ~R$ 0/mês.
+  Falta só o domínio `nortgo.com` (nameservers Locaweb → Cloudflare).
 - **2026-09-06** — **Teste de isolamento de dados no Base44 (item 2 dos 5
   checks de "produto profissional") — aprovação preliminar.** Feito com 2 contas
   reais (A no Chrome, B no Edge). Confirmado: (a) B abrindo a URL da nota de A,
