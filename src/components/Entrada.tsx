@@ -138,7 +138,10 @@ function ListCard({ heading, rows }: { heading: string; rows: Row[] }) {
               <span
                 key={m.text}
                 className={`flex-none text-[12px] font-medium ${
-                  m.tone === "red" ? "text-[#D92626]" : "text-[#818898]"
+                  // #F25555 no lugar do #D92626 do modelo: o vermelho original
+                  // dava só 3.5:1 sobre o card (#1C1C1E), abaixo do mínimo WCAG
+                  // AA (4.5:1) para texto de 12px. Este clareia p/ ~5:1.
+                  m.tone === "red" ? "text-[#F25555]" : "text-[#818898]"
                 }`}
               >
                 {m.text}
