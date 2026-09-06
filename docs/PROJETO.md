@@ -9,12 +9,15 @@
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
 - **Domínios:** site em `www.nortgo.com` (hoje página temporária na Locaweb) · app (Base44) em `www.nortgo.com.br` · alvo: `nortgo.com` = site, `app.nortgo.com` = app, `.com.br` redireciona. `nortgo.app` era só pretensão e foi removido do código.
 
-> **▶ Estado (2026-09-06):** preparando o **deploy no Cloudflare Pages hoje**.
-> O build virou export estático (`output: "export"` → pasta `out/`); os
-> cabeçalhos de segurança saíram do `next.config.ts` e foram para
-> `public/_headers` (formato do Pages). `.nvmrc` = 22. `npm run verify` passa.
-> Falta: fazer o merge na `main`, conectar o repo no Cloudflare Pages e apontar
-> o domínio. App Base44 já aceita cadastro público (confirmado pelo dono).
+> **▶ Estado (2026-09-06):** deploy no Cloudflare Pages **em andamento**.
+> Tela de entrada + build export estático (`output: "export"` → `out/`;
+> cabeçalhos em `public/_headers`; `.nvmrc` = 22) **mergeados na `main` e
+> empurrados para `origin`** (`main` = `origin/main` = `399049c`, history
+> linear; branch `feat/tela-entrada` apagada). `npm run verify` passa.
+> **Falta (ação do dono):** conectar o repo no Cloudflare Pages (build
+> `npm run build`, output `out`, preset None) e apontar o domínio `nortgo.com`
+> (trocar nameservers na Locaweb → Cloudflare). App Base44 já aceita cadastro
+> público (confirmado pelo dono). Revisão do Codex dos 3 commits: pendente.
 >
 > **▶ Estado (2026-09-03):** mudança de rumo na landing (decisão do dono). A
 > landing longa deu lugar a uma **tela de entrada curta** (`src/components/Entrada.tsx`):
