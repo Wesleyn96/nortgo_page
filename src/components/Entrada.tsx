@@ -271,9 +271,8 @@ export default function Entrada() {
                   {f.icon}
                 </svg>
               </span>
-              <span className="text-[13px] font-medium text-ink-dim">
-                {f.label}
-              </span>
+              {/* mesmo peso/cor do subtítulo (.lead): Helvetica 400, text-ink-dim */}
+              <span className="text-[13px] text-ink-dim">{f.label}</span>
             </li>
           ))}
         </ul>
