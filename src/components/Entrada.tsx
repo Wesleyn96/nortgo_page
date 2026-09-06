@@ -7,14 +7,15 @@ import Image from "next/image";
 import logo from "../../public/brand/nortgo-full-logo-v3.png";
 import { APP_LOGIN_URL, APP_SIGNUP_URL } from "@/lib/links";
 
-// Ícones de linha (Tabler, inline — sem carregar fonte de ícone). Cor semântica
-// por tipo: agenda / dinheiro / tarefa.
+// Ícones de linha (Tabler, inline — sem carregar fonte de ícone). Cor por tipo,
+// dentro da paleta quente da marca (azul/roxo proibidos — docs/PROJETO.md §6.2):
+// agenda = cobre, dinheiro = verde (status), tarefa = laranja.
 const rowIcons = {
   calendar: (
     <svg
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#3B82F6"
+      stroke="#e0824a"
       strokeWidth="2"
       strokeLinecap="round"
       className="h-4 w-4 flex-none"
