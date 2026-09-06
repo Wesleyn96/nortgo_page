@@ -380,6 +380,47 @@ body {
   );
 }
 
+/* Tela de entrada — foto de fundo (mulher no sofá, luz quente) coberta por
+   um scrim escuro forte para o texto central continuar legível. A foto foi
+   otimizada de 2,4 MB (PNG) para ~43 KB (WebP). */
+.entrada {
+  background: #060606;
+}
+
+.entrada-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(6, 6, 6, 0.82) 0%,
+      rgba(6, 6, 6, 0.55) 34%,
+      rgba(6, 6, 6, 0.68) 66%,
+      rgba(6, 6, 6, 0.96) 100%
+    ),
+    radial-gradient(
+      110% 72% at 50% 40%,
+      rgba(6, 6, 6, 0.3),
+      rgba(6, 6, 6, 0.82) 80%
+    ),
+    url("/background-lifestyle.webp") 64% 42% / cover no-repeat;
+  filter: saturate(0.85) brightness(0.92);
+  opacity: 0;
+  animation: entradaPhotoIn 1.1s var(--ease-cinematic) forwards;
+}
+
+@keyframes entradaPhotoIn {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -482,5 +523,10 @@ body {
   }
   .star-glow {
     animation: none;
+  }
+  .entrada-photo {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

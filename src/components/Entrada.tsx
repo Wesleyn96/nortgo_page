@@ -1,10 +1,10 @@
 // Tela pública de entrada do NortGo — curta e direta. Explica o produto em
-// segundos ("você fala ou escreve; o NortGo organiza") e leva ao cadastro.
+// segundos ("você fala ou escreve; o NortGo organiza") e leva ao login.
 // Componente de servidor: a animação de entrada é CSS puro (.animate-rise em
 // globals.css, já com fallback de prefers-reduced-motion).
 
 import Image from "next/image";
-import icon from "../../public/brand/nortgo-icon.png";
+import logo from "../../public/brand/nortgo-full-logo-v3.png";
 import { APP_LOGIN_URL, APP_SIGNUP_URL } from "@/lib/links";
 
 const examples = [
@@ -13,29 +13,30 @@ const examples = [
   { phrase: "Comprar ração.", category: "Tarefa" },
 ];
 
+const stores = [
+  { src: "/brand/app-store.svg", alt: "Em breve na App Store" },
+  { src: "/brand/google-play.svg", alt: "Em breve no Google Play" },
+];
+
 export default function Entrada() {
   return (
-    <section className="hero-wash">
-      <div className="mx-auto flex min-h-[78vh] max-w-xl flex-col items-center justify-center px-6 py-20 text-center">
-        {/* Nome em texto (não PNG) para acompanhar o tema: "Nort" na cor de
-            texto do tema atual, "Go" no degradê cobre. */}
-        <div className="flex animate-rise items-center gap-2">
-          <Image
-            src={icon}
-            alt=""
-            width={40}
-            height={40}
-            priority
-            className="h-7 w-7 object-contain"
-          />
-          <span className="font-display text-[19px] font-bold tracking-tight">
-            <span className="text-ink">Nort</span>
-            <span className="text-grad">Go</span>
-          </span>
-        </div>
+    <section className="entrada relative isolate overflow-hidden">
+      {/* Foto de fundo (atmosfera) + camada escura por cima — em globals.css.
+          Decorativa: não entra na árvore de acessibilidade. */}
+      <div className="entrada-photo" aria-hidden="true" />
+
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-xl flex-col items-center justify-center px-6 py-16 text-center">
+        <Image
+          src={logo}
+          alt="NortGo"
+          width={480}
+          height={468}
+          priority
+          className="h-24 w-auto animate-rise sm:h-28"
+        />
 
         <h1
-          className="mt-10 animate-rise text-[1.9rem] font-medium leading-[1.1] tracking-[-0.02em] text-ink sm:text-[2.5rem] md:text-[3.25rem]"
+          className="mt-8 animate-rise text-[1.9rem] font-medium leading-[1.1] tracking-[-0.02em] text-ink sm:text-[2.5rem] md:text-[3.25rem]"
           style={{ animationDelay: "60ms" }}
         >
           Foco no que importa.
@@ -53,7 +54,7 @@ export default function Entrada() {
         </p>
 
         <ul
-          className="mt-9 w-full max-w-md animate-rise overflow-hidden rounded-2xl border border-line-strong bg-bg-raised text-left shadow-card"
+          className="mt-9 w-full max-w-md animate-rise overflow-hidden rounded-2xl border border-line-strong bg-bg-raised/80 text-left shadow-card backdrop-blur-sm"
           style={{ animationDelay: "180ms" }}
         >
           {examples.map((ex, i) => (
@@ -91,6 +92,28 @@ export default function Entrada() {
           >
             Já tenho conta
           </a>
+        </div>
+
+        <div
+          className="mt-14 flex animate-rise flex-col items-center gap-3"
+          style={{ animationDelay: "300ms" }}
+        >
+          <p className="eyebrow text-ink-faint">Lançamento em breve para</p>
+          <div className="flex items-center gap-3 opacity-90">
+            {stores.map((store) => (
+              // Selos oficiais das lojas (SVG local, 120×40, decorativo, sem
+              // link — os apps ainda não estão publicados). next/image bloqueia
+              // SVG sem dangerouslyAllowSVG; <img> é adequado aqui.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={store.src}
+                src={store.src}
+                alt={store.alt}
+                width={120}
+                height={40}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

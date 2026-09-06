@@ -32,4 +32,14 @@ describe("Entrada", () => {
       screen.getByRole("link", { name: "Já tenho conta" }),
     ).toHaveAttribute("href", APP_LOGIN_URL);
   });
+
+  it("anuncia o lançamento nas lojas, sem link (apps ainda não publicados)", () => {
+    render(<Entrada />);
+    expect(screen.getByText(/lançamento em breve para/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/App Store/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/Google Play/i)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /App Store|Google Play/i }),
+    ).not.toBeInTheDocument();
+  });
 });

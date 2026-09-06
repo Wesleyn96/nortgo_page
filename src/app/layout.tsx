@@ -1,17 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import Footer from "@/components/Footer";
-import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
-
-// Tema escuro é o padrão. Antes da primeira pintura: mantém 'dark' a menos
-// que a pessoa tenha escolhido 'light' explicitamente (via ThemeToggle).
-const themeScript =
-  "try{if(localStorage.getItem('nortgo-theme')==='light'){document.documentElement.removeAttribute('data-theme')}else{document.documentElement.setAttribute('data-theme','dark')}}catch(e){document.documentElement.setAttribute('data-theme','dark')}";
 
 const siteUrl = "https://www.nortgo.com";
 const title = "NortGo · Sua vida, organizada num só lugar";
 const description =
-  "NortGo reúne rotina, tarefas, notas, agenda, finanças e saúde num único sistema pessoal, e mostra apenas o que merece sua atenção agora. Em breve na Web, App Store e Google Play.";
+  "NortGo reúne rotina, tarefas, notas, agenda, finanças e saúde num único sistema pessoal, e mostra apenas o que merece sua atenção agora. Já disponível na Web; em breve na App Store e Google Play.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -71,17 +65,10 @@ const structuredData = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // suppressHydrationWarning: o themeScript abaixo escreve data-theme no
-    // <html> antes do React hidratar, então esse atributo diverge do SSR
-    // de propósito (padrão de anti-flash de tema).
-    <html
-      lang="pt-BR"
-      className="h-full antialiased"
-      data-theme="dark"
-      suppressHydrationWarning
-    >
+    // Site sempre no tema escuro (a tela de entrada tem foto de fundo escura
+    // e o logo tem o "Nort" branco). `data-theme="dark"` fixo no <html>.
+    <html lang="pt-BR" className="h-full antialiased" data-theme="dark">
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -90,7 +77,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col bg-bg text-ink font-display">
         <main className="flex-1">{children}</main>
         <Footer />
-        <ThemeToggle />
       </body>
     </html>
   );
