@@ -469,6 +469,37 @@ body {
   font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Brilho "neon" quente que segue o cursor (componente NeonCursor). Decorativo:
+   pointer-events none, mix-blend screen (só clareia, sobre o fundo escuro). */
+.neon-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 205, 155, 0.28) 0%,
+      rgba(240, 150, 92, 0.14) 20%,
+      rgba(224, 130, 74, 0.05) 46%,
+      transparent 70%
+    );
+}
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  .neon-cursor {
+    display: none;
+  }
+}
+
 /* Badges das seis áreas — círculo com relevo quente (mesma linguagem dos
    botões "liquid glass"): borda cobre fina, preenchimento radial âmbar,
    brilho externo suave. */
