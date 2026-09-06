@@ -7,10 +7,63 @@ import Image from "next/image";
 import logo from "../../public/brand/nortgo-full-logo-v3.png";
 import { APP_LOGIN_URL, APP_SIGNUP_URL } from "@/lib/links";
 
-const examples = [
-  { phrase: "Dentista amanhã às 15h.", category: "Agenda" },
-  { phrase: "Gastei R$ 120 no mercado.", category: "Finanças" },
-  { phrase: "Comprar ração.", category: "Tarefa" },
+// Ícones de linha (Tabler, inline — sem carregar fonte de ícone). Cor semântica
+// por tipo: agenda / dinheiro / tarefa.
+const rowIcons = {
+  calendar: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#3B82F6"
+      strokeWidth="2"
+      strokeLinecap="round"
+      className="h-4 w-4 flex-none"
+      aria-hidden="true"
+    >
+      <rect x="4" y="5" width="16" height="16" rx="2" />
+      <path d="M16 3v4M8 3v4M4 11h16" />
+    </svg>
+  ),
+  money: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#10B981"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 flex-none"
+      aria-hidden="true"
+    >
+      <path d="M16.7 8a3 3 0 0 0-2.7-2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1-2.7-2M12 3v3m0 12v3" />
+    </svg>
+  ),
+  task: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#F97316"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 flex-none"
+      aria-hidden="true"
+    >
+      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+      <path d="M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2" />
+    </svg>
+  ),
+} as const;
+
+const todayItems: {
+  icon: keyof typeof rowIcons;
+  title: string;
+  meta: string;
+  metaExpense?: boolean;
+}[] = [
+  { icon: "calendar", title: "Dentista amanhã às 15h", meta: "13:00" },
+  { icon: "money", title: "Gastei no mercado", meta: "R$ 120,00", metaExpense: true },
+  { icon: "task", title: "Comprar ração", meta: "15:00" },
 ];
 
 const stores = [
@@ -53,26 +106,53 @@ export default function Entrada() {
           você.
         </p>
 
-        <ul
-          className="mt-9 w-full max-w-md animate-rise overflow-hidden rounded-2xl border border-line-strong bg-bg-raised/80 text-left shadow-card backdrop-blur-sm"
+        {/* Prévia do que o NortGo devolve: a lista "HOJE" já organizada. */}
+        <div
+          className="mt-9 w-full max-w-md animate-rise overflow-hidden rounded-xl border border-line-strong bg-bg-raised-2/90 text-left shadow-card backdrop-blur-sm"
           style={{ animationDelay: "180ms" }}
         >
-          {examples.map((ex, i) => (
-            <li
-              key={ex.category}
-              className={`flex items-center justify-between gap-4 px-5 py-3.5 ${
-                i > 0 ? "border-t border-line" : ""
-              }`}
-            >
-              <span className="text-[15px] italic text-ink">
-                &ldquo;{ex.phrase}&rdquo;
-              </span>
-              <span className="shrink-0 rounded-full bg-copper-wash px-3 py-1 text-[12px] font-semibold text-copper-ink">
-                {ex.category}
-              </span>
-            </li>
-          ))}
-        </ul>
+          <div className="flex h-8 items-center justify-center border-b border-line-strong bg-white/[0.04] text-[12px] font-medium tracking-[0.06em] text-ink-dim">
+            HOJE
+          </div>
+          <ul aria-label="Lista de hoje, já organizada pelo NortGo">
+            {todayItems.map((item, i) => (
+              <li
+                key={item.title}
+                className={`flex items-center gap-3 py-2.5 pl-5 pr-3 ${
+                  i > 0 ? "border-t border-line" : ""
+                }`}
+              >
+                <span
+                  className="h-[18px] w-[18px] flex-none rounded-full border-[1.5px] border-ink-faint"
+                  aria-hidden="true"
+                />
+                {rowIcons[item.icon]}
+                <span className="flex-1 text-[14px] font-medium text-ink">
+                  {item.title}
+                </span>
+                <span
+                  className={`text-[12px] font-medium ${
+                    item.metaExpense ? "text-[#e0555b]" : "text-ink-faint"
+                  }`}
+                >
+                  {item.meta}
+                </span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4 flex-none text-ink-faint"
+                  aria-hidden="true"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <div
           className="mt-10 flex animate-rise flex-col items-center gap-4"

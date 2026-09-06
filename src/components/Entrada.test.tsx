@@ -11,11 +11,17 @@ describe("Entrada", () => {
     ).toBeInTheDocument();
   });
 
-  it("mostra os três exemplos de entrada → categoria", () => {
+  it("mostra a prévia da lista HOJE já organizada", () => {
     render(<Entrada />);
-    for (const category of ["Agenda", "Finanças", "Tarefa"]) {
-      expect(screen.getByText(category)).toBeInTheDocument();
+    expect(screen.getByText("HOJE")).toBeInTheDocument();
+    for (const title of [
+      "Dentista amanhã às 15h",
+      "Gastei no mercado",
+      "Comprar ração",
+    ]) {
+      expect(screen.getByText(title)).toBeInTheDocument();
     }
+    expect(screen.getByText("R$ 120,00")).toBeInTheDocument();
   });
 
   it("o CTA 'Começar' leva ao cadastro do app", () => {
