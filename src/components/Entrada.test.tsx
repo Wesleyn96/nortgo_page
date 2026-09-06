@@ -20,7 +20,7 @@ describe("Entrada", () => {
       "Parcela do empréstimo",
       "Consulta no dentista",
       "Compra no mercado",
-      "Ir ao dentista",
+      "Ir treinar",
     ]) {
       expect(screen.getByText(title)).toBeInTheDocument();
     }

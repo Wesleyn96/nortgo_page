@@ -161,7 +161,7 @@ const today: Row[] = [
     title: "Compra no mercado",
     metas: [{ text: "R$ 120,00", tone: "red" }],
   },
-  { icon: "task", title: "Ir ao dentista", metas: [{ text: "15:00", tone: "muted" }] },
+  { icon: "task", title: "Ir treinar", metas: [{ text: "15:00", tone: "muted" }] },
 ];
 
 function ListCard({ heading, rows }: { heading: string; rows: Row[] }) {
