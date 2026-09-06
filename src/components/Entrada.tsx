@@ -49,7 +49,7 @@ export default function Entrada() {
           style={{ animationDelay: "120ms" }}
         >
           Coloque no NortGo o que você precisa fazer, lembrar, registrar ou
-          organizar. Você fala ou escreve — o NortGo entende e organiza para
+          organizar. Você fala ou escreve, o NortGo entende e organiza para
           você.
         </p>
 
