@@ -1,0 +1,14 @@
+{
+  // Deploy do site como "Worker de assets estáticos" (sem código de servidor):
+  // `npm run build` gera ./out (Next com output: "export"), e o Cloudflare
+  // publica essa pasta num CDN global. Equivale ao antigo Cloudflare Pages.
+  // O arquivo out/_headers (vindo de public/_headers) é aplicado pelo Cloudflare
+  // — cabeçalhos de segurança (CSP, HSTS, etc.).
+  "name": "nortgo-page",
+  "compatibility_date": "2026-09-06",
+  "assets": {
+    "directory": "./out",
+    // Caminho desconhecido → serve a página 404 estática (out/404.html).
+    "not_found_handling": "404-page"
+  }
+}
