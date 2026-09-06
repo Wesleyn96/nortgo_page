@@ -4,8 +4,60 @@
 // globals.css, já com fallback de prefers-reduced-motion).
 
 import Image from "next/image";
+import type { ReactNode } from "react";
 import logo from "../../public/brand/nortgo-full-logo-v3.png";
 import { APP_LOGIN_URL, APP_SIGNUP_URL } from "@/lib/links";
+
+// As seis áreas da vida que o NortGo cobre. Ícones de linha (Tabler-style,
+// inline), 24×24, traço cobre — no modelo enviado pelo dono.
+const features: { label: string; icon: ReactNode }[] = [
+  {
+    label: "Agenda",
+    icon: (
+      <>
+        <rect x="4" y="5" width="16" height="16" rx="2" />
+        <path d="M16 3v4M8 3v4M4 10h16" />
+        <path d="M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01" />
+      </>
+    ),
+  },
+  {
+    label: "Tarefas",
+    icon: (
+      <>
+        <rect x="4" y="4" width="16" height="16" rx="2.5" />
+        <path d="M9 12.5l2 2 4.5-5" />
+      </>
+    ),
+  },
+  {
+    label: "Rotinas",
+    icon: <path d="M6 20v-6M12 20V6M18 20v-9" />,
+  },
+  {
+    label: "Finanças",
+    icon: (
+      <>
+        <ellipse cx="12" cy="7" rx="7" ry="3" />
+        <path d="M5 7v5c0 1.66 3.13 3 7 3s7-1.34 7-3V7" />
+        <path d="M5 12v5c0 1.66 3.13 3 7 3s7-1.34 7-3v-5" />
+      </>
+    ),
+  },
+  {
+    label: "Saúde",
+    icon: <path d="M3 12h4l2.5-7 4 15 2.5-8H21" />,
+  },
+  {
+    label: "Notas",
+    icon: (
+      <>
+        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+        <path d="M14 3v5h5M9 12h6M9 16h4" />
+      </>
+    ),
+  },
+];
 
 // Ícones de linha (Tabler, inline — sem carregar fonte de ícone), 16×16,
 // stroke 2. Cor semântica por categoria, conforme o modelo enviado pelo dono.
@@ -194,6 +246,37 @@ export default function Entrada() {
           organizar. Você fala ou escreve, o NortGo entende e organiza para
           você.
         </p>
+
+        {/* As seis áreas da vida que o NortGo cobre — badges com brilho quente
+            (combina com o "liquid glass" da página). 3×2 no mobile, 6×1 acima
+            de sm; nunca estoura a largura. */}
+        <ul
+          className="mt-10 grid w-full max-w-full animate-rise grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-6"
+          style={{ animationDelay: "150ms" }}
+          aria-label="O que o NortGo organiza"
+        >
+          {features.map((f) => (
+            <li key={f.label} className="flex flex-col items-center gap-2.5">
+              <span className="feature-badge grid h-14 w-14 place-items-center rounded-full">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#ef9f66"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-[26px] w-[26px]"
+                  aria-hidden="true"
+                >
+                  {f.icon}
+                </svg>
+              </span>
+              <span className="text-[13px] font-medium text-ink-dim">
+                {f.label}
+              </span>
+            </li>
+          ))}
+        </ul>
 
         {/* Prévia do que o NortGo devolve: atrasados e o dia, já organizados.
             Estrutura, tamanhos, ícones e cores conforme o modelo do dono.
