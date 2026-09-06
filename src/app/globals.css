@@ -421,6 +421,15 @@ body {
   }
 }
 
+/* Cards de prévia (ATRASADOS / HOJE): família de fontes do modelo. Inter só
+   renderiza para quem já tem instalada; os demais caem no fallback de sistema
+   (Segoe UI no Windows, San Francisco no Mac, Roboto no Android). Sem
+   @font-face / @import — nada é baixado (regra "sem webfont" mantida). */
+.cards-preview,
+.cards-preview * {
+  font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
 @keyframes rise {
   from {
     opacity: 0;

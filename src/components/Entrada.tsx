@@ -115,7 +115,7 @@ const today: Row[] = [
 function ListCard({ heading, rows }: { heading: string; rows: Row[] }) {
   return (
     <div className="overflow-hidden rounded-lg border border-[#333335] bg-[#1C1C1E]">
-      <div className="flex h-[31px] items-center justify-center border-b border-[#333335] bg-[#252527] text-[12px] font-medium tracking-[0.5px] text-[#E9EAED]">
+      <div className="flex h-[31px] items-center justify-center border-b border-[#333335] bg-[#252527] text-[12px] font-bold tracking-[0.5px] text-[#E9EAED]">
         {heading}
       </div>
       <ul aria-label={`${heading}: itens organizados pelo NortGo`}>
@@ -131,13 +131,13 @@ function ListCard({ heading, rows }: { heading: string; rows: Row[] }) {
               aria-hidden="true"
             />
             <RowIcon kind={row.icon} />
-            <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[#D4D6D8]">
+            <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-[#D4D6D8]">
               {row.title}
             </span>
             {row.metas.map((m) => (
               <span
                 key={m.text}
-                className={`flex-none text-[12px] font-medium ${
+                className={`flex-none text-[12px] font-semibold ${
                   // #F25555 no lugar do #D92626 do modelo: o vermelho original
                   // dava só 3.5:1 sobre o card (#1C1C1E), abaixo do mínimo WCAG
                   // AA (4.5:1) para texto de 12px. Este clareia p/ ~5:1.
@@ -196,15 +196,15 @@ export default function Entrada() {
         </p>
 
         {/* Prévia do que o NortGo devolve: atrasados e o dia, já organizados.
-            Estrutura, tamanhos, ícones e cores conforme o modelo do dono. */}
+            Estrutura, tamanhos, ícones e cores conforme o modelo do dono.
+            .cards-preview aplica a família de fontes do modelo (Inter → fallback
+            de sistema; sem @font-face, nada é baixado). */}
         <div
-          className="mt-9 w-full animate-rise rounded-xl border border-[#333335] bg-[#0B0B0D]/90 p-5 text-left shadow-card backdrop-blur-sm"
+          className="cards-preview mt-9 grid w-full animate-rise gap-4 text-left sm:grid-cols-2"
           style={{ animationDelay: "180ms" }}
         >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <ListCard heading="ATRASADOS" rows={overdue} />
-            <ListCard heading="HOJE" rows={today} />
-          </div>
+          <ListCard heading="ATRASADOS" rows={overdue} />
+          <ListCard heading="HOJE" rows={today} />
         </div>
 
         <div
