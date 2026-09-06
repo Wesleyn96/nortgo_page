@@ -76,8 +76,9 @@
 }
 
 /* ── Versão dark ("black") — estilo SaaS técnico premium (ref.: Better Stack),
-   com o BRONZE do NortGo no lugar do indigo. Ativada por
-   <html data-theme="dark"> (botão flutuante ThemeToggle + localStorage).
+   com o BRONZE do NortGo no lugar do indigo. Hoje é o único tema: o <html>
+   tem data-theme="dark" fixo (o ThemeToggle foi removido). Mantido como bloco
+   [data-theme="dark"] para reativar o tema claro no futuro sem reescrever.
    Só redefine tokens: o resto do site herda tudo daqui. */
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -146,7 +147,9 @@
 
 html {
   background: var(--color-bg);
-  color-scheme: dark;
+  /* color-scheme fica com o bloco :root[data-theme="dark"] abaixo, que está
+     sempre ativo (o <html> tem data-theme="dark" fixo — site só no escuro). */
+  color-scheme: light;
   /* Rede de segurança contra scroll horizontal: nada na tela de entrada deve
      estourar a largura, mas `clip` garante isso sem criar contêiner de
      rolagem (não quebra position: sticky, ao contrário de overflow: hidden). */
