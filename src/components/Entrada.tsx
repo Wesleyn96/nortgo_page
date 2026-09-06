@@ -131,13 +131,13 @@ type Row = {
 };
 
 const overdue: Row[] = [
-  { icon: "task", title: "Entregar proposta", metas: [{ text: "26d", tone: "red" }] },
+  { icon: "task", title: "Entregar proposta", metas: [{ text: "1d", tone: "red" }] },
   {
     icon: "money",
     title: "Cartão de crédito",
     metas: [
       { text: "R$ 3.000,00", tone: "red" },
-      { text: "15d", tone: "red" },
+      { text: "2d", tone: "red" },
     ],
   },
   {
@@ -145,7 +145,7 @@ const overdue: Row[] = [
     title: "Parcela do empréstimo",
     metas: [
       { text: "R$ 2.000,00", tone: "red" },
-      { text: "15d", tone: "red" },
+      { text: "2d", tone: "red" },
     ],
   },
 ];
