@@ -310,7 +310,7 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 |---|---|---|
 | Gestão de produto / escopo (o que é o MVP) | Compartilhado | 🔴 |
 | Identidade / autenticação | Base44 | 🟡 a inventariar |
-| Autorização por dado (CRUD, RLS/FLS, IDOR/BOLA) | Base44 | 🔴 não validado |
+| Autorização por dado (CRUD, RLS/FLS, IDOR/BOLA) | Base44 | 🟡 leitura validada (preliminar) — ver §11 2026-09-06 |
 | Arquitetura de dados / portabilidade | Base44 | 🔴 prova de saída pendente |
 | Ciclo de vida de dados (retenção, exclusão, exportação) | Base44 + jurídico | 🔴 |
 | Billing / assinatura / unit economics | Compartilhado + Mercado Pago | 🔴 |
@@ -360,6 +360,21 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-06** — **Teste de isolamento de dados no Base44 (item 2 dos 5
+  checks de "produto profissional") — aprovação preliminar.** Feito com 2 contas
+  reais (A no Chrome, B no Edge). Confirmado: (a) B abrindo a URL da nota de A,
+  autenticado, recebe "não encontrada" — o backend nega `GET .../entities/
+  InboxNote/{id}` de outro dono (teste IDOR por registro, passou); (b) B chamando
+  a API de listagem de tarefas (`/api/apps/{app}/entities/Tarefa`) recebe **só**
+  as tarefas dele; A idem — o filtro por dono é no servidor, não na tela;
+  (c) chamada anônima à API devolve `[]`. A API usa um handler único por
+  entidade (`/api/apps/{appId}/entities/{X}`) com a mesma checagem de login, então
+  o padrão provavelmente vale pro app todo. **Falta antes de cobrar:** teste de
+  **escrita** (B consegue editar/apagar item de A?) e as demais entidades. —
+  Impacto: item de autorização por dado sai de 🔴 p/ 🟡; não bloqueia o site,
+  bloqueia cobrança e divulgação ampla. Nota: o app roda em backend Python
+  (uvicorn) na Render, atrás de Cloudflare + Caddy — já é código rodando, não
+  Base44 "puro" (relevante pro item 3, portabilidade).
 - **2026-09-03** — **Arquitetura de domínios definida.** Site = `nortgo.com`;
   app (Base44) = `app.nortgo.com`; `nortgo.com.br` vira redirecionamento para
   `.com`. `nortgo.app` (que o dono não tem) removido do código. — Motivo: uma
@@ -443,7 +458,7 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 | Data | Alteração | Por |
 |---|---|---|
-| 2026-09-06 | Build para hospedagem estática: `output: "export"`, headers → `public/_headers`, `.nvmrc`, `force-static` nas rotas de metadata/OG. Pronto para Cloudflare Pages. | Claude + Wesley |
+| 2026-09-06 | Build para hospedagem estática: `output: "export"`, headers → `public/_headers`, `.nvmrc`, `force-static` nas rotas de metadata/OG. Pronto para Cloudflare Pages. Merge na `main` + push. Teste preliminar de isolamento de dados no Base44 (§11): leitura isolada confirmada, falta escrita. | Claude + Wesley |
 | 2026-09-05 | Dono aprovou a tela de entrada. Wordmark PNG branco → ícone + texto (some no tema claro); CSP sem `formspree.io`; `<mark>` de amostra da política com contraste. `npm run verify` ok. Commitado em `feat/tela-entrada` (não mergeado). | Claude + Wesley |
 | 2026-09-03 | Mudança de rumo: landing longa → tela de entrada curta; waitlist/Formspree removidos; CTA vai ao Base44. Domínio `nortgo.app` → `www.nortgo.com`; arquitetura de domínios + hospedagem (Cloudflare Pages) decididas; guia de infra entregue. Política de privacidade reescrita. Ambiente de dev profissionalizado (Codex gate, `npm run verify`, `CLAUDE.md`). Topo, §11, §12 atualizados. | Claude + Wesley |
 | 2026-09-02 | Merge dos branches na `main`; passo 4 iniciado (lint corrigido, Vitest + CI, script de reencode do vídeo); §3, §4, §6.3, §7, §10, §11 atualizadas. | Claude + Wesley |
