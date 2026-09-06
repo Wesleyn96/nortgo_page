@@ -364,6 +364,23 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-06** — **Arquitetura de pagamento definida (desenho; ativar depois).**
+  Billing será um **serviço separado** (Cloudflare Worker + D1), dono da verdade
+  da assinatura — **não** dentro do Base44, **não** nas páginas estáticas do
+  site. App e site apenas consultam `GET /entitlement?account_id=`. — Motivo: o
+  guia técnico do Mercado Pago (Access Token só no servidor, webhook HMAC-SHA256,
+  resposta 200 em 22s + retries → idempotência/banco, reconciliação por cron,
+  `external_reference` em toda transação) exige backend confiável; e "dentro do
+  Base44" reprova no teste da migração (vamos sair do Base44). Modalidade:
+  **Assinaturas** (`preapproval_plan` + `preapproval`), cartão no fluxo hospedado
+  do MP (SAQ-A). Âncora portátil: `account_id` = UUID nosso = `external_reference`
+  da assinatura. — Impacto: desenho completo em **`docs/billing-arquitetura.md`**.
+  Nada implementado; ativar só depois do passo 5.
+- **2026-09-06** — **Domínio `nortgo.com` no ar no Cloudflare Workers.** Migrado
+  da Locaweb: nameservers GoDaddy → Cloudflare; registro A antigo apagado;
+  `nortgo.com` e `www` como Custom Domain do Worker `nortgo-page`; SSL automático;
+  MX/TXT (e-mail Locaweb) preservados. — Impacto: site institucional em produção
+  no domínio real.
 - **2026-09-06** — **Fundo da tela de entrada trocado + Inter nos cards + rede
   de segurança anti-scroll-horizontal.** (a) A foto lifestyle deu lugar a duas
   artes "limbo de planeta com brilho quente" (`bg-desktop.webp` paisagem /
