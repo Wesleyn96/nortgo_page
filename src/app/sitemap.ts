@@ -1,5 +1,8 @@
 import type { MetadataRoute } from "next";
 
+// Exigido com output: "export" — gerado uma vez no build.
+export const dynamic = "force-static";
+
 const siteUrl = "https://www.nortgo.com";
 
 // Site pequeno e estático: só a home entra no índice. A política de

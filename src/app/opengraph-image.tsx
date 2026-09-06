@@ -2,6 +2,10 @@ import { ImageResponse } from "next/og";
 
 // Imagem social gerada em build (estática, servida de /opengraph-image).
 // Paleta espelha os tokens de globals.css — tema claro, cobre como acento.
+// `dynamic = "force-static"`: exigido com output: "export" — sem servidor,
+// a imagem é renderizada uma vez no build.
+export const dynamic = "force-static";
+
 export const alt =
   "NortGo: rotina, tarefas, notas, agenda, finanças e saúde num só sistema pessoal";
 export const size = { width: 1200, height: 630 };

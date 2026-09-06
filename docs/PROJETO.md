@@ -4,11 +4,18 @@
 > tomadas** e **para onde vamos**. Atualizar sempre que algo relevante mudar
 > (feature, decisão de produto/design, mudança de rumo, marco atingido).
 
-- **Última atualização:** 2026-09-05
+- **Última atualização:** 2026-09-06
 - **Responsável pelo projeto:** Wesley Nascimento
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
 - **Domínios:** site em `www.nortgo.com` (hoje página temporária na Locaweb) · app (Base44) em `www.nortgo.com.br` · alvo: `nortgo.com` = site, `app.nortgo.com` = app, `.com.br` redireciona. `nortgo.app` era só pretensão e foi removido do código.
 
+> **▶ Estado (2026-09-06):** preparando o **deploy no Cloudflare Pages hoje**.
+> O build virou export estático (`output: "export"` → pasta `out/`); os
+> cabeçalhos de segurança saíram do `next.config.ts` e foram para
+> `public/_headers` (formato do Pages). `.nvmrc` = 22. `npm run verify` passa.
+> Falta: fazer o merge na `main`, conectar o repo no Cloudflare Pages e apontar
+> o domínio. App Base44 já aceita cadastro público (confirmado pelo dono).
+>
 > **▶ Estado (2026-09-03):** mudança de rumo na landing (decisão do dono). A
 > landing longa deu lugar a uma **tela de entrada curta** (`src/components/Entrada.tsx`):
 > proposta em uma frase + 3 exemplos ("você fala/escreve → o NortGo organiza") +
@@ -358,6 +365,15 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
   separados travariam. — Impacto: código aponta para `www.nortgo.com`; URL do
   app centralizada em `src/lib/links.ts` (hoje `www.nortgo.com.br`). Guia de
   infraestrutura (hospedagem + custos, linguagem simples) entregue ao dono.
+- **2026-09-06** — **Build migrado para export estático** (`output: "export"`).
+  — Motivo: implementar a decisão de 2026-09-03 (Cloudflare Pages). Sem servidor,
+  o `headers()` do Next não roda → cabeçalhos de segurança foram para
+  `public/_headers` (formato nativo do Pages, precisa ser mantido em sincronia
+  com a política). Rotas de metadata (`robots`, `sitemap`, `opengraph-image`,
+  `twitter-image`) ganharam `dynamic = "force-static"`. `images.unoptimized`
+  ligado (otimizador precisa de servidor). — Impacto: `next build` gera `out/`;
+  deploy = subir essa pasta. Config do Pages: build `npm run build`, output dir
+  `out`, Node 22 (`.nvmrc`).
 - **2026-09-03** — **Hospedagem do site: sair da Locaweb para Cloudflare Pages.**
   — Motivo: site é 100% estático; Cloudflare Pages é grátis para uso comercial,
   com CDN/HTTPS/deploy-por-git; Vercel Hobby é proibido para uso comercial. —
@@ -424,6 +440,7 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 | Data | Alteração | Por |
 |---|---|---|
+| 2026-09-06 | Build para hospedagem estática: `output: "export"`, headers → `public/_headers`, `.nvmrc`, `force-static` nas rotas de metadata/OG. Pronto para Cloudflare Pages. | Claude + Wesley |
 | 2026-09-05 | Dono aprovou a tela de entrada. Wordmark PNG branco → ícone + texto (some no tema claro); CSP sem `formspree.io`; `<mark>` de amostra da política com contraste. `npm run verify` ok. Commitado em `feat/tela-entrada` (não mergeado). | Claude + Wesley |
 | 2026-09-03 | Mudança de rumo: landing longa → tela de entrada curta; waitlist/Formspree removidos; CTA vai ao Base44. Domínio `nortgo.app` → `www.nortgo.com`; arquitetura de domínios + hospedagem (Cloudflare Pages) decididas; guia de infra entregue. Política de privacidade reescrita. Ambiente de dev profissionalizado (Codex gate, `npm run verify`, `CLAUDE.md`). Topo, §11, §12 atualizados. | Claude + Wesley |
 | 2026-09-02 | Merge dos branches na `main`; passo 4 iniciado (lint corrigido, Vitest + CI, script de reencode do vídeo); §3, §4, §6.3, §7, §10, §11 atualizadas. | Claude + Wesley |
