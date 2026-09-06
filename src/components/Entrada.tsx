@@ -7,65 +7,150 @@ import Image from "next/image";
 import logo from "../../public/brand/nortgo-full-logo-v3.png";
 import { APP_LOGIN_URL, APP_SIGNUP_URL } from "@/lib/links";
 
-// Ícones de linha (Tabler, inline — sem carregar fonte de ícone). Cor por tipo,
-// dentro da paleta quente da marca (azul/roxo proibidos — docs/PROJETO.md §6.2):
-// agenda = cobre, dinheiro = verde (status), tarefa = laranja.
-const rowIcons = {
-  calendar: (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#e0824a"
-      strokeWidth="2"
-      strokeLinecap="round"
-      className="h-4 w-4 flex-none"
-      aria-hidden="true"
-    >
+// Ícones de linha (Tabler, inline — sem carregar fonte de ícone), 16×16,
+// stroke 2. Cor semântica por categoria, conforme o modelo enviado pelo dono.
+// O azul do calendário é exceção consciente à regra §6.2 (ver docs/PROJETO.md):
+// vale para ícone de mockup do app, não para a identidade da marca.
+function RowIcon({ kind }: { kind: "task" | "money" | "recurring" | "calendar" }) {
+  const common = {
+    viewBox: "0 0 24 24",
+    fill: "none",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    width: 16,
+    height: 16,
+    className: "flex-none",
+    "aria-hidden": true,
+  };
+  if (kind === "task") {
+    return (
+      <svg {...common} stroke="#F97316">
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+        <rect x="9" y="3" width="6" height="4" rx="2" />
+      </svg>
+    );
+  }
+  if (kind === "money") {
+    return (
+      <svg {...common} stroke="#10B981">
+        <path d="M16.7 8a3 3 0 0 0-2.7-2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1-2.7-2M12 3v3m0 12v3" />
+      </svg>
+    );
+  }
+  if (kind === "recurring") {
+    return (
+      <svg {...common} stroke="#22C55E">
+        <path d="M20 11a8 8 0 1 0-2.6 5.9M20 5v6h-6" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common} stroke="#3B82F6">
       <rect x="4" y="5" width="16" height="16" rx="2" />
       <path d="M16 3v4M8 3v4M4 11h16" />
     </svg>
-  ),
-  money: (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#10B981"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4 flex-none"
-      aria-hidden="true"
-    >
-      <path d="M16.7 8a3 3 0 0 0-2.7-2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1-2.7-2M12 3v3m0 12v3" />
-    </svg>
-  ),
-  task: (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#F97316"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-4 w-4 flex-none"
-      aria-hidden="true"
-    >
-      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-      <path d="M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2" />
-    </svg>
-  ),
-} as const;
+  );
+}
 
-const todayItems: {
-  icon: keyof typeof rowIcons;
+function Chevron() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#818898"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      width={15}
+      height={15}
+      className="flex-none"
+      aria-hidden="true"
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+type Row = {
+  icon: "task" | "money" | "recurring" | "calendar";
   title: string;
-  meta: string;
-  metaExpense?: boolean;
-}[] = [
-  { icon: "calendar", title: "Dentista amanhã às 15h", meta: "13:00" },
-  { icon: "money", title: "Gastei no mercado", meta: "R$ 120,00", metaExpense: true },
-  { icon: "task", title: "Comprar ração", meta: "15:00" },
+  metas: { text: string; tone: "red" | "muted" }[];
+};
+
+const overdue: Row[] = [
+  { icon: "task", title: "Entregar proposta", metas: [{ text: "26d", tone: "red" }] },
+  {
+    icon: "money",
+    title: "Cartão de crédito",
+    metas: [
+      { text: "R$ 3.000,00", tone: "red" },
+      { text: "15d", tone: "red" },
+    ],
+  },
+  {
+    icon: "recurring",
+    title: "Parcela do empréstimo",
+    metas: [
+      { text: "R$ 2.000,00", tone: "red" },
+      { text: "15d", tone: "red" },
+    ],
+  },
 ];
+
+const today: Row[] = [
+  {
+    icon: "calendar",
+    title: "Consulta no dentista",
+    metas: [{ text: "13:00", tone: "muted" }],
+  },
+  {
+    icon: "money",
+    title: "Compra no mercado",
+    metas: [{ text: "R$ 120,00", tone: "red" }],
+  },
+  { icon: "task", title: "Comprar ração", metas: [{ text: "15:00", tone: "muted" }] },
+];
+
+function ListCard({ heading, rows }: { heading: string; rows: Row[] }) {
+  return (
+    <div className="overflow-hidden rounded-lg border border-[#333335] bg-[#1C1C1E]">
+      <div className="flex h-[31px] items-center justify-center border-b border-[#333335] bg-[#252527] text-[12px] font-medium tracking-[0.5px] text-[#E9EAED]">
+        {heading}
+      </div>
+      <ul aria-label={`${heading}: itens organizados pelo NortGo`}>
+        {rows.map((row, i) => (
+          <li
+            key={row.title}
+            className={`flex h-[38px] items-center gap-2 pl-[14px] pr-[10px] ${
+              i < rows.length - 1 ? "border-b border-[#333335]" : ""
+            }`}
+          >
+            <span
+              className="h-4 w-4 flex-none rounded-full border-[1.5px] border-[#818898]"
+              aria-hidden="true"
+            />
+            <RowIcon kind={row.icon} />
+            <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[#D4D6D8]">
+              {row.title}
+            </span>
+            {row.metas.map((m) => (
+              <span
+                key={m.text}
+                className={`flex-none text-[12px] font-medium ${
+                  m.tone === "red" ? "text-[#D92626]" : "text-[#818898]"
+                }`}
+              >
+                {m.text}
+              </span>
+            ))}
+            <Chevron />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 const stores = [
   { src: "/brand/app-store.svg", alt: "Em breve na App Store" },
@@ -79,7 +164,7 @@ export default function Entrada() {
           Decorativa: não entra na árvore de acessibilidade. */}
       <div className="entrada-photo" aria-hidden="true" />
 
-      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-xl flex-col items-center justify-center px-6 py-16 text-center">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-3xl flex-col items-center justify-center px-6 py-16 text-center">
         <Image
           src={logo}
           alt="NortGo"
@@ -90,7 +175,7 @@ export default function Entrada() {
         />
 
         <h1
-          className="mt-8 animate-rise text-[1.9rem] font-medium leading-[1.1] tracking-[-0.02em] text-ink sm:text-[2.5rem] md:text-[3.25rem]"
+          className="mt-8 max-w-xl animate-rise text-[1.9rem] font-medium leading-[1.1] tracking-[-0.02em] text-ink sm:text-[2.5rem] md:text-[3.25rem]"
           style={{ animationDelay: "60ms" }}
         >
           Foco no que importa.
@@ -107,52 +192,16 @@ export default function Entrada() {
           você.
         </p>
 
-        {/* Prévia do que o NortGo devolve: a lista "HOJE" já organizada. */}
+        {/* Prévia do que o NortGo devolve: atrasados e o dia, já organizados.
+            Estrutura, tamanhos, ícones e cores conforme o modelo do dono. */}
         <div
-          className="mt-9 w-full max-w-md animate-rise overflow-hidden rounded-xl border border-line-strong bg-bg-raised-2/90 text-left shadow-card backdrop-blur-sm"
+          className="mt-9 w-full animate-rise rounded-xl border border-[#333335] bg-[#0B0B0D]/90 p-5 text-left shadow-card backdrop-blur-sm"
           style={{ animationDelay: "180ms" }}
         >
-          <div className="flex h-8 items-center justify-center border-b border-line-strong bg-white/[0.04] text-[12px] font-medium tracking-[0.06em] text-ink-dim">
-            HOJE
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ListCard heading="ATRASADOS" rows={overdue} />
+            <ListCard heading="HOJE" rows={today} />
           </div>
-          <ul aria-label="Lista de hoje, já organizada pelo NortGo">
-            {todayItems.map((item, i) => (
-              <li
-                key={item.title}
-                className={`flex items-center gap-3 py-2.5 pl-5 pr-3 ${
-                  i > 0 ? "border-t border-line" : ""
-                }`}
-              >
-                <span
-                  className="h-[18px] w-[18px] flex-none rounded-full border-[1.5px] border-ink-faint"
-                  aria-hidden="true"
-                />
-                {rowIcons[item.icon]}
-                <span className="flex-1 text-[14px] font-medium text-ink">
-                  {item.title}
-                </span>
-                <span
-                  className={`text-[12px] font-medium ${
-                    item.metaExpense ? "text-[#e0555b]" : "text-ink-faint"
-                  }`}
-                >
-                  {item.meta}
-                </span>
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4 flex-none text-ink-faint"
-                  aria-hidden="true"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </li>
-            ))}
-          </ul>
         </div>
 
         <div

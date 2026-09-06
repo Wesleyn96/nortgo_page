@@ -11,12 +11,15 @@ describe("Entrada", () => {
     ).toBeInTheDocument();
   });
 
-  it("mostra a prévia da lista HOJE já organizada", () => {
+  it("mostra a prévia: cards de atrasados e de hoje já organizados", () => {
     render(<Entrada />);
+    expect(screen.getByText("ATRASADOS")).toBeInTheDocument();
     expect(screen.getByText("HOJE")).toBeInTheDocument();
     for (const title of [
-      "Dentista amanhã às 15h",
-      "Gastei no mercado",
+      "Entregar proposta",
+      "Parcela do empréstimo",
+      "Consulta no dentista",
+      "Compra no mercado",
       "Comprar ração",
     ]) {
       expect(screen.getByText(title)).toBeInTheDocument();

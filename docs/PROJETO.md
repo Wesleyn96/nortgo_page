@@ -212,7 +212,7 @@ futura em `src/app/api/`, segredos em variáveis de ambiente.
 | Tema | Dark padrão (`<html data-theme="dark">`) | Estética "SaaS técnico premium"; light preservado |
 | Toggle de tema | Existe como **controle de prévia** | Não decidido se vira feature ou sai |
 | Superfície dark | Fundo `#060606`; cards por borda + sombra | Visual limpo |
-| Paleta | Só quente: cobre/bronze. **Azul e roxo proibidos** | Identidade da marca |
+| Paleta | Só quente: cobre/bronze na **identidade** (logo, títulos, botões, chrome). **Azul e roxo proibidos** aí. Exceção (decisão do dono, 2026-09-06): **ícones semânticos em mockups do app** podem usar cores funcionais — azul p/ agenda, verde p/ dinheiro, vermelho p/ atraso — porque representam a UI do produto, não a marca | Identidade da marca |
 | Gradiente dos títulos | `#E87B00 → #FFC77E → #E87B00`, só na frase-chave | Mesmo tom dos botões |
 | Botões | "Liquid glass" (iOS 26) | Relevo via `box-shadow` em camadas |
 | Tipografia | Stack de sistema (Helvetica). **Sem webfont** | Zero download |
@@ -364,6 +364,14 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-06** — **Prévia da tela de entrada: dois cards "ATRASADOS / HOJE"**
+  no modelo enviado pelo dono (substitui o card único de exemplos). Estrutura,
+  tamanhos, ícones SVG (Tabler inline) e cinzas idênticos ao modelo. — Motivo:
+  mostrar o que o produto *devolve* (o dia já organizado), não só a entrada. —
+  Impacto: **exceção à regra "azul proibido" (§6.2)** — o ícone de agenda usa
+  azul `#3B82F6` por ser ícone semântico de mockup do app, não identidade da
+  marca. A fonte "Inter" do modelo **não** foi adotada (regra "sem webfont"
+  mantida); tamanhos/pesos casados com a stack de sistema.
 - **2026-09-06** — **App fica em `nortgo.com.br` em definitivo** (decisão do
   dono). Revoga o alvo de 2026-09-03 (`app.nortgo.com` + `.com.br` redirecionando).
   — Motivo: decisão do dono; `.com.br` já é onde o app roda e é reconhecido. —
