@@ -271,8 +271,9 @@ export default function Entrada() {
                   {f.icon}
                 </svg>
               </span>
-              {/* mesmo peso/cor do subtítulo (.lead): Helvetica 400, text-ink-dim */}
-              <span className="text-[13px] text-ink-dim">{f.label}</span>
+              {/* mesma fonte da h1 "Foco no que importa." (Helvetica, herdada
+                  do body), em bold, a pedido do dono. */}
+              <span className="text-[13px] font-bold text-ink-dim">{f.label}</span>
             </li>
           ))}
         </ul>
