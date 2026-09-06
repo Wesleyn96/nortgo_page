@@ -215,7 +215,7 @@ futura em `src/app/api/`, segredos em variáveis de ambiente.
 | Paleta | Só quente: cobre/bronze na **identidade** (logo, títulos, botões, chrome). **Azul e roxo proibidos** aí. Exceção (decisão do dono, 2026-09-06): **ícones semânticos em mockups do app** podem usar cores funcionais — azul p/ agenda, verde p/ dinheiro, vermelho p/ atraso — porque representam a UI do produto, não a marca | Identidade da marca |
 | Gradiente dos títulos | `#E87B00 → #FFC77E → #E87B00`, só na frase-chave | Mesmo tom dos botões |
 | Botões | "Liquid glass" (iOS 26) | Relevo via `box-shadow` em camadas |
-| Tipografia | Stack de sistema (Helvetica). **Sem webfont** | Zero download |
+| Tipografia | Chrome/identidade: stack de sistema (Helvetica), **sem webfont**. Exceção (dono, 2026-09-06): os **cards de prévia** usam **Inter** — auto-hospedada (`public/fonts/`, pesos 600/700, ~24 KB cada, servida de `'self'`, `font-display: swap`). Sem Google Fonts, sem mudar CSP | Zero download no chrome; Inter só nos cards |
 | Prova social | Nunca inflar contagem | Confiança + CDC art. 37 |
 | Seção "Planos" | Desativada (código mantido) | Preços não definidos |
 
@@ -364,6 +364,15 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-06** — **Fundo da tela de entrada trocado + Inter nos cards + rede
+  de segurança anti-scroll-horizontal.** (a) A foto lifestyle deu lugar a duas
+  artes "limbo de planeta com brilho quente" (`bg-desktop.webp` paisagem /
+  `bg-responsive.webp` retrato, ~15 KB cada, troca por `@media 768px`); topo
+  quase preto → scrim leve. (b) Inter auto-hospedada só nos `.cards-preview`
+  (pesos 600/700, `public/fonts/`, servida de `'self'` — sem Google Fonts).
+  (c) `overflow-x: clip` em `html`/`body` + grid dos cards em `md:` (empilha
+  até 768px) — garante zero rolagem horizontal em qualquer largura. — Motivo:
+  pedidos do dono. — Impacto: exceção à regra "sem webfont" (§6.2), registrada.
 - **2026-09-06** — **Prévia da tela de entrada: dois cards "ATRASADOS / HOJE"**
   no modelo enviado pelo dono (substitui o card único de exemplos). Estrutura,
   tamanhos, ícones SVG (Tabler inline) e cinzas idênticos ao modelo. — Motivo:

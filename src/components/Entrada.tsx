@@ -114,7 +114,7 @@ const today: Row[] = [
 
 function ListCard({ heading, rows }: { heading: string; rows: Row[] }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-[#333335] bg-[#1C1C1E]">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-[#333335] bg-[#1C1C1E]">
       <div className="flex h-[31px] items-center justify-center border-b border-[#333335] bg-[#252527] text-[12px] font-bold tracking-[0.5px] text-[#E9EAED]">
         {heading}
       </div>
@@ -200,7 +200,7 @@ export default function Entrada() {
             .cards-preview aplica a família de fontes do modelo (Inter → fallback
             de sistema; sem @font-face, nada é baixado). */}
         <div
-          className="cards-preview mt-9 grid w-full animate-rise gap-4 text-left sm:grid-cols-2"
+          className="cards-preview mt-9 grid w-full max-w-full animate-rise gap-4 text-left md:grid-cols-2"
           style={{ animationDelay: "180ms" }}
         >
           <ListCard heading="ATRASADOS" rows={overdue} />

@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/* Inter — usada só nos cards de prévia (.cards-preview), a pedido do dono.
+   Auto-hospedada (subset latin, pesos 600/700), servida de 'self' — sem
+   Google Fonts, sem alterar a CSP. ~24 KB por peso, font-display: swap. */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/inter-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/inter-700.woff2") format("woff2");
+}
+
 :root {
   /* Brand palette — see anotações.txt §03. Warm only: no blue/purple.
      Light theme: white canvas, warm-neutral inks, copper as the single accent. */
@@ -128,13 +146,18 @@
 
 html {
   background: var(--color-bg);
-  color-scheme: light;
+  color-scheme: dark;
+  /* Rede de segurança contra scroll horizontal: nada na tela de entrada deve
+     estourar a largura, mas `clip` garante isso sem criar contêiner de
+     rolagem (não quebra position: sticky, ao contrário de overflow: hidden). */
+  overflow-x: clip;
 }
 
 body {
   background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-display);
+  overflow-x: clip;
 }
 
 ::selection {
@@ -380,9 +403,11 @@ body {
   );
 }
 
-/* Tela de entrada — foto de fundo (mulher no sofá, luz quente) coberta por
-   um scrim escuro forte para o texto central continuar legível. A foto foi
-   otimizada de 2,4 MB (PNG) para ~43 KB (WebP). */
+/* Tela de entrada — fundo: limbo de um planeta com o brilho quente do
+   nascer do sol contra o preto do espaço. Topo quase preto (texto legível
+   sem scrim pesado); só um degradê suave escurece a base, onde ficam os
+   botões, por cima do brilho. Duas artes: desktop (paisagem) e responsivo
+   (retrato). PNG ~1,1 MB → WebP ~15 KB cada. */
 .entrada {
   background: #060606;
 }
@@ -394,20 +419,31 @@ body {
   background:
     linear-gradient(
       180deg,
-      rgba(6, 6, 6, 0.5) 0%,
-      rgba(6, 6, 6, 0.28) 38%,
-      rgba(6, 6, 6, 0.42) 68%,
-      rgba(6, 6, 6, 0.9) 100%
+      rgba(6, 6, 6, 0.28) 0%,
+      rgba(6, 6, 6, 0.04) 26%,
+      rgba(6, 6, 6, 0.1) 52%,
+      rgba(6, 6, 6, 0.55) 84%,
+      rgba(6, 6, 6, 0.92) 100%
     ),
-    radial-gradient(
-      130% 85% at 40% 42%,
-      rgba(6, 6, 6, 0.08),
-      rgba(6, 6, 6, 0.55) 82%
-    ),
-    url("/background-lifestyle.webp") 64% 42% / cover no-repeat;
-  filter: saturate(0.92) brightness(1);
+    url("/bg-responsive.webp") center / cover no-repeat;
   opacity: 0;
   animation: entradaPhotoIn 1.1s var(--ease-cinematic) forwards;
+}
+
+@media (min-width: 768px) {
+  .entrada-photo {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(6, 6, 6, 0.3) 0%,
+        rgba(6, 6, 6, 0.05) 24%,
+        rgba(6, 6, 6, 0.16) 48%,
+        rgba(6, 6, 6, 0.44) 68%,
+        rgba(6, 6, 6, 0.74) 86%,
+        rgba(6, 6, 6, 0.94) 100%
+      ),
+      url("/bg-desktop.webp") center / cover no-repeat;
+  }
 }
 
 @keyframes entradaPhotoIn {
