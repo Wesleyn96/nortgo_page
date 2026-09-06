@@ -7,7 +7,7 @@
 - **Última atualização:** 2026-09-06
 - **Responsável pelo projeto:** Wesley Nascimento
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
-- **Domínios:** site em `www.nortgo.com` (hoje página temporária na Locaweb) · app (Base44) em `www.nortgo.com.br` · alvo: `nortgo.com` = site, `app.nortgo.com` = app, `.com.br` redireciona. `nortgo.app` era só pretensão e foi removido do código.
+- **Domínios (decisão 2026-09-06):** `nortgo.com` = site institucional (Cloudflare Workers, no ar) · `nortgo.com.br` = app (Base44/Render), **em definitivo**. Dois domínios, propósitos distintos, **sem redirecionamento** entre eles. Revoga o alvo anterior (`app.nortgo.com` + `.com.br` redirecionando). Registrar `nortgo.com`: GoDaddy → nameservers hoje na Locaweb → migrando p/ Cloudflare. `nortgo.app` era só pretensão, removido do código.
 
 > **▶ Estado (2026-09-06):** **site NO AR** em
 > `https://nortgo-page.wesleynascimentojob.workers.dev` (Cloudflare Workers —
@@ -364,6 +364,14 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-06** — **App fica em `nortgo.com.br` em definitivo** (decisão do
+  dono). Revoga o alvo de 2026-09-03 (`app.nortgo.com` + `.com.br` redirecionando).
+  — Motivo: decisão do dono; `.com.br` já é onde o app roda e é reconhecido. —
+  Impacto: `nortgo.com` = só o site; `nortgo.com.br` = só o app; sem
+  redirecionamento entre eles. `src/lib/links.ts` mantém `nortgo.com.br` (comentário
+  atualizado). Cobrança futura: acontece dentro do app, em `nortgo.com.br`
+  (Mercado Pago não liga pro TLD; NF/imposto/conta MP amarrados ao CNPJ, não ao
+  domínio).
 - **2026-09-06** — **Site no ar no Cloudflare Workers.** A conta nova do
   Cloudflare só oferece o fluxo Workers (Pages absorvido). Como o site é
   `output: "export"` (estático), foi feito um "Worker de assets": `wrangler.jsonc`

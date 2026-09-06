@@ -1,9 +1,9 @@
 // Endereço do app NortGo (Base44).
 //
-// Hoje o app está publicado em www.nortgo.com.br. A intenção (ver
-// docs/PROJETO.md e o guia de infraestrutura) é migrar para
-// app.nortgo.com — quando o DNS de app.nortgo.com estiver ligado ao
-// Base44, troque só a constante abaixo.
+// Decisão 2026-09-06: o app fica em nortgo.com.br em definitivo; o site
+// institucional fica em nortgo.com. São dois domínios com propósitos
+// distintos, sem redirecionamento entre eles. Se algum dia mudar, troque
+// só a constante abaixo.
 const APP_BASE_URL = "https://www.nortgo.com.br";
 
 // Se o Base44 expõe rotas separadas para cadastro e login, ajuste aqui.
