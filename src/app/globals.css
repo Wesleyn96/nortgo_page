@@ -527,6 +527,30 @@ body {
   }
 }
 
+/* Bloco "em breve nas lojas" — discreto: fica abaixo do CTA e não deve
+   competir com ele. Rótulo menor que o .eyebrow padrão, selos menores que
+   os 40px do arquivo, e um respiro extra acima que cresce um pouco com a
+   altura da tela (fica ~0 em telas baixas). */
+.entrada-stores {
+  margin-top: clamp(0.25rem, 1.6vh, 1.1rem);
+}
+
+.entrada-stores .eyebrow {
+  font-size: 0.625rem; /* 10px (padrão é 12px) */
+  letter-spacing: 0.12em;
+}
+
+.entrada-stores img {
+  height: 1.85rem; /* ~30px (arquivo é 40px) */
+  width: auto;
+}
+
+@media (max-height: 720px) {
+  .entrada-stores img {
+    height: 1.6rem;
+  }
+}
+
 /* Badges das seis áreas — círculo com relevo quente (mesma linguagem dos
    botões "liquid glass"): borda cobre fina, preenchimento radial âmbar,
    brilho externo suave. */

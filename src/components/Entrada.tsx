@@ -145,8 +145,11 @@ export default function Entrada() {
           </a>
         </div>
 
+        {/* Selos das lojas — menores e um pouco mais afastados do resto
+            (.entrada-stores em globals.css: rótulo 10px, selos ~30px de
+            altura, respiro extra fluido com a altura da tela). */}
         <div
-          className="flex animate-rise flex-col items-center gap-3"
+          className="entrada-stores flex animate-rise flex-col items-center gap-2.5"
           style={{ animationDelay: "300ms" }}
         >
           <p className="eyebrow text-ink-faint">Lançamento em breve para</p>
