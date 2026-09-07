@@ -109,7 +109,9 @@ subscriptions:
 BEGIN;
 UPDATE subscriptions
    SET status = :new_status, paid_through = :mp_paid_through,
-       last_mp_event_ts = :mp_event_ts, last_payment_id = :pid, updated_at = now()
+       last_mp_event_ts = :mp_event_ts, last_payment_id = :pid,
+       as_of = as_of + 1,                        -- versão monotônica do estado
+       updated_at = now()
  WHERE account_id = :acc
    AND last_mp_event_ts < :mp_event_ts          -- monotônico: ignora evento mais velho
    AND status NOT IN ('revoked','canceled','abandoned')  -- terminais não voltam
@@ -120,6 +122,9 @@ COMMIT;
 
 - Se o `UPDATE` afeta 0 linhas → evento obsoleto ou conflito com terminal →
   registra no `audit_log` e responde 200 (não é erro, é ordem).
+- `as_of` (inteiro sempre-crescente, +1 a cada transição) é o que o Base44 usa
+  pra descartar resultado de pull obsoleto (§6.2). Vai também no
+  `entitlement token` e na resposta do `/entitlement/check`.
 
 ### 3.4 Deduplicação por efeito, não só por `event_id`
 
@@ -140,10 +145,13 @@ ninguém entra (fail-closed) ou todos entram de graça (fail-open).
 
 ### 4.1 Token de direito assinado + cache no app
 
-- `POST /entitlement/check` devolve um **entitlement token**: JWT assinado pelo
-  billing, TTL **24 h**, payload `{ email, plan, valid_until, issued_at }`.
+- `POST /entitlement/check` devolve `{ entitled, plan, valid_until, as_of, token }`.
+  O **entitlement token** é um JWT assinado pelo billing, TTL **24 h**, payload
+  `{ email, plan, valid_until, as_of, issued_at }`.
 - O Base44 **guarda esse token** na sessão do usuário. Enquanto ele for válido
   (não expirou), o Base44 **decide localmente** — não chama o billing.
+- Ao aplicar, o Base44 compara `as_of` (§6.2): token com `as_of` menor que o já
+  guardado é descartado (protege contra reaplicação de token velho).
 - Só chama o billing quando: token ausente, ou faltando < 2 h pra expirar.
 - Efeito colateral bom: consulta vira **rara** (1×/dia por usuário ativo), o que
   mantém tudo dentro do free tier do Cloudflare (100k req/dia).
@@ -197,17 +205,46 @@ O automático **depende** de o Base44 conseguir **pelo menos um** dos dois:
 
 | Mecanismo | O que o Base44 precisa | Se não der |
 |---|---|---|
-| **Push** (billing → Base44): `POST {base44}/hooks/entitlement` com `{ email, plan, valid_until }` + header `X-Billing-Signature` (HMAC) | aceitar um endpoint HTTP externo autenticado que grava um campo `plan`/`valid_until` no usuário | sem push: acesso só libera no 1º login (via pull) — aceitável |
-| **Pull** (Base44 → billing) no login: `POST {billing}/entitlement/check` com a asserção assinada | fazer 1 chamada HTTP no fluxo de login e ler a resposta | **sem pull: não há automático seguro** — o Base44 nunca fica sabendo de chargeback/cancelamento. Aí: manual, ou trocar a plataforma do app |
+| **Push** (billing → Base44): `POST {base44}/hooks/billing-changed` com **só** `{ email, changed_at }` + `X-Billing-Signature` (HMAC). **NÃO manda `plan` nem `valid_until`.** É um sinal "re-verifique este e-mail", não um dado. | aceitar um endpoint HTTP externo autenticado que dispara uma re-consulta (pull) | sem push: acesso só atualiza no próximo login ou no ciclo da reconciliação — aceitável |
+| **Pull** (Base44 → billing): `POST {billing}/entitlement/check` com a asserção assinada. Disparado **no login** E **ao receber um push**. Resposta traz `{ entitled, plan, valid_until, as_of, token }` — `as_of` = versão monotônica do estado no billing. | fazer 1 chamada HTTP (no login e no handler do push) e ler a resposta | **sem pull: não há automático seguro** — o Base44 nunca fica sabendo de chargeback/cancelamento. Aí: manual, ou trocar a plataforma do app |
 
 ➡️ **O spike (§10) tem que confirmar o Pull.** É o item que decide se "automático"
 é possível neste app.
 
-### 6.1 O campo no Base44
+### 6.1 Push NÃO carrega estado — resolve "stale push restaura acesso revogado"
 
-O Base44 guarda por usuário: `plan` (`free`/`plus`), `plan_valid_until` (data),
-`billing_account_ref` (o nosso `account_id`, pra suporte). O app libera feature
-Plus se `plan == 'plus'` **e** `plan_valid_until > hoje`.
+O único jeito de um push atrasado reabrir um acesso revogado seria o Base44
+**confiar no conteúdo** do push. Então o push **não tem conteúdo de estado**:
+
+- Push = `{ email, changed_at }`. O Base44, ao receber, **ignora o corpo** (só
+  usa o `email`) e **faz um pull**. Quem manda é sempre o pull, que lê o estado
+  **monotônico** do billing (§3) — onde `revoked`/`canceled` são terminais.
+- Push perdido → sem prejuízo: o pull do próximo login + a **reconciliação
+  diária** (que também dispara pull ao reparar) cobrem. Janela máxima de acesso
+  indevido pós-chargeback = TTL do token de direito (24 h) ou o próximo login,
+  o que vier antes. Documentado como limite conhecido.
+
+### 6.2 O Base44 aplica o resultado do pull de forma monotônica
+
+O Base44 guarda por usuário: `plan` (`free`/`plus`), `plan_valid_until`,
+`billing_as_of` (o `as_of` da última resposta aplicada), `billing_account_ref`.
+
+Regra de escrita no Base44 (uma comparação, não uma máquina de estados):
+
+```
+se resposta.as_of  >  billing_as_of  →  aplica (plan, plan_valid_until, as_of)
+se resposta.as_of  <= billing_as_of  →  descarta (resultado obsoleto)
+```
+
+- `as_of` é um inteiro sempre-crescente que o billing incrementa a **cada
+  transição de estado** (§3.3). Dois pulls concorrentes → o mais velho não
+  sobrescreve o mais novo.
+- O app libera Plus só se `plan == 'plus'` **e** `plan_valid_until > hoje`.
+- Se o Base44 **não conseguir** fazer essa comparação condicional (plano
+  limitado): o pull passa a devolver **só um token de direito assinado com TTL
+  curto (ex. 1 h)** e o Base44 guarda "o token mais recente que recebeu"; expira
+  sozinho, então um token velho reaplicado morre em 1 h. Pior caso vira ruído de
+  1 h, não restauração permanente.
 
 ---
 
@@ -272,6 +309,7 @@ decisão "Worker+D1" é condicional ao spike.
 | 8 | Validação de valor (bate com o preço do plano) | §8 |
 | 9 | Token de direito assinado + cache + janela de tolerância 72 h | **§4 (Codex #3)** |
 | 10 | Resposta distinta "não tem" × "não consegui" | **§4.2 (Codex #3)** |
+| 10b | Push **não carrega estado** (só sinal "re-verifique"); Base44 aplica pull por `as_of` monotônico → push atrasado não restaura acesso revogado | **§6.1–6.2 (stop-gate Codex)** |
 | 11 | Reconciliador que **repara** (não só alerta) + fila de exceções + runbook | **§5 (Codex #5)** |
 | 12 | Chargeback → `revoked` terminal e dominante + push imediato | §3.1, §5 |
 | 13 | `audit_log` append-only | §3.3 |
