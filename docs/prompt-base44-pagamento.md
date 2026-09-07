@@ -15,12 +15,24 @@ CONTEXTO
 
 O NortGo é um app de organização pessoal construído aqui no Base44, publicado em
 www.nortgo.com.br. Ele JÁ TEM cadastro e login funcionando (e-mail/senha e
-Google) que levam direto ao app.
+Google).
 
-Existe também um site institucional separado em www.nortgo.com (site estático,
-hospedado no Cloudflare, FORA do Base44). Ele é só a porta de entrada: o botão
-"Assinar" dele manda o visitante para www.nortgo.com.br. O site NÃO processa
-pagamento e NÃO guarda nada — não mexa nele, ele não é seu.
+DOMÍNIOS:
+- www.nortgo.com  = a LANDING (página de apresentação). Site estático, hospedado
+  no Cloudflare, FORA do Base44. Não mexa nele.
+- www.nortgo.com.br = ESTE app (Base44).
+- Os dois domínios devem levar o visitante à MESMA landing. Para isso: quando
+  alguém acessa www.nortgo.com.br SEM ESTAR LOGADO e SEM UM CAMINHO específico
+  (a raiz "/"), o Base44 deve REDIRECIONAR para https://www.nortgo.com.
+  Usuário JÁ LOGADO na raiz → vai direto pro app, como hoje.
+- A landing (www.nortgo.com) tem um botão "Assinar" que aponta para
+  https://www.nortgo.com.br/login. É por aí que o visitante entra.
+
+FLUXO DE ENTRADA (a ordem):
+1. Visitante na landing clica "Assinar" → vai para www.nortgo.com.br/login.
+2. Faz o cadastro / login (que já existe).
+3. Depois de logado, se NÃO tiver assinatura válida → o app o leva para
+   www.nortgo.com.br/planos (o paywall). Se tiver → entra no app normal.
 
 MUDANÇA DE MODELO: o NortGo passa a ser um PRODUTO PAGO. Sem assinatura ativa, o
 app NÃO abre. Preço: R$ 9,90/mês, cobrança RECORRENTE no CARTÃO DE CRÉDITO via
@@ -259,6 +271,8 @@ Antes de construir, me diga claramente se ESTE app consegue:
   b) Expor um ENDPOINT PÚBLICO que RECEBE POST externo e me dá acesso ao CORPO
      CRU + HEADERS da requisição (necessário para validar o x-signature).  [sim/não]
   c) Rodar uma FUNÇÃO AGENDADA (cron) diária.  [sim/não]
+  d) REDIRECIONAR a raiz "/" de www.nortgo.com.br, quando o visitante NÃO está
+     logado, para uma URL externa (https://www.nortgo.com).  [sim/não]
 
 Se (b) for "não": me avise — nesse caso o webhook do Mercado Pago será recebido
 por um pequeno serviço externo (sem banco) que valida a assinatura e chama uma
