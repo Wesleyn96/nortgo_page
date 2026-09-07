@@ -256,28 +256,40 @@ A linha em `push_outbox` é escrita **na mesma transação** da mudança de dire
 
 ### 3.5.1 Reconciliador do canal de notificação (resolve "dead-letter não converge")
 
-Um push que ficou preso (faixa lenta) **não gera linha nova** nos sweeps
-seguintes, porque `eff_*` já está correto no billing. Então há um job **diário**,
-junto da reconciliação (§5), que garante a convergência do **canal**, não só dos
-fatos de dinheiro:
+Um push preso **não gera linha nova** nos sweeps seguintes (o `eff_*` já está
+certo no billing). E uma conta stale no Base44 cujo `billing_as_of` **nunca
+muda** ficaria invisível pra qualquer sync incremental. Então a convergência do
+**canal** é uma **varredura COMPLETA e repetível**, não um delta:
 
 1. **Redrive:** toda linha de `push_outbox` sem `delivered_at` (inclusive faixa
-   lenta) → força `next_attempt_at = now()` uma vez por dia, além do ciclo de
-   12 h. (Cobre falha longa do lado do Base44 que já se resolveu.)
-2. **Detecção de drift:** o billing pergunta ao Base44, em lote,
-   `GET {base44}/billing-sync?since=<cursor>` → o Base44 devolve, por usuário,
-   o `billing_as_of` que ele tem guardado. Para **toda conta** (sem filtrar por
-   `eff_entitled` — o drift perigoso é justamente `eff_entitled=false` no billing
-   mas ainda Plus no Base44, ex. chargeback com push perdido) onde
-   `base44.billing_as_of < billing.state_version` **e não há linha de outbox
-   pendente** → o billing **insere uma linha de outbox nova**. Assim o drift é
-   detectado e re-notificado **nas duas direções** (liberar E revogar).
-   - Se o Base44 **não expõe** esse endpoint de leitura em lote → backstop:
-     **heartbeat semanal** — o billing enfileira uma re-notificação pra **toda
-     conta que já teve alguma assinatura** (`state_version > 0`), **entitled ou
-     não**, 1×/semana. Barato (só um gatilho de pull) e garante teto de 7 dias
-     pro drift silencioso, inclusive de revogações/cancelamentos.
-3. Toda ação gera `audit_log`.
+   lenta) → força `next_attempt_at = now()` 1×/dia, além do ciclo de 12 h.
+
+2. **Varredura completa das contas.** A fonte da lista é a tabela `accounts` do
+   **billing** (que o billing controla 100%), não um feed de mudanças do Base44.
+   - Pagina por `account_id` (PK estável), **`WHERE account_id > :last_seen ORDER
+     BY account_id LIMIT :n`**. Um "passe" percorre **todas** as contas; ao
+     chegar ao fim, `last_seen` volta a zero e recomeça. **Sem `since`, sem
+     janela de tempo** — nenhuma conta escapa entre passes.
+   - Alvo: um passe completo por **dia** (ritmo do paginador ajustado à
+     quantidade de contas; hoje são dezenas/centenas → trivial).
+   - Para cada página de contas, o billing consulta o Base44 **pelo conjunto
+     exato de e-mails daquela página**: `POST {base44}/billing-sync/lookup
+     { emails: [...] }` → `{ email: billing_as_of }`. E-mail **ausente** na
+     resposta = `billing_as_of = 0` (o Base44 nunca soube dessa conta).
+   - Regra (vale nas **duas direções**, sem filtrar por `eff_entitled`):
+     `base44_as_of < billing.state_version` **e** sem linha de outbox pendente
+     pra essa conta → **INSERT** de outbox novo. O pull subsequente entrega o
+     estado atual (liberar **ou** revogar).
+   - Orfão inverso (o Base44 reporta um e-mail que o billing não tem) → só
+     `audit_log` + alerta; o billing não cria conta a partir do Base44.
+
+3. **Se o Base44 não expõe o `lookup`** → backstop cego: a mesma varredura
+   completa, mas **sem comparar** — enfileira uma re-notificação pra **toda**
+   conta a cada passe. Ritmo: 1 passe/semana (teto de drift silencioso = 7 dias,
+   nos dois sentidos). Ainda barato (só gatilho de pull).
+
+4. Toda ação gera `audit_log`; contadores de "contas re-notificadas por passe"
+   viram métrica (um número alto e persistente = o Base44 está perdendo pushes).
 
 ---
 
@@ -483,7 +495,7 @@ decisão "Worker+D1" é condicional ao spike.
 | 10b | Push **não carrega estado** (só sinal "re-verifique"); Base44 aplica pull por `as_of` = `accounts.state_version` (**por conta, nunca reseta**, sobe **só quando o direito efetivo muda**) → push atrasado não restaura revogado, contador não bloqueia reativação, e **assinatura `pending` nova não remove** um Plus ainda válido de outra assinatura | **§3.2–3.3, §6.1–6.2 (stop-gate Codex)** |
 | 11 | Reconciliador que **repara** (não só alerta) + fila de exceções + runbook | **§5 (Codex #5)** |
 | 12 | Chargeback → `revoked` terminal e dominante + outbox (drenado em ~1 min) | §3.1, §5 |
-| 12b | Push via **outbox transacional** + drenador que **nunca desiste** (faixa lenta 12 h) + **reconciliador do canal** (redrive + drift vs `billing_as_of` do Base44 sobre **todas as contas**, ou heartbeat semanal sobre **toda conta com `state_version > 0`, entitled ou não**) → crash pós-commit não perde a notificação; dead-letter converge sem login; drift converge **nas duas direções** (liberar E revogar); teto = 7 dias | **§3.2–3.5.1, §5, §6.1 (stop-gate Codex ×3)** |
+| 12b | Push via **outbox transacional** + drenador que **nunca desiste** + **reconciliador do canal** = **varredura COMPLETA** da tabela `accounts` do billing (paginada por PK, sem `since`, um passe/dia cobre 100% das contas) comparando cada uma com o `billing_as_of` do Base44 (`POST /billing-sync/lookup`; ausente = 0) → re-notifica drift **nos dois sentidos**. Sem `lookup` → re-notifica tudo 1×/semana. Crash pós-commit não perde nada; dead-letter/stale convergem sem login; teto = 7 dias | **§3.2–3.5.1, §5, §6.1 (stop-gate Codex ×4)** |
 | 13 | `audit_log` append-only | §3.3 |
 | 14 | Menor privilégio: D1 não é lido pelo app; app só chama `/entitlement/check` e `/cancel` | §2.2, §6 |
 | 15 | Sandbox primeiro; `test`/`prod` separados | §10 |
@@ -504,8 +516,9 @@ decisão "Worker+D1" é condicional ao spike.
 3. **Base44:** provar o **Pull** — o app consegue, no login, fazer um `POST`
    HTTP pra uma URL externa, mandar um header assinado e ler a resposta? E o
    **Push** — o app aceita um endpoint externo (com secret) que dispara um pull?
-   E o **`GET /billing-sync` em lote** (§3.5.1) — o app consegue devolver, por
-   usuário, o `billing_as_of` que guardou? (Se não → usa o heartbeat semanal.)
+   E o **`POST /billing-sync/lookup { emails: [...] }`** (§3.5.1) — o app
+   consegue receber uma lista de e-mails e devolver o `billing_as_of` que
+   guardou pra cada? (Se não → backstop cego: re-notifica tudo 1×/semana.)
 4. Medir: o cron de reconciliação (baixar + parsear um CSV de ~10k linhas) cabe
    no limite de CPU do Worker? Se não → reconciliação vai pra Render.
 
