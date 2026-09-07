@@ -75,7 +75,7 @@ export default function Entrada() {
           rodapé (flex-1); o ritmo vertical vem do `gap` (.entrada-fit em
           globals.css), que encolhe em telas baixas pra caber tudo num
           notebook sem scroll. */}
-      <div className="entrada-fit relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-6 py-8 text-center">
+      <div className="entrada-fit relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-6 py-8 text-center">
         <Image
           src={logo}
           alt="NortGo"
@@ -105,9 +105,10 @@ export default function Entrada() {
 
         {/* As seis áreas da vida que o NortGo cobre — badges com brilho quente
             (combina com o "liquid glass" da página). 3×2 no mobile, 6×1 acima
-            de sm; nunca estoura a largura. */}
+            de sm; nunca estoura a largura. Folga horizontal maior no desktop
+            e notebook (sm/lg) pra os rótulos não se encostarem. */}
         <ul
-          className="grid w-full max-w-full animate-rise grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-6"
+          className="grid w-full max-w-full animate-rise grid-cols-3 gap-x-5 gap-y-6 sm:grid-cols-6 md:gap-x-10 lg:gap-x-14"
           style={{ animationDelay: "150ms" }}
           aria-label="O que o NortGo organiza"
         >
@@ -153,7 +154,7 @@ export default function Entrada() {
           className="entrada-stores flex animate-rise flex-col items-center"
           style={{ animationDelay: "300ms" }}
         >
-          <div className="flex items-center gap-3 opacity-90">
+          <div className="flex items-center gap-4 opacity-90">
             {stores.map((store) => (
               // Selos oficiais das lojas (SVG local, 120×40, decorativo, sem
               // link — os apps ainda não estão publicados). next/image bloqueia
