@@ -92,10 +92,20 @@ pending ──paga──▶ active ──renova──▶ active
 ### 3.2 O que se persiste (nunca calcular na hora de chegada)
 
 ```
-subscriptions:
+accounts:
+  account_id            (PK, UUID nosso; keyed pelo e-mail lower/único — nunca é apagado)
+  email
+  base44_user_ref
+  state_version         ← inteiro sempre-crescente, +1 a CADA mudança de direito
+                          desta conta, ATRAVÉS de todas as assinaturas.
+                          É o "as_of" que o Base44 compara. NUNCA reseta.
+  created_at
+
+subscriptions:                         (uma conta pode ter várias ao longo do tempo)
+  subscription_id       (PK)
   account_id            (FK)
   mp_preapproval_id
-  status
+  status                ← pending | active | past_due | canceled | revoked | abandoned
   paid_through          ← vem da RESPOSTA do MP (fim do período pago), não "+1 mês"
   last_mp_event_ts      ← date_created do evento no MP (não a hora que chegou aqui)
   last_payment_id
@@ -103,28 +113,41 @@ subscriptions:
   updated_at
 ```
 
+**O direito efetivo da conta** = a assinatura **não-terminal mais recente** dela
+(normalmente só há uma). Uma reativação depois de `canceled` cria uma
+**assinatura nova** (linha nova), mas a **mesma conta** — e `state_version`
+continua de onde parou (não volta a 0).
+
 ### 3.3 Toda escrita é condicional e transacional
 
 ```sql
 BEGIN;
+-- 1. transição de estado da assinatura (condicional/monotônica por evento do MP)
 UPDATE subscriptions
    SET status = :new_status, paid_through = :mp_paid_through,
-       last_mp_event_ts = :mp_event_ts, last_payment_id = :pid,
-       as_of = as_of + 1,                        -- versão monotônica do estado
-       updated_at = now()
- WHERE account_id = :acc
-   AND last_mp_event_ts < :mp_event_ts          -- monotônico: ignora evento mais velho
+       last_mp_event_ts = :mp_event_ts, last_payment_id = :pid, updated_at = now()
+ WHERE subscription_id = :sub
+   AND last_mp_event_ts < :mp_event_ts          -- ignora evento mais velho
    AND status NOT IN ('revoked','canceled','abandoned')  -- terminais não voltam
    AND NOT (:new_status = 'active' AND status = 'revoked');
+-- 2. se algo mudou, bump do contador PER-CONTA (nunca reseta, cresce entre assinaturas)
+UPDATE accounts
+   SET state_version = state_version + 1
+ WHERE account_id = :acc
+   AND :rows_affected_step1 > 0;
 INSERT INTO audit_log (...) VALUES (...);
 COMMIT;
 ```
 
-- Se o `UPDATE` afeta 0 linhas → evento obsoleto ou conflito com terminal →
-  registra no `audit_log` e responde 200 (não é erro, é ordem).
-- `as_of` (inteiro sempre-crescente, +1 a cada transição) é o que o Base44 usa
-  pra descartar resultado de pull obsoleto (§6.2). Vai também no
-  `entitlement token` e na resposta do `/entitlement/check`.
+- Se o `UPDATE` da etapa 1 afeta 0 linhas → evento obsoleto ou conflito com
+  terminal → registra no `audit_log`, **não** faz o bump, responde 200.
+- `accounts.state_version` é o **`as_of`** que o Base44 compara (§6.2). Por ser
+  **da conta**, uma assinatura nova (reativação) **continua** o contador — a
+  reativação legítima tem `as_of` maior que o guardado no Base44 e **é
+  aplicada**. Vai também no `entitlement token` e na resposta do
+  `/entitlement/check`.
+- Criar uma assinatura nova (sair de `canceled`) também é uma mudança de direito
+  → faz o bump de `state_version`.
 
 ### 3.4 Deduplicação por efeito, não só por `event_id`
 
@@ -227,7 +250,16 @@ O único jeito de um push atrasado reabrir um acesso revogado seria o Base44
 ### 6.2 O Base44 aplica o resultado do pull de forma monotônica
 
 O Base44 guarda por usuário: `plan` (`free`/`plus`), `plan_valid_until`,
-`billing_as_of` (o `as_of` da última resposta aplicada), `billing_account_ref`.
+`billing_account_ref` (o `account_id`), e `billing_as_of` = o `state_version`
+**da conta** da última resposta aplicada.
+
+- `as_of` no pull/token = `accounts.state_version`, que é **por conta e nunca
+  reseta** (§3.2–3.3). Como o e-mail sempre mapeia pro mesmo `account_id`, uma
+  **reativação** depois de `canceled` tem `state_version` **maior** → passa na
+  comparação e é aplicada. Não há o problema de "contador que reinicia".
+- Se o `billing_account_ref` da resposta **diferir** do guardado (não deveria
+  acontecer, mas por segurança) → o Base44 trata como conta nova: aplica sem
+  comparar e passa a comparar a partir daí.
 
 Regra de escrita no Base44 (uma comparação, não uma máquina de estados):
 
@@ -309,7 +341,7 @@ decisão "Worker+D1" é condicional ao spike.
 | 8 | Validação de valor (bate com o preço do plano) | §8 |
 | 9 | Token de direito assinado + cache + janela de tolerância 72 h | **§4 (Codex #3)** |
 | 10 | Resposta distinta "não tem" × "não consegui" | **§4.2 (Codex #3)** |
-| 10b | Push **não carrega estado** (só sinal "re-verifique"); Base44 aplica pull por `as_of` monotônico → push atrasado não restaura acesso revogado | **§6.1–6.2 (stop-gate Codex)** |
+| 10b | Push **não carrega estado** (só sinal "re-verifique"); Base44 aplica pull por `as_of` = `accounts.state_version` (**por conta, nunca reseta** — reativação legítima continua o contador) → nem push atrasado restaura acesso revogado, nem contador reiniciado bloqueia reativação | **§3.2–3.3, §6.1–6.2 (stop-gate Codex)** |
 | 11 | Reconciliador que **repara** (não só alerta) + fila de exceções + runbook | **§5 (Codex #5)** |
 | 12 | Chargeback → `revoked` terminal e dominante + push imediato | §3.1, §5 |
 | 13 | `audit_log` append-only | §3.3 |
