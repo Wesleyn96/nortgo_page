@@ -133,10 +133,16 @@ eff_valid_until = MAX(paid_through) entre essas assinaturas
 - **`revoked`** (chargeback): aquela assinatura para de contribuir na hora. Se a
   conta tiver **outra** assinatura com período válido, o Plus continua por ela
   (um chargeback de um pagamento não mata uma assinatura separada legítima).
-- O direito **expira** quando `eff_valid_until` passa — não é um evento; é
-  recalculado em toda leitura, e o TTL do token de direito (§4.1) limita o
-  atraso. Um sweep diário (junto da reconciliação, §5) também recalcula e faz o
-  bump de `state_version` pra contas que expiraram.
+- O direito **expira** quando `eff_valid_until` passa — não é um evento do MP.
+  Tratado por **duas frentes que sempre persistem** (nunca só "calcula na hora e
+  responde"):
+  1. **Read-through-repair no pull** (§4.1): o `/entitlement/check` recalcula o
+     direito efetivo; **se difere** do `eff_*` guardado, roda a transação do
+     §3.3 (grava `eff_*`, **bump de `state_version`**, dispara push) **antes** de
+     responder. A resposta sai sempre com `as_of` consistente com `entitled` —
+     nunca "entitled novo com as_of velho".
+  2. **Sweep** (§5), a cada hora: pra toda conta `eff_valid_until <= agora AND
+     eff_entitled` → mesma transação. Cobre quem não faz login.
 
 Uma **reativação** depois de `canceled` cria uma **assinatura nova** (linha
 nova), na **mesma conta** — `state_version` continua de onde parou.
@@ -180,6 +186,10 @@ INSERT INTO audit_log (...) VALUES (...);
 COMMIT;
 ```
 
+- **Quem chama esta transação:** o handler de webhook (com etapa 1), o pull
+  read-through-repair (só a etapa 2, quando o recálculo difere) e o sweep
+  horário (só a etapa 2). Todos usam a mesma etapa 2 → o `state_version` é
+  sempre consistente com `eff_*`, venha a mudança de onde vier.
 - Etapa 1 afeta 0 linhas → evento obsoleto/terminal → só `audit_log`, sem bump.
 - **Criar assinatura `pending`**: etapa 1 é um `INSERT` separado; etapa 2 roda
   → o `pending` não muda `(eff_entitled, eff_valid_until)` → **sem bump** → o
@@ -211,10 +221,17 @@ ninguém entra (fail-closed) ou todos entram de graça (fail-open).
 
 ### 4.1 Token de direito assinado + cache no app
 
-- `POST /entitlement/check` **recalcula** o direito efetivo (§3.2.1) na hora
-  (a partir de todas as assinaturas) e devolve
-  `{ entitled, plan, valid_until, as_of, token }` — `as_of = accounts.state_version`.
-  O **entitlement token** é um JWT assinado pelo billing, TTL **24 h**, payload
+- `POST /entitlement/check` é um **read-through-repair**:
+  1. recalcula o direito efetivo (§3.2.1) a partir de todas as assinaturas;
+  2. **se difere** do `eff_*` guardado na conta → roda a transação do §3.3
+     (grava `eff_*`, **`state_version += 1`**, enfileira push) **dentro da mesma
+     requisição**, e relê o `state_version`;
+  3. devolve `{ entitled, plan, valid_until, as_of, token }` com
+     `as_of = accounts.state_version` (já atualizado se houve mudança).
+  → **Invariante:** a resposta nunca traz um `entitled` novo com um `as_of`
+  velho. Dois pulls concorrentes: o `UPDATE` condicional do §3.3 faz um deles
+  afetar 0 linhas; ambos releem o mesmo `state_version` e respondem igual.
+- O **entitlement token** é um JWT assinado pelo billing, TTL **24 h**, payload
   `{ email, plan, valid_until, as_of, issued_at }`.
 - O Base44 **guarda esse token** na sessão do usuário. Enquanto ele for válido
   (não expirou), o Base44 **decide localmente** — não chama o billing.
@@ -260,9 +277,9 @@ O cron diário **não** só alerta. Ele corrige.
 4. Todo reparo é transacional e idempotente (mesma regra condicional do §3.3):
    rodar 2× não causa efeito duplo. Depois do reparo, RECALCULA o direito
    efetivo (§3.2.1); se mudou, faz o bump de state_version + push.
-5. SWEEP de expiração: pra toda conta com eff_valid_until <= agora e ainda
-   eff_entitled=true → recalcula (dá false), bump, push. (Cobre o "período
-   pago acabou" que não é um evento do MP.)
+5. SWEEP de expiração — roda a CADA HORA (barato: só WHERE eff_valid_until <=
+   agora AND eff_entitled): recalcula (dá false), bump, push. Cobre o "período
+   pago acabou" pra quem não faz login (o pull já cobre quem faz — §4.1).
 6. Cada reparo gera audit_log + notificação pro operador.
 ```
 
