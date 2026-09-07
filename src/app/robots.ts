@@ -10,9 +10,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      // A página de privacidade já pede noindex no próprio metadata;
+      // /privacidade e /termos já pedem noindex no próprio metadata;
       // reforçamos aqui para crawlers que ignoram a meta tag.
-      disallow: "/privacidade",
+      disallow: ["/privacidade", "/termos"],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
     host: siteUrl,
