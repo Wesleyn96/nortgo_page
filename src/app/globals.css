@@ -496,10 +496,10 @@ body {
   }
 }
 
-/* Notebook baixo / 1366×768: só aperta um pouco o ritmo (ajuste do dono). */
+/* Notebook baixo / 1366×768: ritmo definido pelo dono. */
 @media (max-height: 720px) {
   .entrada-fit {
-    gap: 1.9rem;
+    gap: 2.2rem;
   }
 }
 
