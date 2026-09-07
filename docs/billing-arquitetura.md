@@ -266,15 +266,17 @@ fatos de dinheiro:
    12 h. (Cobre falha longa do lado do Base44 que já se resolveu.)
 2. **Detecção de drift:** o billing pergunta ao Base44, em lote,
    `GET {base44}/billing-sync?since=<cursor>` → o Base44 devolve, por usuário,
-   o `billing_as_of` que ele tem guardado. Para toda conta onde
+   o `billing_as_of` que ele tem guardado. Para **toda conta** (sem filtrar por
+   `eff_entitled` — o drift perigoso é justamente `eff_entitled=false` no billing
+   mas ainda Plus no Base44, ex. chargeback com push perdido) onde
    `base44.billing_as_of < billing.state_version` **e não há linha de outbox
-   pendente** → o billing **insere uma linha de outbox nova** (mesma transação
-   de leitura). Assim, mesmo push perdido + poda + sweep sem mudança → o drift é
-   detectado e re-notificado.
-   - Se o Base44 **não expõe** esse endpoint de leitura em lote → cai no
-     backstop: **heartbeat semanal** — o billing enfileira uma re-notificação
-     pra **toda conta com `eff_entitled = true`**, 1×/semana. Barato (é só um
-     gatilho de pull) e garante teto de 7 dias pro drift silencioso.
+   pendente** → o billing **insere uma linha de outbox nova**. Assim o drift é
+   detectado e re-notificado **nas duas direções** (liberar E revogar).
+   - Se o Base44 **não expõe** esse endpoint de leitura em lote → backstop:
+     **heartbeat semanal** — o billing enfileira uma re-notificação pra **toda
+     conta que já teve alguma assinatura** (`state_version > 0`), **entitled ou
+     não**, 1×/semana. Barato (só um gatilho de pull) e garante teto de 7 dias
+     pro drift silencioso, inclusive de revogações/cancelamentos.
 3. Toda ação gera `audit_log`.
 
 ---
@@ -481,7 +483,7 @@ decisão "Worker+D1" é condicional ao spike.
 | 10b | Push **não carrega estado** (só sinal "re-verifique"); Base44 aplica pull por `as_of` = `accounts.state_version` (**por conta, nunca reseta**, sobe **só quando o direito efetivo muda**) → push atrasado não restaura revogado, contador não bloqueia reativação, e **assinatura `pending` nova não remove** um Plus ainda válido de outra assinatura | **§3.2–3.3, §6.1–6.2 (stop-gate Codex)** |
 | 11 | Reconciliador que **repara** (não só alerta) + fila de exceções + runbook | **§5 (Codex #5)** |
 | 12 | Chargeback → `revoked` terminal e dominante + outbox (drenado em ~1 min) | §3.1, §5 |
-| 12b | Push via **outbox transacional** (linha na mesma txn da mudança) + drenador que **nunca desiste** (faixa lenta 12 h) + **reconciliador do canal** (redrive + detecção de drift vs `billing_as_of` do Base44, ou heartbeat semanal) → crash pós-commit não perde a notificação, dead-letter **converge** sem depender de login, teto de drift silencioso = 7 dias | **§3.2–3.5.1, §5, §6.1 (stop-gate Codex ×2)** |
+| 12b | Push via **outbox transacional** + drenador que **nunca desiste** (faixa lenta 12 h) + **reconciliador do canal** (redrive + drift vs `billing_as_of` do Base44 sobre **todas as contas**, ou heartbeat semanal sobre **toda conta com `state_version > 0`, entitled ou não**) → crash pós-commit não perde a notificação; dead-letter converge sem login; drift converge **nas duas direções** (liberar E revogar); teto = 7 dias | **§3.2–3.5.1, §5, §6.1 (stop-gate Codex ×3)** |
 | 13 | `audit_log` append-only | §3.3 |
 | 14 | Menor privilégio: D1 não é lido pelo app; app só chama `/entitlement/check` e `/cancel` | §2.2, §6 |
 | 15 | Sandbox primeiro; `test`/`prod` separados | §10 |
