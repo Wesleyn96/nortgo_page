@@ -237,20 +237,45 @@ A linha em `push_outbox` é escrita **na mesma transação** da mudança de dire
 (§3.3 etapa 3). A entrega em si é **pós-commit**, num processo separado:
 
 - **Drenador:** um Cron Trigger a cada **1 min** (ou consumer de fila) pega
-  `push_outbox WHERE delivered_at IS NULL AND dead = false AND next_attempt_at <= now()`,
-  em lotes.
+  `push_outbox WHERE delivered_at IS NULL AND next_attempt_at <= now()`, em lotes.
 - Para cada linha: `POST {base44}/hooks/billing-changed` com `{ email, changed_at }`
   + `X-Billing-Signature` (HMAC).
   - **2xx** → `delivered_at = now()`.
-  - falha/timeout → `attempts += 1`, `next_attempt_at = now() + backoff(attempts)`
-    (backoff: 30 s, 2 min, 10 min, 1 h, 6 h).
-  - `attempts >= 6` → `dead = true` + alerta pro operador.
+  - falha/timeout → `attempts += 1`, `next_attempt_at = now() + backoff(attempts)`.
+- **Sem dead-letter permanente.** O backoff tem duas faixas e **nunca desiste**:
+  - faixa rápida (attempts 1–6): 30 s, 2 min, 10 min, 1 h, 6 h, 12 h;
+  - faixa lenta (attempts 7+): **a cada 12 h, para sempre**, até entregar.
+  - ao entrar na faixa lenta: alerta pro operador; re-alerta a cada 24 h enquanto
+    a linha seguir sem `delivered_at`.
+  - `dead` (a coluna) vira só um rótulo de "está na faixa lenta / precisa de
+    olhar humano" — **não para as tentativas**.
 - **At-least-once, idempotente:** o push não carrega estado (§6.1); o Base44
   responde sempre com um pull. Entregar 2× = 1 pull a mais, sem efeito.
-- **O push é otimização, não correção:** mesmo com o outbox `dead`, o pull do
-  próximo login (§4.1, read-through-repair) e o sweep horário (§5) convergem o
-  Base44. O outbox só encurta a janela.
-- Linhas `delivered_at` antigas são podadas depois de 30 dias.
+- Linhas com `delivered_at` são podadas depois de 30 dias. Linhas sem
+  `delivered_at` **nunca são podadas**.
+
+### 3.5.1 Reconciliador do canal de notificação (resolve "dead-letter não converge")
+
+Um push que ficou preso (faixa lenta) **não gera linha nova** nos sweeps
+seguintes, porque `eff_*` já está correto no billing. Então há um job **diário**,
+junto da reconciliação (§5), que garante a convergência do **canal**, não só dos
+fatos de dinheiro:
+
+1. **Redrive:** toda linha de `push_outbox` sem `delivered_at` (inclusive faixa
+   lenta) → força `next_attempt_at = now()` uma vez por dia, além do ciclo de
+   12 h. (Cobre falha longa do lado do Base44 que já se resolveu.)
+2. **Detecção de drift:** o billing pergunta ao Base44, em lote,
+   `GET {base44}/billing-sync?since=<cursor>` → o Base44 devolve, por usuário,
+   o `billing_as_of` que ele tem guardado. Para toda conta onde
+   `base44.billing_as_of < billing.state_version` **e não há linha de outbox
+   pendente** → o billing **insere uma linha de outbox nova** (mesma transação
+   de leitura). Assim, mesmo push perdido + poda + sweep sem mudança → o drift é
+   detectado e re-notificado.
+   - Se o Base44 **não expõe** esse endpoint de leitura em lote → cai no
+     backstop: **heartbeat semanal** — o billing enfileira uma re-notificação
+     pra **toda conta com `eff_entitled = true`**, 1×/semana. Barato (é só um
+     gatilho de pull) e garante teto de 7 dias pro drift silencioso.
+3. Toda ação gera `audit_log`.
 
 ---
 
@@ -318,9 +343,12 @@ O cron diário **não** só alerta. Ele corrige.
    rodar 2× não causa efeito duplo. Depois do reparo, RECALCULA o direito
    efetivo (§3.2.1); se mudou, faz o bump de state_version + outbox (§3.5).
 5. SWEEP de expiração — roda a CADA HORA (barato: só WHERE eff_valid_until <=
-   agora AND eff_entitled): recalcula (dá false), bump, push. Cobre o "período
+   agora AND eff_entitled): recalcula (dá false), bump, outbox. Cobre o "período
    pago acabou" pra quem não faz login (o pull já cobre quem faz — §4.1).
-6. Cada reparo gera audit_log + notificação pro operador.
+6. RECONCILIAÇÃO DO CANAL DE NOTIFICAÇÃO (§3.5.1): redrive de todo outbox preso +
+   detecção de drift contra o `billing_as_of` do Base44 (ou heartbeat semanal).
+   Garante que dead-letter/push perdido converge sem depender de login.
+7. Cada reparo gera audit_log + notificação pro operador.
 ```
 
 Runbook (`docs/referencia/`, local): quem responde, como validar manualmente no
@@ -348,10 +376,13 @@ O único jeito de um push atrasado reabrir um acesso revogado seria o Base44
 - Push = `{ email, changed_at }`. O Base44, ao receber, **ignora o corpo** (só
   usa o `email`) e **faz um pull**. Quem manda é sempre o pull, que lê o estado
   **monotônico** do billing (§3) — onde `revoked`/`canceled` são terminais.
-- Push perdido → sem prejuízo: o pull do próximo login + a **reconciliação
-  diária** (que também dispara pull ao reparar) cobrem. Janela máxima de acesso
-  indevido pós-chargeback = TTL do token de direito (24 h) ou o próximo login,
-  o que vier antes. Documentado como limite conhecido.
+- Push perdido / dead-letter → converge por **3 frentes independentes**: o
+  drenador nunca desiste (faixa lenta 12 h para sempre, §3.5), o reconciliador
+  do canal (§3.5.1: redrive + detecção de drift ou heartbeat semanal), e o pull
+  do próximo login. Janela máxima de acesso indevido pós-chargeback, para um
+  usuário que **nunca abre o app**: até o próximo ciclo que entregar o push —
+  teto de **7 dias** (heartbeat) mesmo no pior caso; horas no caso normal.
+  Documentado como limite conhecido.
 
 ### 6.2 O Base44 aplica o resultado do pull de forma monotônica
 
@@ -450,7 +481,7 @@ decisão "Worker+D1" é condicional ao spike.
 | 10b | Push **não carrega estado** (só sinal "re-verifique"); Base44 aplica pull por `as_of` = `accounts.state_version` (**por conta, nunca reseta**, sobe **só quando o direito efetivo muda**) → push atrasado não restaura revogado, contador não bloqueia reativação, e **assinatura `pending` nova não remove** um Plus ainda válido de outra assinatura | **§3.2–3.3, §6.1–6.2 (stop-gate Codex)** |
 | 11 | Reconciliador que **repara** (não só alerta) + fila de exceções + runbook | **§5 (Codex #5)** |
 | 12 | Chargeback → `revoked` terminal e dominante + outbox (drenado em ~1 min) | §3.1, §5 |
-| 12b | Push via **outbox transacional** (linha gravada na mesma txn da mudança) + drenador com backoff + dead-letter → crash pós-commit não perde a notificação; entrega at-least-once idempotente | **§3.2, §3.3, §3.5 (stop-gate Codex)** |
+| 12b | Push via **outbox transacional** (linha na mesma txn da mudança) + drenador que **nunca desiste** (faixa lenta 12 h) + **reconciliador do canal** (redrive + detecção de drift vs `billing_as_of` do Base44, ou heartbeat semanal) → crash pós-commit não perde a notificação, dead-letter **converge** sem depender de login, teto de drift silencioso = 7 dias | **§3.2–3.5.1, §5, §6.1 (stop-gate Codex ×2)** |
 | 13 | `audit_log` append-only | §3.3 |
 | 14 | Menor privilégio: D1 não é lido pelo app; app só chama `/entitlement/check` e `/cancel` | §2.2, §6 |
 | 15 | Sandbox primeiro; `test`/`prod` separados | §10 |
@@ -470,7 +501,9 @@ decisão "Worker+D1" é condicional ao spike.
    webhook, faz o GET do recurso.
 3. **Base44:** provar o **Pull** — o app consegue, no login, fazer um `POST`
    HTTP pra uma URL externa, mandar um header assinado e ler a resposta? E o
-   **Push** — o app aceita um endpoint externo que escreve um campo no usuário?
+   **Push** — o app aceita um endpoint externo (com secret) que dispara um pull?
+   E o **`GET /billing-sync` em lote** (§3.5.1) — o app consegue devolver, por
+   usuário, o `billing_as_of` que guardou? (Se não → usa o heartbeat semanal.)
 4. Medir: o cron de reconciliação (baixar + parsear um CSV de ~10k linhas) cabe
    no limite de CPU do Worker? Se não → reconciliação vai pra Render.
 
