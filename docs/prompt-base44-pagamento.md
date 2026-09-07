@@ -240,6 +240,11 @@ TELA DE PLANOS / PAYWALL
 - Se usar trial: "7 dias grátis, depois R$ 9,90/mês. Cancele quando quiser."
 - Botão "Assinar" → dispara a função de backend (POST /preapproval) → redireciona
   pro checkout do MP.
+- Logo abaixo do botão, um aviso de aceite (exigência do Código de Defesa do
+  Consumidor): "Ao assinar, você concorda com os Termos de Uso e a Política de
+  Privacidade." — "Termos de Uso" linka para https://www.nortgo.com/termos e
+  "Política de Privacidade" para https://www.nortgo.com/privacidade (abrem em
+  nova aba). Registre no billing_log que o usuário aceitou (data/hora + versão).
 - Um link "Já assinei / atualizar status" que re-checa o estado do usuário.
 - Área "Minha assinatura": mostra status, próxima cobrança (plan_until), e um
   botão "Cancelar assinatura" (chama PUT /preapproval/<id> com status "cancelled";
