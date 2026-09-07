@@ -465,7 +465,7 @@ body {
    logo/título conforme a ALTURA da tela. Nada é cortado: se ainda assim
    não couber (janelas muito baixas), a página rola normalmente. */
 .entrada-fit {
-  gap: 2rem;
+  gap: 2.75rem;
 }
 
 .entrada-logo {
@@ -493,11 +493,9 @@ body {
   }
 }
 
-/* Notebook padrão (~740–860px de viewport): aperta o ritmo e o título. */
+/* Notebook padrão (~740–860px de viewport): aperta só o logo e o título;
+   o `gap` da coluna fica em 2.75rem em toda altura (ajuste do dono). */
 @media (max-height: 860px) {
-  .entrada-fit {
-    gap: 1.4rem;
-  }
   .entrada-logo {
     height: 4.75rem;
   }
@@ -513,13 +511,6 @@ body {
   /* Notebook: desce um pouco o "Começar" em relação às áreas acima. */
   .entrada-cta {
     margin-top: 1.5rem;
-  }
-}
-
-/* Notebook baixo / 1366×768: ritmo definido pelo dono. */
-@media (max-height: 720px) {
-  .entrada-fit {
-    gap: 2.75rem;
   }
 }
 
