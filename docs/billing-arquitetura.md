@@ -432,13 +432,27 @@ se resposta.as_of  <= billing_as_of  →  descarta (resultado obsoleto)
 ### 6.3 Autenticação dos endpoints do Base44 (billing → Base44)
 
 Os endpoints do lado do Base44 (`hooks/billing-changed`, `billing-sync/lookup`)
-**nunca** são públicos. Toda chamada do billing pra eles carrega:
+**nunca** são públicos. Toda chamada do billing pra eles carrega headers
+`X-Billing-Timestamp`, `X-Billing-Nonce` (UUIDv4) e `X-Billing-Signature`.
 
-- **`X-Billing-Signature`**: HMAC-SHA256 do corpo (ou de `path + timestamp` no
-  GET) com um **segredo compartilhado billing↔Base44**, guardado nas Secrets dos
-  dois lados. Base44 recalcula e compara; divergiu → `401`.
-- **`X-Billing-Timestamp`** + rejeição se |agora − ts| > 5 min (anti-replay).
+- **O que é assinado** (tudo junto, pra o timestamp/nonce **não** poderem ser
+  trocados sem invalidar a assinatura):
+  ```
+  signing_string = timestamp + "\n" + method + "\n" + path + "\n" + sha256(body)
+  X-Billing-Signature = base64( HMAC-SHA256(secret_compartilhado, signing_string) )
+  ```
+  (mesma ideia do `x-signature` do próprio MP: `ts` faz parte do que é assinado.)
+- **Verificação no Base44** (nesta ordem, todas obrigatórias):
+  1. reconstrói `signing_string` com o header recebido + método + path +
+     `sha256` do corpo recebido; recomputa o HMAC; compara em tempo constante →
+     divergiu = `401`.
+  2. `|agora − timestamp| ≤ 5 min` → fora = `401`.
+  3. `nonce` não visto nos últimos 10 min (tabela de nonces com TTL) → visto =
+     `401`. **É isto que garante uso único** dentro da janela; o timestamp
+     sozinho só limita a janela.
 - **IP allowlist** dos ranges do Worker/Render, se o Base44 permitir.
+- Segredo compartilhado nas Secrets dos dois lados; rotação documentada
+  (aceitar 2 segredos durante a troca).
 
 Além disso, o `billing-sync/lookup`:
 - **batch limitado** (ex. ≤ 200 e-mails por chamada) — 413 se passar;
@@ -520,7 +534,7 @@ decisão "Worker+D1" é condicional ao spike.
 | 11 | Reconciliador que **repara** (não só alerta) + fila de exceções + runbook | **§5 (Codex #5)** |
 | 12 | Chargeback → `revoked` terminal e dominante + outbox (drenado em ~1 min) | §3.1, §5 |
 | 12b | Push via **outbox transacional** + drenador que **nunca desiste** + **reconciliador do canal** = **varredura COMPLETA** da tabela `accounts` do billing (paginada por PK, sem `since`, um passe/dia cobre 100% das contas) comparando cada uma com o `billing_as_of` do Base44 (`POST /billing-sync/lookup`; ausente = 0) → re-notifica drift **nos dois sentidos**. Sem `lookup` → re-notifica tudo 1×/semana. Crash pós-commit não perde nada; dead-letter/stale convergem sem login; teto = 7 dias | **§3.2–3.5.1, §5, §6.1 (stop-gate Codex ×4)** |
-| 12c | Endpoints do lado do Base44 (`hooks/billing-changed`, `billing-sync/lookup`): `X-Billing-Signature` HMAC + timestamp anti-replay + IP allowlist. `lookup` = batch ≤ 200, rate-limit, devolve **só `email → as_of` (int opaco)**, zero PII/`plan`/`valid_until`, e-mail desconhecido omitido | **§6.3 (stop-gate Codex)** |
+| 12c | Endpoints do lado do Base44 (`hooks/billing-changed`, `billing-sync/lookup`): `X-Billing-Signature` = HMAC de (timestamp+method+path+sha256(body)) — ts e nonce DENTRO da assinatura + nonce uso-único (10 min) + IP allowlist. `lookup` = batch ≤ 200, rate-limit, devolve **só `email → as_of` (int opaco)**, zero PII/`plan`/`valid_until`, e-mail desconhecido omitido | **§6.3 (stop-gate Codex)** |
 | 13 | `audit_log` append-only | §3.3 |
 | 14 | Menor privilégio: D1 não é lido pelo app; app só chama `/entitlement/check` e `/cancel` | §2.2, §6 |
 | 15 | Sandbox primeiro; `test`/`prod` separados | §10 |
