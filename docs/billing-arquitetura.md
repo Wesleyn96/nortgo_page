@@ -113,6 +113,17 @@ subscriptions:                         (uma conta pode ter várias ao longo do t
   last_payment_id
   amount, currency
   updated_at
+
+push_outbox:            (padrão outbox transacional — a garantia de entrega do push)
+  id                    (PK)
+  account_id, email
+  reason                ← ex. 'entitlement_changed'
+  state_version         ← o as_of no momento da mudança
+  created_at
+  attempts              (default 0)
+  next_attempt_at       (default now)
+  delivered_at          (NULL até entregar)
+  dead                  (bool; true após esgotar as tentativas)
 ```
 
 ### 3.2.1 Direito efetivo = UNIÃO das assinaturas, não "a mais recente"
@@ -138,7 +149,7 @@ eff_valid_until = MAX(paid_through) entre essas assinaturas
   responde"):
   1. **Read-through-repair no pull** (§4.1): o `/entitlement/check` recalcula o
      direito efetivo; **se difere** do `eff_*` guardado, roda a transação do
-     §3.3 (grava `eff_*`, **bump de `state_version`**, dispara push) **antes** de
+     §3.3 (grava `eff_*`, **bump de `state_version`**, insere no outbox — mesma transação, §3.3) **antes** de
      responder. A resposta sai sempre com `as_of` consistente com `entitled` —
      nunca "entitled novo com as_of velho".
   2. **Sweep** (§5), a cada hora: pra toda conta `eff_valid_until <= agora AND
@@ -182,6 +193,14 @@ UPDATE accounts
    AND (accounts.eff_entitled, accounts.eff_valid_until)
        IS DISTINCT FROM (derived.ent, derived.vu);   -- só bump se mudou
 
+-- 3. SE o direito efetivo mudou (etapa 2 afetou 1 linha) → OUTBOX na MESMA transação.
+--    É isto que garante o push: se o processo cair depois do COMMIT, a linha do
+--    outbox continua lá pra ser entregue depois.
+INSERT INTO push_outbox (account_id, email, reason, state_version, next_attempt_at)
+SELECT :acc, a.email, 'entitlement_changed', a.state_version, now()
+  FROM accounts a
+ WHERE a.account_id = :acc AND :rows_affected_step2 > 0;
+
 INSERT INTO audit_log (...) VALUES (...);
 COMMIT;
 ```
@@ -212,6 +231,27 @@ processed_effects: (mp_resource_id, effect_kind)  PRIMARY KEY
   `chargeback_opened`, ...}. Duas notificações diferentes com o mesmo efeito
   sobre o mesmo recurso são aplicadas **uma vez**.
 
+### 3.5 Entrega do push — outbox transacional + retry pós-commit
+
+A linha em `push_outbox` é escrita **na mesma transação** da mudança de direito
+(§3.3 etapa 3). A entrega em si é **pós-commit**, num processo separado:
+
+- **Drenador:** um Cron Trigger a cada **1 min** (ou consumer de fila) pega
+  `push_outbox WHERE delivered_at IS NULL AND dead = false AND next_attempt_at <= now()`,
+  em lotes.
+- Para cada linha: `POST {base44}/hooks/billing-changed` com `{ email, changed_at }`
+  + `X-Billing-Signature` (HMAC).
+  - **2xx** → `delivered_at = now()`.
+  - falha/timeout → `attempts += 1`, `next_attempt_at = now() + backoff(attempts)`
+    (backoff: 30 s, 2 min, 10 min, 1 h, 6 h).
+  - `attempts >= 6` → `dead = true` + alerta pro operador.
+- **At-least-once, idempotente:** o push não carrega estado (§6.1); o Base44
+  responde sempre com um pull. Entregar 2× = 1 pull a mais, sem efeito.
+- **O push é otimização, não correção:** mesmo com o outbox `dead`, o pull do
+  próximo login (§4.1, read-through-repair) e o sweep horário (§5) convergem o
+  Base44. O outbox só encurta a janela.
+- Linhas `delivered_at` antigas são podadas depois de 30 dias.
+
 ---
 
 ## 4. Disponibilidade e degradação — resolve Codex #3
@@ -224,7 +264,7 @@ ninguém entra (fail-closed) ou todos entram de graça (fail-open).
 - `POST /entitlement/check` é um **read-through-repair**:
   1. recalcula o direito efetivo (§3.2.1) a partir de todas as assinaturas;
   2. **se difere** do `eff_*` guardado na conta → roda a transação do §3.3
-     (grava `eff_*`, **`state_version += 1`**, enfileira push) **dentro da mesma
+     (grava `eff_*`, **`state_version += 1`**, insere no outbox — mesma transação) **dentro da mesma
      requisição**, e relê o `state_version`;
   3. devolve `{ entitled, plan, valid_until, as_of, token }` com
      `as_of = accounts.state_version` (já atualizado se houve mudança).
@@ -269,14 +309,14 @@ O cron diário **não** só alerta. Ele corrige.
    evento na borda; valida completude do relatório (se veio parcial → aborta e
    re-tenta depois, não repara com dado incompleto).
 3. Para cada assinatura, o MP é a FONTE DE VERDADE dos fatos de dinheiro:
-     • MP canceled / D1 active   → repara: D1 = canceled + push Base44
-     • MP active+pago / D1 past_due (webhook perdido) → repara: D1 = active + push
-     • MP chargeback / D1 qualquer → D1 = revoked + push (remove acesso)
+     • MP canceled / D1 active   → repara: D1 = canceled + outbox
+     • MP active+pago / D1 past_due (webhook perdido) → repara: D1 = active + outbox
+     • MP chargeback / D1 qualquer → D1 = revoked + outbox (remove acesso)
      • valores divergentes / disputa em curso → NÃO repara sozinho:
          joga na FILA DE EXCEÇÕES pra revisão humana (runbook, SLA 1 dia útil)
 4. Todo reparo é transacional e idempotente (mesma regra condicional do §3.3):
    rodar 2× não causa efeito duplo. Depois do reparo, RECALCULA o direito
-   efetivo (§3.2.1); se mudou, faz o bump de state_version + push.
+   efetivo (§3.2.1); se mudou, faz o bump de state_version + outbox (§3.5).
 5. SWEEP de expiração — roda a CADA HORA (barato: só WHERE eff_valid_until <=
    agora AND eff_entitled): recalcula (dá false), bump, push. Cobre o "período
    pago acabou" pra quem não faz login (o pull já cobre quem faz — §4.1).
@@ -409,7 +449,8 @@ decisão "Worker+D1" é condicional ao spike.
 | 10 | Resposta distinta "não tem" × "não consegui" | **§4.2 (Codex #3)** |
 | 10b | Push **não carrega estado** (só sinal "re-verifique"); Base44 aplica pull por `as_of` = `accounts.state_version` (**por conta, nunca reseta**, sobe **só quando o direito efetivo muda**) → push atrasado não restaura revogado, contador não bloqueia reativação, e **assinatura `pending` nova não remove** um Plus ainda válido de outra assinatura | **§3.2–3.3, §6.1–6.2 (stop-gate Codex)** |
 | 11 | Reconciliador que **repara** (não só alerta) + fila de exceções + runbook | **§5 (Codex #5)** |
-| 12 | Chargeback → `revoked` terminal e dominante + push imediato | §3.1, §5 |
+| 12 | Chargeback → `revoked` terminal e dominante + outbox (drenado em ~1 min) | §3.1, §5 |
+| 12b | Push via **outbox transacional** (linha gravada na mesma txn da mudança) + drenador com backoff + dead-letter → crash pós-commit não perde a notificação; entrega at-least-once idempotente | **§3.2, §3.3, §3.5 (stop-gate Codex)** |
 | 13 | `audit_log` append-only | §3.3 |
 | 14 | Menor privilégio: D1 não é lido pelo app; app só chama `/entitlement/check` e `/cancel` | §2.2, §6 |
 | 15 | Sandbox primeiro; `test`/`prod` separados | §10 |
