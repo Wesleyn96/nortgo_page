@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="border-t border-line">
-      <div className="mx-auto flex max-w-xl flex-col items-center gap-3 px-6 py-8 text-center sm:flex-row sm:justify-between sm:text-left">
+      <div className="mx-auto flex max-w-xl flex-col items-center gap-2 px-6 py-4 text-center sm:flex-row sm:justify-between sm:text-left">
         <span className="eyebrow text-ink-faint">
           © {new Date().getFullYear()} NortGo
         </span>

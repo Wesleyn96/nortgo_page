@@ -442,6 +442,91 @@ body {
   }
 }
 
+/* Coluna central da tela de entrada — ritmo vertical por `gap` (não `mt-*`
+   nos filhos), pra encolher de forma limpa e caber inteira num notebook
+   sem scroll. A viewport é dividida entre <main> e <footer> por flexbox
+   (layout.tsx); aqui só controlamos o espaçamento interno e o tamanho do
+   logo/título conforme a ALTURA da tela. Nada é cortado: se ainda assim
+   não couber (janelas muito baixas), a página rola normalmente. */
+.entrada-fit {
+  gap: 2rem;
+}
+
+.entrada-logo {
+  height: 6rem; /* 96px */
+  width: auto;
+}
+
+.entrada-title {
+  font-family: var(--font-titles);
+  font-weight: 500;
+  font-size: 1.9rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 640px) {
+  .entrada-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .entrada-title {
+    font-size: 3.25rem;
+  }
+}
+
+/* Notebook padrão (~740–860px de viewport): aperta o ritmo e o título. */
+@media (max-height: 860px) {
+  .entrada-fit {
+    gap: 1.4rem;
+  }
+  .entrada-logo {
+    height: 4.75rem;
+  }
+  .entrada-title {
+    font-size: 1.9rem;
+  }
+}
+
+@media (max-height: 860px) and (min-width: 768px) {
+  .entrada-title {
+    font-size: 2.5rem;
+  }
+}
+
+/* Notebook baixo / 1366×768 (~640px úteis): compacta ao máximo. */
+@media (max-height: 720px) {
+  .entrada-fit {
+    gap: 0.9rem;
+  }
+  .entrada-logo {
+    height: 3.75rem;
+  }
+  .entrada-title {
+    font-size: 1.75rem;
+  }
+  .entrada-fit .lead {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .entrada-fit .feature-badge {
+    height: 3rem;
+    width: 3rem;
+  }
+  .entrada-fit .feature-badge svg {
+    height: 22px;
+    width: 22px;
+  }
+}
+
+@media (max-height: 720px) and (min-width: 768px) {
+  .entrada-title {
+    font-size: 2rem;
+  }
+}
+
 /* Badges das seis áreas — círculo com relevo quente (mesma linguagem dos
    botões "liquid glass"): borda cobre fina, preenchimento radial âmbar,
    brilho externo suave. */

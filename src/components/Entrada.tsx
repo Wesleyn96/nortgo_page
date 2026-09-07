@@ -66,23 +66,27 @@ const stores = [
 
 export default function Entrada() {
   return (
-    <section className="entrada relative isolate overflow-hidden">
+    <section className="entrada relative isolate flex flex-1 flex-col overflow-hidden">
       {/* Foto de fundo (atmosfera) + camada escura por cima — em globals.css.
           Decorativa: não entra na árvore de acessibilidade. */}
       <div className="entrada-photo" aria-hidden="true" />
 
-      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-3xl flex-col items-center justify-center px-6 py-16 text-center">
+      {/* Coluna central. Preenche o espaço que sobra da viewport depois do
+          rodapé (flex-1); o ritmo vertical vem do `gap` (.entrada-fit em
+          globals.css), que encolhe em telas baixas pra caber tudo num
+          notebook sem scroll. */}
+      <div className="entrada-fit relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-6 py-8 text-center">
         <Image
           src={logo}
           alt="NortGo"
           width={480}
           height={468}
           priority
-          className="h-24 w-auto animate-rise sm:h-28"
+          className="entrada-logo animate-rise"
         />
 
         <h1
-          className="mt-8 max-w-xl animate-rise text-[1.9rem] font-medium leading-[1.1] tracking-[-0.02em] text-ink sm:text-[2.5rem] md:text-[3.25rem]"
+          className="entrada-title max-w-xl animate-rise text-ink"
           style={{ animationDelay: "60ms" }}
         >
           Foco no que importa.
@@ -91,7 +95,7 @@ export default function Entrada() {
         </h1>
 
         <p
-          className="lead mt-6 max-w-md animate-rise text-ink-dim"
+          className="lead max-w-md animate-rise text-ink-dim"
           style={{ animationDelay: "120ms" }}
         >
           Coloque no NortGo o que você precisa fazer, lembrar, registrar ou
@@ -103,7 +107,7 @@ export default function Entrada() {
             (combina com o "liquid glass" da página). 3×2 no mobile, 6×1 acima
             de sm; nunca estoura a largura. */}
         <ul
-          className="mt-10 grid w-full max-w-full animate-rise grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-6"
+          className="grid w-full max-w-full animate-rise grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-6"
           style={{ animationDelay: "150ms" }}
           aria-label="O que o NortGo organiza"
         >
@@ -129,7 +133,7 @@ export default function Entrada() {
         </ul>
 
         <div
-          className="mt-12 flex animate-rise flex-col items-center gap-4"
+          className="flex animate-rise flex-col items-center gap-4"
           style={{ animationDelay: "240ms" }}
         >
           <a
@@ -142,7 +146,7 @@ export default function Entrada() {
         </div>
 
         <div
-          className="mt-14 flex animate-rise flex-col items-center gap-3"
+          className="flex animate-rise flex-col items-center gap-3"
           style={{ animationDelay: "300ms" }}
         >
           <p className="eyebrow text-ink-faint">Lançamento em breve para</p>

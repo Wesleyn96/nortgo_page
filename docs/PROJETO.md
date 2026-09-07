@@ -4,7 +4,7 @@
 > tomadas** e **para onde vamos**. Atualizar sempre que algo relevante mudar
 > (feature, decisão de produto/design, mudança de rumo, marco atingido).
 
-- **Última atualização:** 2026-09-06
+- **Última atualização:** 2026-09-07
 - **Responsável pelo projeto:** Wesley Nascimento
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
 - **Domínios (decisão 2026-09-06):** `nortgo.com` = site institucional (Cloudflare Workers, no ar) · `nortgo.com.br` = app (Base44/Render), **em definitivo**. Dois domínios, propósitos distintos, **sem redirecionamento** entre eles. Revoga o alvo anterior (`app.nortgo.com` + `.com.br` redirecionando). Registrar `nortgo.com`: GoDaddy → nameservers hoje na Locaweb → migrando p/ Cloudflare. `nortgo.app` era só pretensão, removido do código.
@@ -366,6 +366,18 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 ## 11. Registro de decisões
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
+
+- **2026-09-07** — **Tela de entrada: cabe inteira num notebook, sem scroll.**
+  Removidos os cards de prévia "ATRASADOS / HOJE" e o link "Já tenho conta"
+  (só sobra o CTA "Começar"; a webfont Inter, usada só nos cards, saiu junto).
+  Layout passou a **dividir a viewport** entre `<main>` e `<footer>` por flexbox
+  (`body` = coluna `min-h-svh`, `main` = `flex-1`) — antes o miolo da `Entrada`
+  tinha `min-h-[100svh]` fixo e o rodapé sempre empurrava scroll. Ritmo vertical
+  agora vem de `gap` (não `mt-*`), com `@media (max-height: …)` encolhendo
+  logo/título/espaçamento em telas baixas (860px e 720px). Rodapé mais enxuto
+  (`py-8`→`py-4`). Nada é cortado: janela muito curta ainda rola normal. —
+  Motivo: pedido do dono. — Impacto: `Entrada.tsx`, `layout.tsx`, `Footer.tsx`,
+  `globals.css`.
 
 - **2026-09-07** — **Reset da arquitetura de pagamento → v3 "pago, dentro do
   Base44".** Duas decisões do dono: (1) o app **fica no Base44** por ora (sem

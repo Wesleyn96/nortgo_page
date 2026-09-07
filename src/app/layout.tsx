@@ -74,8 +74,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-bg text-ink font-display">
-        <main className="flex-1">{children}</main>
+      <body className="min-h-svh flex flex-col bg-bg text-ink font-display">
+        <main className="flex flex-1 flex-col">{children}</main>
         <Footer />
       </body>
     </html>
