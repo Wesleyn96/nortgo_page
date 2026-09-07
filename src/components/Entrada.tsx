@@ -145,14 +145,14 @@ export default function Entrada() {
           </a>
         </div>
 
-        {/* Selos das lojas — menores e um pouco mais afastados do resto
-            (.entrada-stores em globals.css: rótulo 10px, selos ~30px de
-            altura, respiro extra fluido com a altura da tela). */}
+        {/* Selos das lojas — discretos, um pouco afastados do resto
+            (.entrada-stores em globals.css: selos ~30px de altura, respiro
+            extra fluido com a altura da tela). Sem rótulo e sem link: os
+            apps ainda não estão publicados. */}
         <div
-          className="entrada-stores flex animate-rise flex-col items-center gap-2.5"
+          className="entrada-stores flex animate-rise flex-col items-center"
           style={{ animationDelay: "300ms" }}
         >
-          <p className="eyebrow text-ink-faint">Lançamento em breve para</p>
           <div className="flex items-center gap-3 opacity-90">
             {stores.map((store) => (
               // Selos oficiais das lojas (SVG local, 120×40, decorativo, sem

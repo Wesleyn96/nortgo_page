@@ -40,9 +40,8 @@ describe("Entrada", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("anuncia o lançamento nas lojas, sem link (apps ainda não publicados)", () => {
+  it("mostra os selos das lojas, sem link (apps ainda não publicados)", () => {
     render(<Entrada />);
-    expect(screen.getByText(/lançamento em breve para/i)).toBeInTheDocument();
     expect(screen.getByAltText(/App Store/i)).toBeInTheDocument();
     expect(screen.getByAltText(/Google Play/i)).toBeInTheDocument();
     expect(
