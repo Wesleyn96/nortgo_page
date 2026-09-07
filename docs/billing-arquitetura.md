@@ -1,15 +1,20 @@
-# NortGo — Arquitetura de Pagamento (PROPOSTA v2)
+# NortGo — Arquitetura de Pagamento (PROPOSTA v2 — congelada 2026-09-06)
 
-> **Status: PROPOSTA.** Não é "aprovada". Só vira decisão depois do **spike de
-> validação** (§10) fechar as duas incógnitas: (a) Cloudflare Worker faz
-> HMAC-SHA256 + transação D1 + Cron + chamada ao MP sandbox; (b) o Base44
-> **aceita** ser empurrado (inbound webhook com secret) **ou** consultado
-> (outbound HTTP no login). Se (b) falhar, o fluxo automático não existe neste
-> app — vira manual ou muda a plataforma do app.
+> **Status: PROPOSTA revisada, congelada como spec de referência.** Não é
+> "aprovada". Passou por revisão adversarial do Codex + 10 rodadas do stop-gate;
+> **10 achados fechados** (identidade, ordenação de eventos, disponibilidade,
+> ADR, reconciliação-que-repara, outbox transacional, convergência de
+> dead-letter, varredura completa do canal, auth do lookup, replay do HMAC).
+> Daqui pra frente: lacunas de precisão viram **TODO de implementação** (não se
+> reescreve o doc). O gate foi desligado (`/codex:setup --disable-review-gate`)
+> pra não travar.
+>
+> **Só vira decisão depois do spike (§10)** fechar as duas incógnitas: (a) o
+> Worker faz HMAC + transação D1 + Cron + MP sandbox; (b) o Base44 **aceita** ser
+> empurrado **ou** consultado. Se (b) falhar, o automático não existe neste app.
 >
 > **Não implementar antes do passo 5** (`docs/PROJETO.md` §7).
-> **Base:** guia técnico Mercado Pago v5.2.0 + revisão adversarial do Codex
-> (2026-09-06, 3 achados `high` + 2 `medium` — esta v2 responde a todos).
+> **Base:** guia técnico Mercado Pago v5.2.0 + revisão adversarial do Codex.
 
 ---
 

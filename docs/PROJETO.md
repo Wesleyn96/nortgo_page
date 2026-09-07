@@ -380,7 +380,13 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
   reconciliador que **repara** + fila de exceções + runbook; ADR Worker+D1 vs
   Render (fallback claro). — **Incógnita que trava tudo:** o Base44 aceita ser
   consultado no login (pull)? → **spike de validação** (fase 0) antes de decidir.
-  Nada implementado; só depois do passo 5.
+  Nada implementado; só depois do passo 5. **Doc v2 congelado (2026-09-06)** após
+  **10 rodadas do stop-gate do Codex** (10 achados fechados: outbox transacional,
+  convergência de dead-letter, varredura completa do canal, auth do lookup,
+  replay do HMAC, etc.); pendências futuras = TODO de implementação. **Stop-review
+  gate do Codex DESLIGADO** neste projeto — o loop de revisão de *texto* tinha
+  atingido retorno decrescente; religar (`/codex:setup --enable-review-gate`)
+  antes de escrever código de billing.
 - **2026-09-06** — **Domínio `nortgo.com` no ar no Cloudflare Workers.** Migrado
   da Locaweb: nameservers GoDaddy → Cloudflare; registro A antigo apagado;
   `nortgo.com` e `www` como Custom Domain do Worker `nortgo-page`; SSL automático;
