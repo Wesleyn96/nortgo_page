@@ -496,34 +496,10 @@ body {
   }
 }
 
-/* Notebook baixo / 1366×768 (~640px úteis): compacta ao máximo. */
+/* Notebook baixo / 1366×768: só aperta um pouco o ritmo (ajuste do dono). */
 @media (max-height: 720px) {
   .entrada-fit {
-    gap: 0.9rem;
-  }
-  .entrada-logo {
-    height: 3.75rem;
-  }
-  .entrada-title {
-    font-size: 1.75rem;
-  }
-  .entrada-fit .lead {
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-  .entrada-fit .feature-badge {
-    height: 3rem;
-    width: 3rem;
-  }
-  .entrada-fit .feature-badge svg {
-    height: 22px;
-    width: 22px;
-  }
-}
-
-@media (max-height: 720px) and (min-width: 768px) {
-  .entrada-title {
-    font-size: 2rem;
+    gap: 1.9rem;
   }
 }
 
