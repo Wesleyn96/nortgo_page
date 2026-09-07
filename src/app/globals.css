@@ -1,23 +1,5 @@
 @import "tailwindcss";
 
-/* Inter — usada só nos cards de prévia (.cards-preview), a pedido do dono.
-   Auto-hospedada (subset latin, pesos 600/700), servida de 'self' — sem
-   Google Fonts, sem alterar a CSP. ~24 KB por peso, font-display: swap. */
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/inter-600.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/inter-700.woff2") format("woff2");
-}
-
 :root {
   /* Brand palette — see anotações.txt §03. Warm only: no blue/purple.
      Light theme: white canvas, warm-neutral inks, copper as the single accent. */
@@ -458,15 +440,6 @@ body {
     opacity: 1;
     transform: scale(1);
   }
-}
-
-/* Cards de prévia (ATRASADOS / HOJE): família de fontes do modelo. Inter só
-   renderiza para quem já tem instalada; os demais caem no fallback de sistema
-   (Segoe UI no Windows, San Francisco no Mac, Roboto no Android). Sem
-   @font-face / @import — nada é baixado (regra "sem webfont" mantida). */
-.cards-preview,
-.cards-preview * {
-  font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Badges das seis áreas — círculo com relevo quente (mesma linguagem dos

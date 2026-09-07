@@ -218,7 +218,7 @@ futura em `src/app/api/`, segredos em variáveis de ambiente.
 | Paleta | Só quente: cobre/bronze na **identidade** (logo, títulos, botões, chrome). **Azul e roxo proibidos** aí. Exceção (decisão do dono, 2026-09-06): **ícones semânticos em mockups do app** podem usar cores funcionais — azul p/ agenda, verde p/ dinheiro, vermelho p/ atraso — porque representam a UI do produto, não a marca | Identidade da marca |
 | Gradiente dos títulos | `#E87B00 → #FFC77E → #E87B00`, só na frase-chave | Mesmo tom dos botões |
 | Botões | "Liquid glass" (iOS 26) | Relevo via `box-shadow` em camadas |
-| Tipografia | Chrome/identidade: stack de sistema (Helvetica), **sem webfont**. Exceção (dono, 2026-09-06): os **cards de prévia** usam **Inter** — auto-hospedada (`public/fonts/`, pesos 600/700, ~24 KB cada, servida de `'self'`, `font-display: swap`). Sem Google Fonts, sem mudar CSP | Zero download no chrome; Inter só nos cards |
+| Tipografia | Stack de sistema (Helvetica). **Sem webfont** — zero download. (A exceção "Inter nos cards de prévia" de 2026-09-06 foi revertida em 2026-09-07 junto com a remoção dos cards ATRASADOS/HOJE.) |
 | Prova social | Nunca inflar contagem | Confiança + CDC art. 37 |
 | Seção "Planos" | Desativada (código mantido) | Preços não definidos |
 
