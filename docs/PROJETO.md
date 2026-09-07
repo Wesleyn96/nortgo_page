@@ -70,9 +70,12 @@ atenção agora**, sem exigir que o usuário organize nada.
   que não cabe nas seis categorias.
 - **Plataformas-alvo:** Web, iOS (App Store), Android (Google Play); Desktop via
   PWA depois.
-- **Modelo de negócio:** plano "Essencial" gratuito + "NortGo Plus" pago,
-  pagamento via **Mercado Pago**. Preços **não definidos** — ver [§8](#8-pagamento-e-cobrança).
-  Lista de espera ganha condição especial de lançamento.
+- **Modelo de negócio (decisão 2026-09-07):** **produto pago, sem plano grátis.**
+  Sem assinatura ativa, o app não abre (paywall). NortGo — **R$ 9,90/mês** via
+  **Mercado Pago** (Assinaturas). Opção de **7 dias de teste grátis sem cartão**
+  na mesma arquitetura. "Essencial gratuito" pode voltar depois (é só afrouxar
+  um `if`), não é o lançamento. Ver [§8](#8-pagamento-e-cobrança) e
+  `docs/billing-arquitetura.md` v3.
 - **Posicionamento:** para quem está sobrecarregado com a vida espalhada em
   vários apps. Diferencial de mensagem: os concorrentes "te dão mais uma lista
   para olhar"; o NortGo "faz o oposto". Tom de marca: editorial, calmo, quente.
@@ -364,6 +367,21 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-07** — **Reset da arquitetura de pagamento → v3 "pago, dentro do
+  Base44".** Duas decisões do dono: (1) o app **fica no Base44** por ora (sem
+  plano de sair); (2) **sem plano grátis** — produto pago (R$ 9,90/mês), sem
+  assinatura o app não abre; opção de 7 dias de teste. — Motivo: a v2 (serviço
+  de billing separado, Cloudflare Worker + D1) só se justificava pela premissa
+  "vamos sair do Base44"; era ela que criava a sincronia entre 2 bancos e os 10
+  bugs que o Codex achou. Removida a premissa, o billing vai **dentro do Base44**,
+  ao lado de `user.plan` — **um banco, uma fonte de verdade, zero sincronia**. —
+  Impacto: `docs/billing-arquitetura.md` **reescrito (v3)**, ~1/3 do tamanho.
+  Fluxo: cadastra → paywall → paga (função server-side do Base44 cria assinatura
+  no MP) → webhook seta `user.plan`. `nortgo.com` **não** move: continua landing
+  estática no Cloudflare, "Começar" → `nortgo.com.br`. **Incógnita que decide
+  tudo:** o backend do Base44 recebe webhook / faz HTTP de saída / guarda secret?
+  → 3 cenários (tudo no Base44 / adaptador Worker de ~50 linhas sem banco /
+  piloto manual). Spike (fase 0) responde. Histórico da v2 no `git log` do doc.
 - **2026-09-06** — **Arquitetura de pagamento: PROPOSTA v2 (não aprovada).**
   Billing = **serviço separado** (decisão firme; **não** dentro do Base44, **não**
   nas páginas estáticas). Fluxo automático "pagar antes no nortgo.com": pagamento
