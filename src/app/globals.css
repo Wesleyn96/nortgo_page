@@ -494,6 +494,10 @@ body {
   .entrada-title {
     font-size: 2.5rem;
   }
+  /* Notebook: desce um pouco o "Começar" em relação às áreas acima. */
+  .entrada-cta {
+    margin-top: 1.5rem;
+  }
 }
 
 /* Notebook baixo / 1366×768: ritmo definido pelo dono. */

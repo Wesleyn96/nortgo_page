@@ -134,7 +134,7 @@ export default function Entrada() {
         </ul>
 
         <div
-          className="flex animate-rise flex-col items-center gap-4"
+          className="entrada-cta flex animate-rise flex-col items-center gap-4"
           style={{ animationDelay: "240ms" }}
         >
           <a
