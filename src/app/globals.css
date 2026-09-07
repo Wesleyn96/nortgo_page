@@ -527,16 +527,15 @@ body {
   }
 }
 
-/* Badges das seis áreas — círculo com relevo quente (mesma linguagem dos
-   botões "liquid glass"): borda cobre fina, preenchimento radial âmbar,
-   brilho externo suave. */
+/* Badges das seis áreas — círculo escuro (preenchimento radial preto), sem
+   borda; só o glow externo quente e o fio de luz interno. */
 .feature-badge {
-  border: 1px solid rgba(224, 130, 74, 0.28);
+  /* border: 1px solid rgba(224, 130, 74, 0.28); */
   background: radial-gradient(
     120% 120% at 50% 0%,
-    rgba(240, 150, 92, 0.16),
-    rgba(224, 130, 74, 0.04) 60%,
-    transparent 100%
+    rgba(0, 0, 0, 0.6),
+    rgba(0, 0, 0, 0.34) 60%,
+    #000000 100%
   );
   box-shadow:
     0 8px 24px -12px rgba(224, 130, 74, 0.4),
