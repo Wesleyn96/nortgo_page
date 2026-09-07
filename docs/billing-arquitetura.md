@@ -96,9 +96,11 @@ accounts:
   account_id            (PK, UUID nosso; keyed pelo e-mail lower/único — nunca é apagado)
   email
   base44_user_ref
-  state_version         ← inteiro sempre-crescente, +1 a CADA mudança de direito
-                          desta conta, ATRAVÉS de todas as assinaturas.
-                          É o "as_of" que o Base44 compara. NUNCA reseta.
+  eff_entitled          ← direito EFETIVO calculado (bool). Derivado de TODAS as
+  eff_valid_until         assinaturas da conta (regra abaixo). É o que o Base44 recebe.
+  state_version         ← inteiro sempre-crescente, +1 SÓ quando (eff_entitled,
+                          eff_valid_until) muda de verdade. NUNCA reseta.
+                          É o "as_of" que o Base44 compara.
   created_at
 
 subscriptions:                         (uma conta pode ter várias ao longo do tempo)
@@ -113,10 +115,31 @@ subscriptions:                         (uma conta pode ter várias ao longo do t
   updated_at
 ```
 
-**O direito efetivo da conta** = a assinatura **não-terminal mais recente** dela
-(normalmente só há uma). Uma reativação depois de `canceled` cria uma
-**assinatura nova** (linha nova), mas a **mesma conta** — e `state_version`
-continua de onde parou (não volta a 0).
+### 3.2.1 Direito efetivo = UNIÃO das assinaturas, não "a mais recente"
+
+```
+eff_entitled  = existe alguma assinatura da conta com
+                  status ∈ { active, past_due, canceled }
+                  E paid_through > agora
+eff_valid_until = MAX(paid_through) entre essas assinaturas
+```
+
+- **`pending`** (nova assinatura ainda não paga): contribui `false`/nada. **Não
+  remove** um Plus que ainda vale de outra assinatura. → resolve
+  "nova assinatura `pending` remove Plus válido".
+- **`past_due`** e **`canceled`**: ainda contam **enquanto `paid_through > agora`**
+  (o usuário pagou o período; cancelar não devolve dinheiro).
+- **`abandoned`**: nunca contribui.
+- **`revoked`** (chargeback): aquela assinatura para de contribuir na hora. Se a
+  conta tiver **outra** assinatura com período válido, o Plus continua por ela
+  (um chargeback de um pagamento não mata uma assinatura separada legítima).
+- O direito **expira** quando `eff_valid_until` passa — não é um evento; é
+  recalculado em toda leitura, e o TTL do token de direito (§4.1) limita o
+  atraso. Um sweep diário (junto da reconciliação, §5) também recalcula e faz o
+  bump de `state_version` pra contas que expiraram.
+
+Uma **reativação** depois de `canceled` cria uma **assinatura nova** (linha
+nova), na **mesma conta** — `state_version` continua de onde parou.
 
 ### 3.3 Toda escrita é condicional e transacional
 
@@ -130,24 +153,44 @@ UPDATE subscriptions
    AND last_mp_event_ts < :mp_event_ts          -- ignora evento mais velho
    AND status NOT IN ('revoked','canceled','abandoned')  -- terminais não voltam
    AND NOT (:new_status = 'active' AND status = 'revoked');
--- 2. se algo mudou, bump do contador PER-CONTA (nunca reseta, cresce entre assinaturas)
+
+-- 2. RECALCULA o direito efetivo da conta a partir de TODAS as assinaturas (§3.2.1)
+--    e só faz o bump se (eff_entitled, eff_valid_until) mudou de verdade.
+WITH derived AS (
+  SELECT
+    EXISTS (SELECT 1 FROM subscriptions
+             WHERE account_id = :acc
+               AND status IN ('active','past_due','canceled')
+               AND paid_through > now())            AS ent,
+    (SELECT MAX(paid_through) FROM subscriptions
+      WHERE account_id = :acc
+        AND status IN ('active','past_due','canceled')
+        AND paid_through > now())                   AS vu
+)
 UPDATE accounts
-   SET state_version = state_version + 1
+   SET eff_entitled   = derived.ent,
+       eff_valid_until = derived.vu,
+       state_version  = state_version + 1
+  FROM derived
  WHERE account_id = :acc
-   AND :rows_affected_step1 > 0;
+   AND (accounts.eff_entitled, accounts.eff_valid_until)
+       IS DISTINCT FROM (derived.ent, derived.vu);   -- só bump se mudou
+
 INSERT INTO audit_log (...) VALUES (...);
 COMMIT;
 ```
 
-- Se o `UPDATE` da etapa 1 afeta 0 linhas → evento obsoleto ou conflito com
-  terminal → registra no `audit_log`, **não** faz o bump, responde 200.
-- `accounts.state_version` é o **`as_of`** que o Base44 compara (§6.2). Por ser
-  **da conta**, uma assinatura nova (reativação) **continua** o contador — a
-  reativação legítima tem `as_of` maior que o guardado no Base44 e **é
-  aplicada**. Vai também no `entitlement token` e na resposta do
-  `/entitlement/check`.
-- Criar uma assinatura nova (sair de `canceled`) também é uma mudança de direito
-  → faz o bump de `state_version`.
+- Etapa 1 afeta 0 linhas → evento obsoleto/terminal → só `audit_log`, sem bump.
+- **Criar assinatura `pending`**: etapa 1 é um `INSERT` separado; etapa 2 roda
+  → o `pending` não muda `(eff_entitled, eff_valid_until)` → **sem bump** → o
+  Base44 mantém o Plus que ainda vale. ✅
+- `pending → active` (1º pagamento): etapa 2 vê `eff_valid_until` estender →
+  **bump**.
+- `state_version` só sobe quando o **direito efetivo** muda. É o `as_of` que vai
+  no `entitlement token` e na resposta do `/entitlement/check`.
+- Reativação depois de `canceled`: quando a nova assinatura vira `active`, o
+  `eff_*` muda e o `state_version` (que nunca resetou) sobe → maior que o
+  guardado no Base44 → aplicado.
 
 ### 3.4 Deduplicação por efeito, não só por `event_id`
 
@@ -168,7 +211,9 @@ ninguém entra (fail-closed) ou todos entram de graça (fail-open).
 
 ### 4.1 Token de direito assinado + cache no app
 
-- `POST /entitlement/check` devolve `{ entitled, plan, valid_until, as_of, token }`.
+- `POST /entitlement/check` **recalcula** o direito efetivo (§3.2.1) na hora
+  (a partir de todas as assinaturas) e devolve
+  `{ entitled, plan, valid_until, as_of, token }` — `as_of = accounts.state_version`.
   O **entitlement token** é um JWT assinado pelo billing, TTL **24 h**, payload
   `{ email, plan, valid_until, as_of, issued_at }`.
 - O Base44 **guarda esse token** na sessão do usuário. Enquanto ele for válido
@@ -213,8 +258,12 @@ O cron diário **não** só alerta. Ele corrige.
      • valores divergentes / disputa em curso → NÃO repara sozinho:
          joga na FILA DE EXCEÇÕES pra revisão humana (runbook, SLA 1 dia útil)
 4. Todo reparo é transacional e idempotente (mesma regra condicional do §3.3):
-   rodar 2× não causa efeito duplo.
-5. Cada reparo gera audit_log + notificação pro operador.
+   rodar 2× não causa efeito duplo. Depois do reparo, RECALCULA o direito
+   efetivo (§3.2.1); se mudou, faz o bump de state_version + push.
+5. SWEEP de expiração: pra toda conta com eff_valid_until <= agora e ainda
+   eff_entitled=true → recalcula (dá false), bump, push. (Cobre o "período
+   pago acabou" que não é um evento do MP.)
+6. Cada reparo gera audit_log + notificação pro operador.
 ```
 
 Runbook (`docs/referencia/`, local): quem responde, como validar manualmente no
@@ -341,7 +390,7 @@ decisão "Worker+D1" é condicional ao spike.
 | 8 | Validação de valor (bate com o preço do plano) | §8 |
 | 9 | Token de direito assinado + cache + janela de tolerância 72 h | **§4 (Codex #3)** |
 | 10 | Resposta distinta "não tem" × "não consegui" | **§4.2 (Codex #3)** |
-| 10b | Push **não carrega estado** (só sinal "re-verifique"); Base44 aplica pull por `as_of` = `accounts.state_version` (**por conta, nunca reseta** — reativação legítima continua o contador) → nem push atrasado restaura acesso revogado, nem contador reiniciado bloqueia reativação | **§3.2–3.3, §6.1–6.2 (stop-gate Codex)** |
+| 10b | Push **não carrega estado** (só sinal "re-verifique"); Base44 aplica pull por `as_of` = `accounts.state_version` (**por conta, nunca reseta**, sobe **só quando o direito efetivo muda**) → push atrasado não restaura revogado, contador não bloqueia reativação, e **assinatura `pending` nova não remove** um Plus ainda válido de outra assinatura | **§3.2–3.3, §6.1–6.2 (stop-gate Codex)** |
 | 11 | Reconciliador que **repara** (não só alerta) + fila de exceções + runbook | **§5 (Codex #5)** |
 | 12 | Chargeback → `revoked` terminal e dominante + push imediato | §3.1, §5 |
 | 13 | `audit_log` append-only | §3.3 |
