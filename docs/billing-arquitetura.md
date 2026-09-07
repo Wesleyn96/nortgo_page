@@ -273,7 +273,7 @@ muda** ficaria invisível pra qualquer sync incremental. Então a convergência 
    - Alvo: um passe completo por **dia** (ritmo do paginador ajustado à
      quantidade de contas; hoje são dezenas/centenas → trivial).
    - Para cada página de contas, o billing consulta o Base44 **pelo conjunto
-     exato de e-mails daquela página**: `POST {base44}/billing-sync/lookup
+     exato de e-mails da página** (autenticado — §6.3): `POST {base44}/billing-sync/lookup
      { emails: [...] }` → `{ email: billing_as_of }`. E-mail **ausente** na
      resposta = `billing_as_of = 0` (o Base44 nunca soube dessa conta).
    - Regra (vale nas **duas direções**, sem filtrar por `eff_entitled`):
@@ -429,6 +429,30 @@ se resposta.as_of  <= billing_as_of  →  descarta (resultado obsoleto)
   sozinho, então um token velho reaplicado morre em 1 h. Pior caso vira ruído de
   1 h, não restauração permanente.
 
+### 6.3 Autenticação dos endpoints do Base44 (billing → Base44)
+
+Os endpoints do lado do Base44 (`hooks/billing-changed`, `billing-sync/lookup`)
+**nunca** são públicos. Toda chamada do billing pra eles carrega:
+
+- **`X-Billing-Signature`**: HMAC-SHA256 do corpo (ou de `path + timestamp` no
+  GET) com um **segredo compartilhado billing↔Base44**, guardado nas Secrets dos
+  dois lados. Base44 recalcula e compara; divergiu → `401`.
+- **`X-Billing-Timestamp`** + rejeição se |agora − ts| > 5 min (anti-replay).
+- **IP allowlist** dos ranges do Worker/Render, se o Base44 permitir.
+
+Além disso, o `billing-sync/lookup`:
+- **batch limitado** (ex. ≤ 200 e-mails por chamada) — 413 se passar;
+- **rate-limit** por origem;
+- devolve **só** `{ email → billing_as_of (int) }` — **nunca** `plan`,
+  `valid_until`, nome, ou qualquer PII. `as_of` é um inteiro opaco: não revela
+  status de assinatura por si só (Plus e free têm `as_of` no mesmo espaço).
+- e-mail desconhecido → omitido da resposta (o billing trata como `as_of = 0`),
+  sem confirmar/negar existência.
+
+Se o Base44 não suportar HMAC/allowlist num endpoint recebido → **não expõe o
+`lookup`** e usa o backstop cego do §3.5.1 (re-notifica tudo 1×/semana), que não
+precisa de endpoint de leitura no Base44.
+
 ---
 
 ## 7. ADR — Base44 vs Cloudflare Worker+D1 vs Python+Postgres/Render — resolve Codex #4
@@ -496,6 +520,7 @@ decisão "Worker+D1" é condicional ao spike.
 | 11 | Reconciliador que **repara** (não só alerta) + fila de exceções + runbook | **§5 (Codex #5)** |
 | 12 | Chargeback → `revoked` terminal e dominante + outbox (drenado em ~1 min) | §3.1, §5 |
 | 12b | Push via **outbox transacional** + drenador que **nunca desiste** + **reconciliador do canal** = **varredura COMPLETA** da tabela `accounts` do billing (paginada por PK, sem `since`, um passe/dia cobre 100% das contas) comparando cada uma com o `billing_as_of` do Base44 (`POST /billing-sync/lookup`; ausente = 0) → re-notifica drift **nos dois sentidos**. Sem `lookup` → re-notifica tudo 1×/semana. Crash pós-commit não perde nada; dead-letter/stale convergem sem login; teto = 7 dias | **§3.2–3.5.1, §5, §6.1 (stop-gate Codex ×4)** |
+| 12c | Endpoints do lado do Base44 (`hooks/billing-changed`, `billing-sync/lookup`): `X-Billing-Signature` HMAC + timestamp anti-replay + IP allowlist. `lookup` = batch ≤ 200, rate-limit, devolve **só `email → as_of` (int opaco)**, zero PII/`plan`/`valid_until`, e-mail desconhecido omitido | **§6.3 (stop-gate Codex)** |
 | 13 | `audit_log` append-only | §3.3 |
 | 14 | Menor privilégio: D1 não é lido pelo app; app só chama `/entitlement/check` e `/cancel` | §2.2, §6 |
 | 15 | Sandbox primeiro; `test`/`prod` separados | §10 |
