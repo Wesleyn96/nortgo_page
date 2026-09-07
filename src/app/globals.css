@@ -499,7 +499,7 @@ body {
 /* Notebook baixo / 1366×768: ritmo definido pelo dono. */
 @media (max-height: 720px) {
   .entrada-fit {
-    gap: 2.2rem;
+    gap: 2.75rem;
   }
 }
 
