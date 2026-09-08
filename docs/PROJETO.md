@@ -7,8 +7,27 @@
 - **Última atualização:** 2026-09-07
 - **Responsável pelo projeto:** Wesley Nascimento
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
-- **Domínios (decisão 2026-09-06):** `nortgo.com` = site institucional (Cloudflare Workers, no ar) · `nortgo.com.br` = app (Base44/Render), **em definitivo**. Dois domínios, propósitos distintos, **sem redirecionamento** entre eles. Revoga o alvo anterior (`app.nortgo.com` + `.com.br` redirecionando). Registrar `nortgo.com`: GoDaddy → nameservers hoje na Locaweb → migrando p/ Cloudflare. `nortgo.app` era só pretensão, removido do código.
+- **Domínios (decisão 2026-09-07, revoga a de 09-06):** `nortgo.com` = landing (Cloudflare Workers, **no ar**, este repo) · `nortgo.com.br` = app (Base44/Render, **no ar**). **A raiz `nortgo.com.br/` redireciona 301 para `nortgo.com`** — feito via "Redirecionamento de página" do próprio Base44 (origem `/`, destino `https://nortgo.com`, correspondência "caminho único"), sem mexer em nameserver. As demais rotas (`/login`, `/assinatura`, `/excluir-conta`, telas do app) continuam no Base44. Fluxo: landing → "Começar" → `nortgo.com.br/login` → cadastro → `nortgo.com.br/assinatura`. `nortgo.com` NS na Cloudflare; `nortgo.com.br` NS ainda no registro.br (não foi preciso mover). `nortgo.app` era só pretensão, removido do código.
 
+> **▶ Estado (2026-09-07):** **landing e app no ar, com os domínios unificados.**
+> `nortgo.com` (landing) e `nortgo.com.br` (app) no ar; `nortgo.com.br/` agora
+> redireciona 301 para `nortgo.com` (redirect do Base44). Tela de entrada passou
+> por várias iterações do dono: saíram os cards "ATRASADOS/HOJE" e o link "Já
+> tenho conta" (só sobra o CTA "Começar"), webfont Inter removida junto, mais
+> folga vertical/horizontal, hover forte no botão "Começar". Exploração de
+> "motion nos 6 ícones" **cancelada pelo dono** (artifact de referência guardado,
+> nada aplicado). **Jurídico/lojas:** Política de Privacidade **reescrita para
+> cobrir o app** (dados sensíveis, Base44/Mercado Pago, retenção, exclusão,
+> LGPD) — placeholders restantes: razão social, CNPJ, endereço. Termos com os
+> prazos preenchidos (30 dias reajuste, 12 meses teto). Criados
+> `docs/play-store-data-safety.md` (respostas do formulário do Play Console) e
+> `docs/prompt-base44-conformidade.md` (o que o Base44 precisa construir:
+> exclusão de conta + página pública, checkbox de aceite, links legais,
+> `/assinatura`, rota `/inicio`, exportar dados).
+> **Falta na nossa parte:** preencher razão social/CNPJ/endereço (decisão do
+> dono: PF ou CNPJ) → revisão jurídica → tirar as caixas "Aviso" e o `noindex`
+> das páginas. Confirmar que `contato@nortgo.com` recebe e-mail.
+>
 > **▶ Estado (2026-09-06):** **site NO AR** em
 > `https://nortgo-page.wesleynascimentojob.workers.dev` (Cloudflare Workers —
 > a conta nova só oferece o fluxo Workers, não Pages; `wrangler.jsonc` publica
@@ -109,21 +128,21 @@ tudo, mas com um estado de implementação por frente.
 
 | Frente | Status | Observação |
 |---|---|---|
-| App no Base44 | 🟡 Pronto p/ dono; go-live não validado | Falta inventário factual, prova de portabilidade, auditoria de segurança |
-| Landing (design + copy) | 🟢 Funcional e coesa | Todas as seções implementadas |
-| Captação de leads (waitlist) | 🟡 Operacional, sem backup | Via Formspree; sem exportação/restauração/responsável |
-| SEO técnico | 🟢 Encaminhado em código | metadata, OG, Twitter, sitemap, robots, JSON-LD — não validado em produção |
-| Cabeçalhos de segurança (landing) | 🟢 Em código | CSP, HSTS, etc. em `next.config.ts` — não verificado em produção |
-| Política de privacidade | 🟡 Modelo inicial | Placeholders `[destaque]` + revisão jurídica pendente |
-| Termos de Uso | 🔴 Não existe | Rodapé só tem "Privacidade" |
-| Copy vs. realidade | 🟡 FAQ corrigido; resto pendente | FAQ + JSON-LD ajustados (mergeado). Falta o passe de voz da marca no resto da landing |
+| App no Base44 | 🟡 Pronto p/ dono; go-live não validado | Falta inventário factual, prova de portabilidade, auditoria de segurança. Itens de conformidade das lojas em `docs/prompt-base44-conformidade.md` |
+| Landing (`nortgo.com`) | 🟢 No ar, tela de entrada curta | `Entrada.tsx` (logo + headline + 6 áreas + CTA "Começar"); dark-only; sem waitlist |
+| Domínios / redirect | 🟢 Unificados | `nortgo.com.br/` → 301 `nortgo.com` (redirect Base44); ver header |
+| SEO técnico | 🟢 Encaminhado em código | metadata, OG, Twitter, sitemap, robots, JSON-LD |
+| Cabeçalhos de segurança (landing) | 🟢 Em produção | CSP, HSTS, etc. em `public/_headers` (não `next.config.ts` — export estático) |
+| Política de Privacidade | 🟡 Reescrita p/ cobrir o app | Cobre dados sensíveis, operadores, retenção, exclusão, LGPD. Placeholders: razão social, CNPJ, endereço, DPO. `noindex` + caixa "Aviso" saem após revisão jurídica |
+| Termos de Uso | 🟡 Rascunho completo | 16 seções (assinatura, arrependimento CDC art. 49, foro do consumidor). Placeholders: razão social, CNPJ, endereço. Revisão jurídica pendente |
+| Prontidão p/ lojas (Play/App Store) | 🔴 Não iniciada | Checklist em `docs/play-store-data-safety.md`. Bloqueado por: entidade legal, exclusão de conta (Base44), revisão jurídica |
 | Preços / cobrança | 🔴 Em aberto | Taxas MP levantadas ([§8](#8-pagamento-e-cobrança)); modelo e valores não definidos |
 | Propriedade de ativos | 🔴 Não estruturada | Domínio, contas corporativas, MFA, GitHub org — a confirmar |
 | Analytics / métricas | 🔴 Não integrado | `data-track` no HTML, sem funil/eventos definidos, sem ferramenta |
 | Monitoramento / uptime | 🔴 Inexistente | Nenhum alerta de indisponibilidade da landing ou do app |
 | Backup / DR | 🔴 Não definido | Sem RPO/RTO, sem teste de restauração (landing e app) |
-| Testes / CI | 🟡 Base montada | Vitest + Testing Library (15 testes: waitlist, FAQ, footer, tema); CI (`.github/workflows/ci.yml`) roda lint + typecheck + testes + build. Falta cobertura mais ampla e o branch chegar na `main` |
-| Performance do hero | 🔴 Vídeo de 23,5 MB | `nortgo-demo.mp4` (30 s, 1524×980) com autoplay; receita de reencode pronta em `scripts/optimize-demo-video.sh` |
+| Testes / CI | 🟡 Base montada | Vitest + Testing Library (21 testes); CI roda lint + typecheck + testes + build. Falta cobertura mais ampla |
+| Performance da tela de entrada | 🟢 Leve | Sem vídeo; fundo WebP (~15 KB), sem webfont, JS mínimo |
 
 Legenda: 🟢 ok · 🟡 atenção · 🔴 pendente/não iniciado
 
@@ -357,8 +376,11 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
   fluxo, consumo de créditos Base44, falhas silenciosas.
 - **Vídeo de 23,5 MB no hero com autoplay:** impacto direto em LCP/dados.
   Mitigação pronta (não aplicada): `scripts/optimize-demo-video.sh`.
-- **Política de privacidade incompleta** coletando e-mails reais: risco LGPD.
-- ~~**Sem testes nem CI**~~ — mitigado: Vitest + CI na `main` (15 testes).
+- **Jurídico não finalizado antes de cobrar:** Política e Termos são rascunhos
+  com placeholders (razão social, CNPJ, endereço) e sem revisão de advogado. O
+  produto é pago e trata dado sensível (saúde/finanças) — CDC + LGPD. Não iniciar
+  cobrança antes de finalizar e revisar.
+- ~~**Sem testes nem CI**~~ — mitigado: Vitest + CI na `main` (21 testes).
   Cobertura ainda estreita.
 
 ---
@@ -366,6 +388,37 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 ## 11. Registro de decisões
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
+
+- **2026-09-07** — **Jurídico preparado para as lojas.** Política de Privacidade
+  **reescrita** para cobrir o app inteiro (a versão anterior só falava do site e
+  adiava o app): dados de cadastro, conteúdo do usuário, **dados sensíveis**
+  (saúde/finanças) com base legal de consentimento específico, Mercado Pago,
+  operadores (Base44/Render/Cloudflare), transferência internacional (EUA),
+  retenção (30 dias pós-exclusão, 6 meses de logs, 5 anos fiscais), exclusão de
+  conta (in-app + `nortgo.com.br/excluir-conta`), direitos LGPD + ANPD. Termos:
+  prazos [30]/[12] preenchidos. — Motivo: a Play Store e a App Store exigem uma
+  política que descreva o que o **app** faz. — Impacto: `privacidade/page.tsx`
+  reescrito (placeholders só em razão social/CNPJ/endereço/DPO), `termos/page.tsx`
+  ajustado. Novos: `docs/play-store-data-safety.md`, `docs/prompt-base44-conformidade.md`.
+  **Bloqueado por:** definição da entidade legal (PF × CNPJ) e revisão de
+  advogado (CDC + LGPD) antes da 1ª cobrança.
+
+- **2026-09-07** — **Domínios unificados (revoga "sem redirecionamento" de
+  09-06).** `nortgo.com.br/` passa a redirecionar 301 para `nortgo.com`, feito
+  pelo recurso de "Redirecionamento de página" do próprio Base44 (origem `/`,
+  destino `https://nortgo.com`, "caminho único"). As outras rotas seguem no
+  Base44. — Motivo: o dono quer os dois domínios levando à landing; era o menor
+  caminho (não precisou mover nameserver nem criar zona no Cloudflare). — Impacto:
+  nenhum no código (o "Começar" já ia para `nortgo.com.br/login`). Consequência
+  em aberto: a home do app logado não pode mais ser `/` → precisa de `/inicio`
+  (item no `prompt-base44-conformidade.md`).
+
+- **2026-09-07** — **Exploração de "motion nos 6 ícones" cancelada.** Foram
+  testados ~14 modelos em 3 rodadas de artifact (efeitos simples, avançados
+  genéricos, e conceitos tirados da marca — bússola, céu, nascer do sol,
+  organizar). O dono cancelou: não vamos aplicar motion nesses elementos. —
+  Impacto: nenhuma mudança no `Entrada.tsx` por conta disso; artifact de
+  referência existe mas não está no repo.
 
 - **2026-09-07** — **Tela de entrada: cabe inteira num notebook, sem scroll.**
   Removidos os cards de prévia "ATRASADOS / HOJE" e o link "Já tenho conta"
