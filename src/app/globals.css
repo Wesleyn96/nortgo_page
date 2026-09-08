@@ -310,7 +310,7 @@ body {
 }
 
 .entrada-logo {
-  height: clamp(2.6rem, 8.5svh, 6rem);
+  height: clamp(3rem, 10svh, 7rem);
   width: auto;
 }
 
