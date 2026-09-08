@@ -305,7 +305,7 @@ body {
    coluna preenche "janela − rodapé" e centraliza o conteúdo dentro disso.
    Só em janelas absurdamente baixas (< ~420px) a página volta a rolar. */
 .entrada-fit {
-  gap: clamp(0.7rem, 3svh, 2.9rem);
+  gap: clamp(0.75rem, 3.2svh, 3rem);
   padding-block: clamp(0.75rem, 3svh, 2.5rem);
 }
 
