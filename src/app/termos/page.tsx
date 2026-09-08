@@ -161,7 +161,8 @@ export default function TermosPage() {
             <li>
               <strong className="text-ink">Reajuste de preço:</strong> podemos
               alterar o valor da assinatura mediante aviso com pelo menos{" "}
-              <Falta>[30]</Falta> dias de antecedência, por e-mail. O novo valor
+              <strong className="text-ink">30 (trinta) dias</strong> de
+              antecedência, por e-mail. O novo valor
               só se aplica às renovações posteriores ao aviso; você pode cancelar
               antes que ele passe a valer.
             </li>
@@ -289,7 +290,8 @@ export default function TermosPage() {
             poderia ter evitado exportando cópias periódicas. Em qualquer
             hipótese, a responsabilidade total da NortGo relativa ao serviço fica
             limitada ao valor que você pagou pela assinatura nos{" "}
-            <Falta>[12]</Falta> meses anteriores ao fato.
+            <strong className="text-ink">12 (doze) meses</strong> anteriores ao
+            fato.
           </p>
           <p className="mt-2">
             O NortGo é uma ferramenta de organização: decisões financeiras, de
