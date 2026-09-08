@@ -3,7 +3,7 @@
 Texto abaixo é para colar no Base44. A arquitetura de **pagamento** (Mercado
 Pago recorrente + webhook) está no documento `prompt-base44-pagamento.md` — este
 aqui cobre o resto: exclusão de conta, aceite dos termos, links legais, paywall,
-rota inicial e exportação de dados.
+e exportação de dados.
 
 ---
 
@@ -105,22 +105,15 @@ A página precisa mostrar, de forma clara e **antes** de qualquer botão de paga
 Botão: **"Começar meus 7 dias grátis"**. O fluxo de pagamento em si está no
 documento de pagamento.
 
----
+Quem está logado **sem assinatura ativa** e cai na home (`nortgo.com.br/home`)
+deve ser levado para `/assinatura`.
 
-### 5. Rota inicial do app logado — `/inicio`
-
-Hoje `nortgo.com.br/` redireciona para `nortgo.com` (a landing). Por isso a tela
-inicial de quem está logado **não pode mais ser `/`**.
-
-- Criar a rota **`/inicio`** com o conteúdo que hoje fica em `/`.
-- Depois do login bem-sucedido, enviar o usuário para `/inicio`.
-- O logo e qualquer botão de "início" dentro do app apontam para `/inicio`.
-- Se o usuário logado **não tem assinatura ativa**, `/inicio` redireciona para
-  `/assinatura`.
+> **Já resolvido:** a home de quem tem conta é `nortgo.com.br/home` (não `/`), e
+> `nortgo.com.br/` já redireciona para a landing. Não precisa criar rota nova.
 
 ---
 
-### 6. Exportar meus dados
+### 5. Exportar meus dados
 
 - Em **Configurações → Minha conta**, botão **"Exportar meus dados"**.
 - Gera um arquivo (JSON ou CSV) com **todo** o conteúdo do usuário (tarefas,
@@ -138,8 +131,7 @@ inicial de quem está logado **não pode mais ser `/`**.
 - [ ] Checkbox de aceite (Termos + Política) no cadastro, botão travado até marcar, aceite gravado com data/versão
 - [ ] Links "Termos de Uso" e "Política de Privacidade" no rodapé/Configurações do app
 - [ ] Página `nortgo.com.br/assinatura` com preço, teste grátis, renovação e link dos Termos
-- [ ] Rota `/inicio` como tela inicial do logado; `/` deixa de ser a home do app
-- [ ] `/inicio` redireciona para `/assinatura` quando não há assinatura ativa
+- [ ] `nortgo.com.br/home` redireciona para `/assinatura` quando não há assinatura ativa
 - [ ] Botão "Exportar meus dados" no app
 
 ---

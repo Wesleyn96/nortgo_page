@@ -21,9 +21,9 @@
 > LGPD) — placeholders restantes: razão social, CNPJ, endereço. Termos com os
 > prazos preenchidos (30 dias reajuste, 12 meses teto). Criados
 > `docs/play-store-data-safety.md` (respostas do formulário do Play Console) e
-> `docs/prompt-base44-conformidade.md` (o que o Base44 precisa construir:
-> exclusão de conta + página pública, checkbox de aceite, links legais,
-> `/assinatura`, rota `/inicio`, exportar dados).
+> `docs/prompt-base44-conformidade.md` + `docs/cronograma-base44.md` (o que o
+> Base44 precisa construir: exclusão de conta + página pública, checkbox de
+> aceite, links legais, `/assinatura`, exportar dados).
 > **Falta na nossa parte:** preencher razão social/CNPJ/endereço (decisão do
 > dono: PF ou CNPJ) → revisão jurídica → tirar as caixas "Aviso" e o `noindex`
 > das páginas. Confirmar que `contato@nortgo.com` recebe e-mail.
@@ -387,6 +387,14 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-07** — **Cronograma de lançamento nas lojas** (`docs/cronograma-base44.md`,
+  formato WhatsApp, 7 fases com dono marcado). Estado confirmado pelo dono: **conta
+  Google Play Console já criada e aprovada**; **home do app logado é
+  `nortgo.com.br/home`** (o redirect da raiz não conflita — não precisa de
+  `/inicio`). **Ponto que decide o prazo:** se a conta Google for do tipo
+  *pessoal*, exige teste fechado de 12 testers × 14 dias antes de publicar; se for
+  *organização* (CNPJ), é isento. Confirmar o tipo no Console.
+
 - **2026-09-07** — **Jurídico preparado para as lojas.** Política de Privacidade
   **reescrita** para cobrir o app inteiro (a versão anterior só falava do site e
   adiava o app): dados de cadastro, conteúdo do usuário, **dados sensíveis**
@@ -407,9 +415,9 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
   destino `https://nortgo.com`, "caminho único"). As outras rotas seguem no
   Base44. — Motivo: o dono quer os dois domínios levando à landing; era o menor
   caminho (não precisou mover nameserver nem criar zona no Cloudflare). — Impacto:
-  nenhum no código (o "Começar" já ia para `nortgo.com.br/login`). Consequência
-  em aberto: a home do app logado não pode mais ser `/` → precisa de `/inicio`
-  (item no `prompt-base44-conformidade.md`).
+  nenhum no código (o "Começar" já ia para `nortgo.com.br/login`). A home do app
+  logado é `nortgo.com.br/home` (não `/`), então o redirect não conflita — já
+  estava resolvido do lado do Base44.
 
 - **2026-09-07** — **Exploração de "motion nos 6 ícones" cancelada.** Foram
   testados ~14 modelos em 3 rodadas de artifact (efeitos simples, avançados
