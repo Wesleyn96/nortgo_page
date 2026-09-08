@@ -163,9 +163,10 @@ Legenda: 🟢 ok · 🟡 atenção · 🔴 pendente/não iniciado
 - **CI:** GitHub Actions (`.github/workflows/ci.yml`) — lint, typecheck,
   testes e build em push na `main` e em todo PR.
 - **Pacotes:** npm. **Hospedagem:** Cloudflare Workers (assets estáticos via
-  `wrangler.jsonc`, publica `out/`). No ar em
-  `nortgo-page.wesleynascimentojob.workers.dev`; domínio `nortgo.com` pendente.
-- **Integrações externas:** apenas **Formspree** (`src/lib/waitlist.ts`).
+  `wrangler.jsonc`, publica `out/`; redeploy automático a cada push na `main`).
+  **No ar em `nortgo.com`** (+ workers.dev).
+- **Integrações externas:** **nenhuma** — a landing não coleta dado nem faz
+  request externo (CSP `connect-src 'self'`). Os botões só levam ao app no Base44.
 
 ### ⚠️ Este Next.js tem breaking changes (ver `AGENTS.md`)
 
@@ -182,32 +183,33 @@ Antes de codar, consultar `node_modules/next/dist/docs/`:
 
 ## 5. Estrutura de arquivos (landing)
 
+A landing é curta: só a tela de entrada + rodapé + as duas páginas jurídicas.
+A landing longa antiga (Hero, seções, waitlist, ThemeToggle, mockups, vídeo)
+**foi removida do repo em 2026-09-07** — está no histórico do git se precisar.
+
 ```
 src/
   app/
     layout.tsx           layout raiz: pt-BR, metadata, favicons, JSON-LD,
-                         script anti-flash de tema, Nav + Footer + ThemeToggle
-    page.tsx             composição das seções (Pricing importado mas comentado)
-    globals.css          tokens dos temas, tipografia, gradientes, botões, animações
-    privacidade/page.tsx política de privacidade (noindex) — MODELO INICIAL
-    robots.ts / sitemap.ts   home indexável, /privacidade fora
+                         data-theme="dark" fixo, só o Footer
+    page.tsx             <Entrada />
+    globals.css          tokens dos temas, .lead/.eyebrow/.text-grad,
+                         .btn-glass-copper, .entrada-*, .feature-badge, animações
+    privacidade/page.tsx  Política de Privacidade (noindex) — cobre o app; placeholders
+    termos/page.tsx       Termos de Uso (noindex) — rascunho; placeholders
+    robots.ts / sitemap.ts    home indexável, /privacidade e /termos fora
     opengraph-image.tsx / twitter-image.tsx   imagem social 1200×630
-  components/            uma seção por arquivo
-    Hero, Preview, Problem, SixApps, Features, HowItWorks,
-    CtaBand, Platforms, Faq, CtaFinal            → página ativa
-    Nav, Footer, ThemeToggle, Waitlist, WaitlistProof → compartilhados
-    IpadMockup, IphoneMockup, AppMockup          → mockups
-    Pricing.tsx                                  → implementado, NÃO renderizado
+  components/
+    Entrada.tsx (+ .test)   a tela de entrada
+    Footer.tsx  (+ .test)   rodapé enxuto (Termos · Privacidade · Contato)
   lib/
-    motion.ts / waitlist.ts
+    links.ts             APP_BASE_URL / APP_SIGNUP_URL / APP_LOGIN_URL
 public/
-  brand/  features/  nortgo-demo.mp4 (~23,5 MB ⚠️)  nortgo-app-mobile.png
-.env.example             variáveis FUTURAS (Mercado Pago, banco) — nada usado hoje
-next.config.ts           poweredByHeader:false + cabeçalhos de segurança globais
+  brand/  bg-desktop.webp  bg-responsive.webp  favicons + og images
+_headers                 cabeçalhos de segurança (CSP, HSTS, etc.) — formato Cloudflare
+next.config.ts           output:"export", images.unoptimized, poweredByHeader:false
+wrangler.jsonc           deploy Cloudflare Workers (assets de ./out)
 ```
-
-Separação intencional: `app/` só rotas, `components/` só UI. Lógica de servidor
-futura em `src/app/api/`, segredos em variáveis de ambiente.
 
 ---
 
@@ -215,31 +217,31 @@ futura em `src/app/api/`, segredos em variáveis de ambiente.
 
 ### 6.1 Funcionalidades da landing
 
-- Nav sticky; Hero com vídeo em mockup de iPad; Preview mobile; seção "Problema";
-  SixApps (animação por scroll, com fallback `prefers-reduced-motion`); Recursos
-  (6 cards); Como funciona (3 passos); 3 CTAs de captura; FAQ (`<details>` +
-  JSON-LD); tema dark padrão + toggle; SEO completo; rodapé.
-- **Waitlist:** POST ao Formspree; e-mail obrigatório (máx. 254); consentimento
-  obrigatório ligado à política; honeypot `_gotcha`; estados acessíveis.
-- **Prova social honesta:** sem `WAITLIST_COUNT` comprovado → copy sem número.
-- **Segurança (código):** CSP (`'unsafe-inline'` em script pela hidratação RSC do
-  Next; `'unsafe-eval'` só em dev), `X-Frame-Options: DENY`, `nosniff`,
-  `Referrer-Policy`, `Permissions-Policy`, HSTS `preload`. `connect-src`/
-  `form-action` só `formspree.io`.
+- **Tela de entrada** (`Entrada.tsx`): logo, headline "Foco no que importa. /
+  Vida organizada.", subtítulo, **6 áreas** (Agenda/Tarefas/Rotinas/Finanças/
+  Saúde/Notas) como badges, CTA único **"Começar"** → `nortgo.com.br/login`,
+  selos discretos "em breve nas lojas". Fundo: foto WebP do horizonte de um
+  planeta. Animação de entrada em CSS, com fallback `prefers-reduced-motion`.
+- **Sem** waitlist, formulário, coleta de dado ou request externo.
+- **Dark-only** (`data-theme="dark"` fixo; toggle removido).
+- **Rodapé:** Termos · Privacidade · Contato (`contato@nortgo.com`).
+- **Segurança:** CSP restrita (`connect-src 'self'`, `form-action 'self'`,
+  `frame-ancestors 'none'`), HSTS `preload`, `X-Frame-Options: DENY`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy` — em `public/_headers`.
 
 ### 6.2 Decisões de design
 
 | Área | Decisão | Motivo |
 |---|---|---|
-| Tema | Dark padrão (`<html data-theme="dark">`) | Estética "SaaS técnico premium"; light preservado |
-| Toggle de tema | Existe como **controle de prévia** | Não decidido se vira feature ou sai |
+| Tema | **Dark-only** (`<html data-theme="dark">` fixo) | Estética "SaaS técnico premium"; o bloco de tokens light fica no CSS para reativar no futuro |
+| Toggle de tema | **Removido** (2026-09-06) | Site só no escuro |
 | Superfície dark | Fundo `#060606`; cards por borda + sombra | Visual limpo |
 | Paleta | Só quente: cobre/bronze na **identidade** (logo, títulos, botões, chrome). **Azul e roxo proibidos** aí. Exceção (decisão do dono, 2026-09-06): **ícones semânticos em mockups do app** podem usar cores funcionais — azul p/ agenda, verde p/ dinheiro, vermelho p/ atraso — porque representam a UI do produto, não a marca | Identidade da marca |
 | Gradiente dos títulos | `#E87B00 → #FFC77E → #E87B00`, só na frase-chave | Mesmo tom dos botões |
 | Botões | "Liquid glass" (iOS 26) | Relevo via `box-shadow` em camadas |
 | Tipografia | Stack de sistema (Helvetica). **Sem webfont** — zero download. (A exceção "Inter nos cards de prévia" de 2026-09-06 foi revertida em 2026-09-07 junto com a remoção dos cards ATRASADOS/HOJE.) |
 | Prova social | Nunca inflar contagem | Confiança + CDC art. 37 |
-| Seção "Planos" | Desativada (código mantido) | Preços não definidos |
+| Landing longa | **Removida do repo** (2026-09-07) | A tela de entrada é a única página; histórico no git |
 
 Tokens (dark): `cobre #e0824a` · `cobre claro #f3a267` · `cobre profundo #bf6631`
 · `texto cobre #ef9f66` · `texto principal #f5f3f0` · `secundário #a6a4af` ·
@@ -366,16 +368,12 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
   retenção indevida e acesso admin — falta classificação/minimização por campo.
 - **Promessas vs. realidade na landing:** FAQ afirma Mercado Pago, criptografia e
   IA como se existissem. Risco legal/reputacional. Corrigir no passo 0(b).
-- **Formspree como cópia única dos leads:** o Plano Mestre proíbe manter o único
-  backup no mesmo provedor.
 - **Contas em namespace pessoal:** repo remoto `Wesleyn96/nortgo_page`; provável
   dependência de conta individual. Migrar para org da empresa + branch protection.
 - **Unit economics desconhecida:** taxa MP é só uma parcela; falta custo
   Base44/usuário, IA, suporte, imposto, chargeback, CAC.
 - **Sem observabilidade:** uptime externo não mede erros internos, latência por
   fluxo, consumo de créditos Base44, falhas silenciosas.
-- **Vídeo de 23,5 MB no hero com autoplay:** impacto direto em LCP/dados.
-  Mitigação pronta (não aplicada): `scripts/optimize-demo-video.sh`.
 - **Jurídico não finalizado antes de cobrar:** Política e Termos são rascunhos
   com placeholders (razão social, CNPJ, endereço) e sem revisão de advogado. O
   produto é pago e trata dado sensível (saúde/finanças) — CDC + LGPD. Não iniciar

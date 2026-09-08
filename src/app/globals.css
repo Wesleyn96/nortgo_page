@@ -26,10 +26,8 @@
   --color-line: rgba(28, 22, 19, 0.1);
   --color-line-strong: rgba(28, 22, 19, 0.16);
 
-  /* Motion system — see anotações.txt §19 */
+  /* Motion */
   --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);
-  --motion-fast: 200ms;
-  --motion-normal: 400ms;
   --motion-cinematic: 900ms;
 
   /* Elevation — warm-tinted shadows, tokenised so components stop
@@ -150,23 +148,6 @@ body {
   color: #ffffff;
 }
 
-/* Fundo em degradê da seção "Sua cabeça não é lugar…" (ref.: Gradient_bg.svg).
-   Elipse larga e achatada: centro transparente → laranja #FF8A06 →
-   escurece de volta no fim (vinheta). Brilho quente vindo de cima. */
-.gradient-bg {
-  position: absolute;
-  z-index: 0;
-  pointer-events: none;
-  /* Tom laranja #E87B00 do degradê das fontes, sólido do miolo até a borda
-     (sem creme claro no fim — antes puxava pro branco). */
-  background: radial-gradient(
-    135% 68% at 50% -8%,
-    transparent 37%,
-    rgba(232, 123, 0, 0.22) 65%,
-    rgba(232, 123, 0, 0.15) 100%
-  );
-}
-
 :focus-visible {
   outline: 2px solid var(--color-copper-deep);
   outline-offset: 3px;
@@ -174,77 +155,8 @@ body {
 }
 
 
-/* ── Botão primário "Liquid Glass" (ref.: iOS 26 Liquid Glass Buttons) ────
-   Vidro fosco translúcido: acompanha a luminância da página (claro no tema
-   claro, escuro no dark) e o texto segue o contraste via var(--color-ink).
-   O relevo vem todo do box-shadow em camadas (tradução dos inner-shadows do
-   modelo do Figma). Fonte SF Pro (system, sem download). */
-.btn-primary {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px 21px;
-  border-radius: 100px;
-  font-family: var(--font-sf);
-  font-weight: 500;
-  color: var(--color-ink);
-  background:
-    linear-gradient(
-      160deg,
-      rgba(255, 255, 255, 0.12),
-      rgba(255, 255, 255, 0) 42%
-    ),
-    rgba(150, 150, 150, 0.22);
-  -webkit-backdrop-filter: blur(6px) saturate(1.4);
-  backdrop-filter: blur(6px) saturate(1.4);
-  box-shadow:
-    3px 3px 0.5px -3.5px #fff inset,
-    2px 2px 0.5px -2px rgba(38, 38, 38, 0.5) inset,
-    -2px -2px 0.5px -2px rgba(38, 38, 38, 0.5) inset,
-    0 0 0 1px rgba(166, 166, 166, 0.5) inset,
-    0 0 8px 0 rgba(242, 242, 242, 0.55) inset,
-    0 0 2px 0 rgba(0, 0, 0, 0.1),
-    0 1px 8px 0 rgba(0, 0, 0, 0.12);
-  transition:
-    filter var(--motion-fast) ease,
-    transform var(--motion-fast) ease;
-}
-
-.btn-primary:hover {
-  filter: brightness(1.06);
-}
-
-.btn-primary:active {
-  transform: translateY(1px);
-}
-
-:root[data-theme="dark"] .btn-primary {
-  background:
-    linear-gradient(
-      160deg,
-      rgba(255, 255, 255, 0.14),
-      rgba(255, 255, 255, 0) 42%
-    ),
-    rgba(51, 51, 51, 0.28);
-  box-shadow:
-    3px 3px 0.5px -3.5px rgba(255, 255, 255, 0.8) inset,
-    1px 1px 1px 0.5px rgba(255, 255, 255, 0.7) inset,
-    -1px -1px 1px 0.5px rgba(255, 255, 255, 0.7) inset,
-    0 0 1px 1px rgba(255, 255, 255, 0.14) inset,
-    0 0 1px 1px rgba(153, 153, 153, 0.45) inset,
-    0 0 16px 0 rgba(242, 242, 242, 0.16) inset,
-    0 0 2px 0 rgba(0, 0, 0, 0.2),
-    0 1px 8px 0 rgba(0, 0, 0, 0.3);
-}
-
-:root[data-theme="dark"] .btn-primary:hover {
-  filter: brightness(1.14);
-}
-
-/* Variante do botão "liquid glass" com o fill = degradê laranja dos títulos
-   (--gradient-text). Mesma linguagem de relevo (highlight, aro de 1px, glow
+/* Botão primário "Liquid Glass" — fill = degradê laranja dos títulos
+   (#E87B00). Relevo por box-shadow em camadas (highlight, aro de 1px, glow
    quente, sombra). Texto marrom escuro pra ler no meio claro do degradê.
    Não trava padding — quem usa define o tamanho pelas utilities. */
 .btn-glass-copper {
@@ -305,38 +217,13 @@ body {
   }
 }
 
-/* ══ Escala tipográfica — PADRÃO DO SITE ═════════════════════════════════
-   Nível          classe           mobile → sm → md+        uso
-   Título página  .display-title   ~2.9rem → 4.5rem → 6.04rem   hero h1
-   Título seção   .section-title   2.25rem → 3rem  → 3.75rem    h2 das seções
-   Sub-título     .sub-heading     1.5rem  →       → 2.08rem    h3 / mini-título
-   Lead           .lead            1.1875rem (19px)             parágrafo de intro
-   Corpo          text-base (Tailwind, 16px)                    texto comum
-   Legenda        .caption         0.875rem (14px)              nota / rodapé
-   Eyebrow        .eyebrow         0.75rem (12px), mono, CAPS   rótulo acima do título
+/* ══ Escala tipográfica ═════════════════════════════════════════════════
+   .lead     1.1875rem (19px)         parágrafo de intro
+   .eyebrow  0.75rem (12px), mono CAPS rótulo acima do título
+   .text-grad                         span com o degradê laranja da marca
    Componentes só somam classes de LAYOUT (mt-*, max-w-*, text-center, cor…). */
 
-.display-title {
-  font-family: var(--font-titles);
-  font-weight: 400;
-  /* Fluido de ponta a ponta: ~44px no celular, ~76px num notebook 1440px,
-     e só chega nos 6.04rem (~97px) em telas grandes (~1920px+). */
-  font-size: clamp(2.75rem, 4.2vw + 0.9rem, 6.04rem);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-}
-
-.section-title {
-  font-family: var(--font-titles);
-  font-weight: 500;
-  font-size: 1.875rem;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
-  color: var(--color-ink);
-}
-
-/* Aplicado só em trechos específicos de título (span) — o degradê laranja
-   do cliente. O resto do título fica na cor de texto normal. */
+/* Degradê laranja da marca, aplicado a trechos de título (span). */
 .text-grad {
   background-image: var(--gradient-text);
   -webkit-background-clip: text;
@@ -345,22 +232,8 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-.sub-heading {
-  font-family: var(--font-titles);
-  font-weight: 500;
-  font-size: 1rem;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-  color: var(--color-ink);
-}
-
 .lead {
   font-size: 1.1875rem; /* 19px */
-  line-height: 1.6;
-}
-
-.caption {
-  font-size: 0.875rem; /* 14px */
   line-height: 1.6;
 }
 
@@ -369,41 +242,6 @@ body {
   font-size: 0.75rem; /* 12px */
   text-transform: uppercase;
   letter-spacing: 0.14em;
-}
-
-@media (min-width: 640px) {
-  .section-title {
-    font-size: 2.25rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .section-title {
-    font-size: 2.75rem;
-  }
-  .sub-heading {
-    font-size: 1.1875rem;
-  }
-}
-
-/* Hero atmosphere — só o bloom quente vindo do topo (as linhas verticais
-   "papel pautado" foram removidas). */
-.hero-wash {
-  background: radial-gradient(
-    62% 46% at 50% 0%,
-    rgba(238, 138, 68, 0.16),
-    rgba(201, 104, 44, 0.05) 45%,
-    transparent 74%
-  );
-}
-
-:root[data-theme="dark"] .hero-wash {
-  background: radial-gradient(
-    72% 52% at 50% -6%,
-    rgba(240, 150, 92, 0.16),
-    rgba(200, 110, 50, 0.06) 40%,
-    transparent 72%
-  );
 }
 
 /* Tela de entrada — fundo: limbo de um planeta com o brilho quente do
@@ -565,93 +403,9 @@ body {
   animation: rise var(--motion-cinematic) var(--ease-cinematic) both;
 }
 
-/* Card "em breve nas lojas" (seção Platforms) — retângulo grande com fundo
-   em degradê quente (ref.: print do cliente), nos tons do --gradient-text. */
-.stores-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(232, 123, 0, 0.16);
-  background:
-    radial-gradient(
-      95% 78% at 50% 28%,
-      rgba(232, 123, 0, 0.3),
-      rgba(232, 123, 0, 0.09) 55%,
-      transparent 82%
-    ),
-    linear-gradient(180deg, #150e08, #0b0805);
-  box-shadow:
-    0 30px 80px -40px rgba(0, 0, 0, 0.8),
-    inset 0 1px 0 rgba(255, 221, 183, 0.08);
-}
-
-/* O card é sempre escuro (âmbar), então o texto dentro dele é claro nos
-   dois temas — senão no tema claro o texto (var(--color-ink) escuro) sumia. */
-.stores-card .section-title {
-  color: #f6f2ec;
-}
-.stores-card .lead {
-  color: rgba(246, 242, 236, 0.74);
-}
-.stores-card .eyebrow {
-  color: #f2a866;
-}
-
-/* Brilho vetorial atrás do mockup de iPad no hero — nos tons do degradê das
-   fontes (--gradient-text): creme #FFDDB7 no miolo, laranja #E87B00 em volta.
-   Grande e bem visível, dissolve nas bordas. Fica atrás do mockup (z-0). */
-.mockup-glow {
-  position: absolute;
-  z-index: 0;
-  left: 50%;
-  top: 2%;
-  width: 108%;
-  max-width: 1350px;
-  height: 94%;
-  transform: translateX(-50%);
-  border-radius: 9999px;
-  pointer-events: none;
-  background: radial-gradient(
-    closest-side,
-    rgba(232, 123, 0, 0.32),
-    rgba(232, 123, 0, 0.12) 45%,
-    transparent 78%
-  );
-}
-
-/* "Estrela" atrás de cada palavra da animação SixApps — brilho de nebulosa
-   bem suave. Reversível: some junto com a const STAR_GLOW em SixApps.tsx.
-   A cor entra por `background` inline (radial-gradient por palavra). */
-@keyframes star-twinkle {
-  0%,
-  100% {
-    opacity: 0.36;
-  }
-  50% {
-    opacity: 0.62;
-  }
-}
-
-.star-glow {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 155%;
-  min-width: 12rem;
-  height: 5rem;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  filter: blur(38px);
-  opacity: 0.48;
-  pointer-events: none;
-  animation: star-twinkle 6s ease-in-out infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .animate-rise {
     animation: none !important;
-  }
-  .star-glow {
-    animation: none;
   }
   .entrada-photo {
     animation: none;
