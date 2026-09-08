@@ -142,4 +142,67 @@ inicial de quem está logado **não pode mais ser `/`**.
 - [ ] `/inicio` redireciona para `/assinatura` quando não há assinatura ativa
 - [ ] Botão "Exportar meus dados" no app
 
+---
+
+### Apêndice — copy pronta da página `/excluir-conta`
+
+Use este texto como está. Português, tom direto.
+
+**Título:** Excluir sua conta do NortGo
+
+**Parágrafo de abertura:**
+> Você pode pedir a exclusão da sua conta e dos seus dados a qualquer momento.
+> Preencha o e-mail da conta abaixo. Vamos te enviar um link de confirmação —
+> isso garante que só o dono da conta consegue excluí-la. Você não precisa estar
+> logado nem ter o aplicativo instalado.
+
+**Formulário:**
+- Campo: `E-mail da sua conta` (tipo e-mail, obrigatório)
+- Botão: **Enviar link de confirmação**
+
+**Depois de enviar (mensagem na tela):**
+> Se existir uma conta com esse e-mail, você vai receber um link de confirmação
+> em alguns minutos. Verifique também a caixa de spam. O link vale por 24 horas.
+
+**O que será apagado (bloco de texto abaixo do formulário):**
+> Ao confirmar, apagamos em até 30 dias:
+> - seu perfil e login;
+> - tudo que você registrou no NortGo: tarefas, notas, compromissos, rotinas,
+>   dados de finanças e de saúde.
+>
+> Sua assinatura é cancelada e as próximas cobranças param.
+>
+> Por obrigação legal, mantemos por tempo limitado e sem uso: registros de acesso
+> (6 meses) e dados de cobrança e nota fiscal (5 anos).
+>
+> Dúvidas: contato@nortgo.com
+
+**Página de confirmação (quando a pessoa clica no link do e-mail):**
+- Título: `Confirmar exclusão da conta`
+- Texto: `Esta ação é definitiva e não pode ser desfeita. Todos os seus dados no
+  NortGo serão apagados.`
+- Botão: **Excluir minha conta definitivamente**
+- Após concluir: `Sua conta foi excluída. Sentimos muito por ver você partir.`
+
+**E-mail de confirmação (o que a pessoa recebe):**
+- Assunto: `Confirme a exclusão da sua conta NortGo`
+- Corpo:
+  > Recebemos um pedido para excluir a conta NortGo ligada a este e-mail.
+  >
+  > Se foi você, confirme pelo botão abaixo (o link vale por 24 horas):
+  > [ Confirmar exclusão da conta ]
+  >
+  > Se não foi você, ignore este e-mail — nada será alterado.
+
+**E-mail final (depois que a conta é excluída):**
+- Assunto: `Sua conta NortGo foi excluída`
+- Corpo:
+  > Sua conta e seus dados foram removidos do NortGo. Sua assinatura foi
+  > cancelada e não haverá novas cobranças.
+  >
+  > Guardamos apenas o mínimo exigido por lei (registros de acesso por 6 meses,
+  > dados fiscais por 5 anos), sem nenhum uso.
+  >
+  > Se mudar de ideia, é só criar uma conta nova em nortgo.com.br.
+
 ## FIM DO TEXTO PARA COLAR
