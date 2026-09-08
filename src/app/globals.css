@@ -298,79 +298,71 @@ body {
   }
 }
 
-/* Coluna central da tela de entrada — ritmo vertical por `gap` (não `mt-*`
-   nos filhos), pra encolher de forma limpa e caber inteira num notebook
-   sem scroll. A viewport é dividida entre <main> e <footer> por flexbox
-   (layout.tsx); aqui só controlamos o espaçamento interno e o tamanho do
-   logo/título conforme a ALTURA da tela. Nada é cortado: se ainda assim
-   não couber (janelas muito baixas), a página rola normalmente. */
+/* Tela de entrada — TUDO escala com a ALTURA da janela (unidades `svh`),
+   preso entre um mínimo compacto e um máximo confortável. Assim a tela se
+   ajusta a qualquer altura de navegador e nunca precisa de scroll. O layout
+   divide a janela entre <main> e <footer> por flexbox (layout.tsx); esta
+   coluna preenche "janela − rodapé" e centraliza o conteúdo dentro disso.
+   Só em janelas absurdamente baixas (< ~420px) a página volta a rolar. */
 .entrada-fit {
-  gap: 2.75rem;
+  gap: clamp(0.6rem, 2.5svh, 2.6rem);
+  padding-block: clamp(0.75rem, 3svh, 2.5rem);
 }
 
 .entrada-logo {
-  height: 6rem; /* 96px */
+  height: clamp(2.6rem, 8.5svh, 6rem);
   width: auto;
 }
 
 .entrada-title {
   font-family: var(--font-titles);
   font-weight: 500;
-  font-size: 1.9rem;
-  line-height: 1.1;
+  font-size: clamp(1.4rem, 4.4svh, 3.1rem);
+  line-height: 1.08;
   letter-spacing: -0.02em;
 }
 
-@media (min-width: 640px) {
-  .entrada-title {
-    font-size: 2.5rem;
-  }
+.entrada-fit .lead {
+  font-size: clamp(0.85rem, 2.1svh, 1.1875rem);
+  line-height: 1.5;
 }
 
-@media (min-width: 768px) {
-  .entrada-title {
-    font-size: 3.25rem;
-  }
+/* As 6 áreas */
+.entrada-areas {
+  row-gap: clamp(0.7rem, 2.4svh, 1.5rem);
+}
+.entrada-areas > li {
+  gap: clamp(0.3rem, 1svh, 0.6rem);
+}
+.feature-badge {
+  width: clamp(2.4rem, 7.6svh, 3.5rem);
+  height: clamp(2.4rem, 7.6svh, 3.5rem);
+}
+.feature-badge > svg {
+  width: clamp(16px, 3.4svh, 26px);
+  height: clamp(16px, 3.4svh, 26px);
+}
+.entrada-area-label {
+  font-size: clamp(10px, 1.7svh, 13px);
+  font-weight: 700;
 }
 
-/* Notebook padrão (~740–860px de viewport): aperta só o logo e o título;
-   o `gap` da coluna fica em 2.75rem em toda altura (ajuste do dono). */
-@media (max-height: 860px) {
-  .entrada-logo {
-    height: 4.75rem;
-  }
-  .entrada-title {
-    font-size: 1.9rem;
-  }
+/* "Começar" — respiro extra que cresce com a altura; botão fluido */
+.entrada-cta {
+  margin-top: clamp(0rem, 1.4svh, 1.25rem);
+}
+.entrada-cta-btn {
+  padding: clamp(0.5rem, 1.6svh, 0.875rem) clamp(1.4rem, 4svh, 2rem);
+  font-size: clamp(13px, 1.9svh, 15px);
 }
 
-@media (max-height: 860px) and (min-width: 768px) {
-  .entrada-title {
-    font-size: 2.5rem;
-  }
-  /* Notebook: desce um pouco o "Começar" em relação às áreas acima. */
-  .entrada-cta {
-    margin-top: 1.5rem;
-  }
-}
-
-/* Bloco "em breve nas lojas" — discreto: fica abaixo do CTA e não deve
-   competir com ele. Selos menores que os 40px do arquivo, e um respiro
-   extra acima que cresce um pouco com a altura da tela (fica ~0 em telas
-   baixas). */
+/* Selos das lojas — discretos */
 .entrada-stores {
-  margin-top: clamp(0.25rem, 1.6vh, 1.1rem);
+  margin-top: clamp(0.2rem, 1.6svh, 1.1rem);
 }
-
 .entrada-stores img {
-  height: 1.85rem; /* ~30px (arquivo é 40px) */
+  height: clamp(1.35rem, 3.4svh, 1.85rem);
   width: auto;
-}
-
-@media (max-height: 720px) {
-  .entrada-stores img {
-    height: 1.6rem;
-  }
 }
 
 /* Badges das seis áreas — círculo escuro (preenchimento radial preto), sem

@@ -72,10 +72,11 @@ export default function Entrada() {
       <div className="entrada-photo" aria-hidden="true" />
 
       {/* Coluna central. Preenche o espaço que sobra da viewport depois do
-          rodapé (flex-1); o ritmo vertical vem do `gap` (.entrada-fit em
-          globals.css), que encolhe em telas baixas pra caber tudo num
-          notebook sem scroll. */}
-      <div className="entrada-fit relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-6 py-8 text-center">
+          rodapé (flex-1) e centraliza o conteúdo. Todo o dimensionamento
+          (gap, logo, título, áreas, botão, selos, padding) é fluido em
+          unidades `svh` (.entrada-* em globals.css): a tela se ajusta a
+          qualquer altura de navegador sem scroll. */}
+      <div className="entrada-fit relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-6 text-center">
         <Image
           src={logo}
           alt="NortGo"
@@ -108,13 +109,13 @@ export default function Entrada() {
             de sm; nunca estoura a largura. Folga horizontal maior no desktop
             e notebook (sm/lg) pra os rótulos não se encostarem. */}
         <ul
-          className="grid w-full max-w-full animate-rise grid-cols-3 gap-x-5 gap-y-6 sm:grid-cols-6 md:gap-x-10 lg:gap-x-14"
+          className="entrada-areas grid w-full max-w-full animate-rise grid-cols-3 gap-x-5 sm:grid-cols-6 md:gap-x-10 lg:gap-x-14"
           style={{ animationDelay: "150ms" }}
           aria-label="O que o NortGo organiza"
         >
           {features.map((f) => (
-            <li key={f.label} className="flex flex-col items-center gap-2.5">
-              <span className="feature-badge grid h-14 w-14 place-items-center rounded-full">
+            <li key={f.label} className="flex flex-col items-center">
+              <span className="feature-badge grid place-items-center rounded-full">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -122,13 +123,12 @@ export default function Entrada() {
                   strokeWidth="1.6"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="h-[26px] w-[26px]"
                   aria-hidden="true"
                 >
                   {f.icon}
                 </svg>
               </span>
-              <span className="text-[13px] font-bold text-ink-dim">{f.label}</span>
+              <span className="entrada-area-label text-ink-dim">{f.label}</span>
             </li>
           ))}
         </ul>
@@ -140,7 +140,7 @@ export default function Entrada() {
           <a
             href={APP_SIGNUP_URL}
             data-track="entrada-primary-cta"
-            className="btn-glass-copper px-8 py-3.5 text-[15px]"
+            className="btn-glass-copper entrada-cta-btn"
           >
             Começar
           </a>
