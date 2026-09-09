@@ -11,14 +11,36 @@ com as pessoas conseguindo se cadastrar, pagar e usar.
 
 ## O que ainda falta, resumido
 
-1. Algumas **regras** que as lojas de aplicativo exigem.
-2. O **sistema de pagamento**.
-3. Preparar a **página do app na loja** (a "vitrine").
-4. **Testar**.
-5. **Enviar** para a Google e a Apple aprovarem.
+1. Abrir um **MEI** e ajustar a conta da loja (isso muda o prazo — ver o Passo 0).
+2. Algumas **regras** que as lojas de aplicativo exigem.
+3. O **sistema de pagamento**.
+4. Preparar a **página do app na loja** (a "vitrine").
+5. **Testar**.
+6. **Enviar** para a Google e a Apple aprovarem.
 
-Abaixo, cada coisa explicada. Dividido entre **o que o Ricardo faz** (ele
-programa no Base44) e **o que você faz** (Wesley).
+Dividido entre **o que o Ricardo faz** (ele programa e cuida da parte
+técnica/burocrática no Base44) e **o que você faz** (Wesley).
+
+---
+
+# PASSO 0 — Abrir o MEI (a decisão que muda o prazo) — RICARDO
+
+**A situação:** a conta do Google Play hoje é do tipo **"pessoal"**.
+
+**O problema:** conta pessoal obriga um **teste de 12 pessoas usando o app por 14
+dias seguidos** antes de você poder publicar. Isso atrasa tudo em 2 a 3 semanas.
+
+**A solução:** abrir um **MEI** (Microempreendedor Individual). É **de graça**,
+sai **na hora** pelo site do governo (gov.br), e com o CNPJ dá para mudar a conta
+do Google Play para **"de organização"**. Aí o teste de 14 dias **deixa de ser
+obrigatório**.
+
+**O que precisa acontecer:**
+1. Abrir o MEI.
+2. Mudar o tipo da conta no Google Play para "organização" (usando o CNPJ do
+   MEI).
+3. Passar para o Wesley: **razão social, CNPJ e endereço** — o Claude usa esses
+   dados para preencher os espaços em branco dos Termos e da Política.
 
 ---
 
@@ -103,46 +125,22 @@ guardou no NortGo.
 
 # PARTE B — O que VOCÊ (Wesley) precisa fazer
 
-### B1. Descobrir se sua conta do Google Play é "Pessoal" ou "de Organização"
-
-**Por quê:** isso muda MUITO o prazo.
-- Conta **pessoal** → o Google obriga um teste de **12 pessoas usando o app por
-  14 dias seguidos** antes de você poder publicar.
-- Conta **de organização** (com CNPJ) → **pula** esse teste, vai direto para a
-  aprovação.
-
-**Onde ver:** no Play Console → Configurações → Detalhes da conta do
-desenvolvedor.
-
-### B2. Decidir: pessoa física ou CNPJ (MEI)?
-
-Isso define o nome que vai nos Termos e na Política, e resolve o B1.
-
-**Recomendação:** abrir um **MEI**. É de graça, sai na hora pelo site do governo
-(gov.br), e faz sua conta virar "de organização" — economizando 2 a 3 semanas de
-teste.
-
-### B3. Me passar os dados da empresa
-
-Razão social (ou seu nome completo), CNPJ (se tiver) e endereço. Com isso eu
-preencho os espaços em branco dos Termos e da Política de Privacidade.
-
-### B4. Um advogado revisar os Termos e a Política
+### B1. Um advogado revisar os Termos e a Política
 
 **Por quê:** você vai **cobrar dinheiro** e guardar **dados de saúde e
 finanças**. Antes da primeira cobrança, vale ter um advogado (de Direito do
 Consumidor e proteção de dados) confirmando que está tudo certo.
 
-### B5. Conferir se o e-mail `contato@nortgo.com` está recebendo mensagens
+### B2. Conferir se o e-mail `contato@nortgo.com` está recebendo mensagens
 
 É o canal oficial que aparece nos Termos, na Política e nas lojas. Se ele não
 funcionar, dá problema na aprovação e com os clientes.
 
-### B6. Criar a conta de desenvolvedor da Apple
+### B3. Criar a conta de desenvolvedor da Apple
 
 Custa **US$ 99 por ano**. Pode fazer em paralelo com o resto.
 
-### B7. Preparar a "vitrine" do app na loja
+### B4. Preparar a "vitrine" do app na loja
 
 - Nome do app, uma descrição curta e uma completa.
 - O ícone (imagem quadrada de 512×512).
@@ -151,51 +149,56 @@ Custa **US$ 99 por ano**. Pode fazer em paralelo com o resto.
 - Escolher a categoria.
 - Responder um questionário sobre o conteúdo (define a faixa etária — vai ser
   18+).
-- Preencher o formulário de "Segurança dos dados" — eu já deixei as respostas
-  prontas no documento `play-store-data-safety.md`.
+- Preencher o formulário de "Segurança dos dados" — o Claude já deixou as
+  respostas prontas no documento `play-store-data-safety.md`.
 
-### B8. Fazer os testes
+### B5. Fazer os testes
 
 - **Teste interno:** você e o time usam o app para ver se está tudo funcionando.
-- **Se a conta for pessoal:** o teste de 12 pessoas reais usando por 14 dias
-  seguidos. As pessoas precisam realmente abrir e usar o app (o Google verifica).
-- **Se a conta for de organização:** pula direto.
+- **Se o Passo 0 (MEI) foi feito e a conta virou "organização":** não precisa de
+  mais nada, vai direto para a aprovação.
+- **Se a conta continuar "pessoal":** aí sim precisa do teste de 12 pessoas reais
+  usando por 14 dias seguidos (elas têm que realmente abrir e usar o app — o
+  Google verifica).
 
-### B9. Enviar para a Google e a Apple revisarem
+### B6. Enviar para a Google e a Apple revisarem
 
 - Eles analisam o app. A primeira vez costuma demorar mais — de alguns dias a
   duas semanas.
 - **É normal ser reprovado na primeira.** Eles dizem o que corrigir, você
   corrige e reenvia.
 
-### B10. Publicar 🎉
+### B7. Publicar 🎉
 
 ---
 
 # A ordem das coisas
 
-**Agora (podem acontecer ao mesmo tempo):**
-- Você: B1, B2, B3, B5, B6
+**Primeiro de tudo:**
+- Ricardo: **Passo 0** (abrir o MEI + mudar a conta do Google + passar os dados).
+
+**Depois (podem acontecer ao mesmo tempo):**
+- Você: B1 (advogado), B2 (e-mail), B3 (conta Apple)
 - Ricardo: A1, A2, A3, A4
 
 **Em seguida:**
-- Você: B4 (advogado), B7 (vitrine)
+- Você: B4 (vitrine)
 - Ricardo: A5, A6, A7
 
-**Quando o app estiver pronto (A1 a A6 + B7):**
-- Você: B8 (testes)
+**Quando o app estiver pronto (A1 a A6 + B4):**
+- Você: B5 (testes)
 
 **Por último:**
-- Você: B9 (enviar) e B10 (publicar)
+- Você: B6 (enviar) e B7 (publicar)
 
 ---
 
 # Quanto tempo, mais ou menos
 
-- Se a conta for de **organização** (CNPJ): cerca de **3 a 5 semanas** até estar
-  no ar.
-- Se a conta for **pessoal**: some **mais 2 a 3 semanas** por causa do teste de
-  14 dias.
+- **Com o MEI feito** (conta de organização): cerca de **3 a 5 semanas** até
+  estar no ar.
+- **Sem o MEI** (conta continua pessoal): some **mais 2 a 3 semanas** por causa
+  do teste de 14 dias.
 - O trabalho do Ricardo: itens A1–A4 em torno de **1 semana**; A5–A6 em torno de
   **2 a 3 semanas**.
 
@@ -206,4 +209,4 @@ Custa **US$ 99 por ano**. Pode fazer em paralelo com o resto.
   textos prontos da página de exclusão de conta.
 - `prompt-base44-pagamento.md` — o detalhe técnico do pagamento (A6).
 - `play-store-data-safety.md` — as respostas prontas do formulário de segurança
-  dos dados (B7).
+  dos dados (B4).

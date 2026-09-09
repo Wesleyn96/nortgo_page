@@ -4,7 +4,7 @@
 > tomadas** e **para onde vamos**. Atualizar sempre que algo relevante mudar
 > (feature, decisão de produto/design, mudança de rumo, marco atingido).
 
-- **Última atualização:** 2026-09-07
+- **Última atualização:** 2026-09-09
 - **Responsável pelo projeto:** Wesley Nascimento
 - **Repositório (landing):** git, branch principal `main` — remoto atual em namespace pessoal (`Wesleyn96/nortgo_page`), ver [§10](#10-riscos-e-pontos-de-atenção)
 - **Domínios (decisão 2026-09-07, revoga a de 09-06):** `nortgo.com` = landing (Cloudflare Workers, **no ar**, este repo) · `nortgo.com.br` = app (Base44/Render, **no ar**). **A raiz `nortgo.com.br/` redireciona 301 para `nortgo.com`** — feito via "Redirecionamento de página" do próprio Base44 (origem `/`, destino `https://nortgo.com`, correspondência "caminho único"), sem mexer em nameserver. As demais rotas (`/login`, `/assinatura`, `/excluir-conta`, telas do app) continuam no Base44. Fluxo: landing → "Começar" → `nortgo.com.br/login` → cadastro → `nortgo.com.br/assinatura`. `nortgo.com` NS na Cloudflare; `nortgo.com.br` NS ainda no registro.br (não foi preciso mover). `nortgo.app` era só pretensão, removido do código.
@@ -386,6 +386,13 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 ## 11. Registro de decisões
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
+
+- **2026-09-09** — **Conta Google Play é PESSOAL** (dono confirmou) → exige teste
+  fechado de 12 testers × 14 dias antes de publicar. **Plano:** o Ricardo abre um
+  **MEI** e converte a conta para "organização" (fica isento do teste, economiza
+  2–3 semanas). A decisão PF × CNPJ e a abertura do MEI passaram a ser tarefa do
+  Ricardo (item R0). Criado `docs/passo-a-passo-simples.md` (mesmo conteúdo do
+  cronograma em linguagem para leigo, Ricardo A1–A7 × Wesley B1–B7).
 
 - **2026-09-07** — **Cronograma de lançamento nas lojas** (`docs/cronograma-base44.md`,
   formato WhatsApp, 7 fases com dono marcado). Estado confirmado pelo dono: **conta
