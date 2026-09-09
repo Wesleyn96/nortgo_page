@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import BackLink from "@/components/BackLink";
 import { APP_BASE_URL } from "@/lib/links";
 
 export const metadata: Metadata = {
@@ -23,12 +23,7 @@ export default function PrivacidadePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-16 md:py-24">
-      <Link
-        href="/"
-        className="font-mono text-[12px] uppercase tracking-[0.08em] text-ink-dim hover:text-ink"
-      >
-        ← Voltar ao início
-      </Link>
+      <BackLink />
 
       <p className="mt-10 font-mono text-[12px] uppercase tracking-[0.1em] text-ink-faint">
         Última atualização: 7 de setembro de 2026
