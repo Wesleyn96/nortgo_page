@@ -1,13 +1,12 @@
 // Endereço do app NortGo (Base44).
 //
-// Decisão 2026-09-06: o app fica em nortgo.com.br em definitivo; o site
-// institucional fica em nortgo.com. São dois domínios com propósitos
-// distintos, sem redirecionamento entre eles. Se algum dia mudar, troque
-// só APP_BASE_URL.
+// O app fica em nortgo.com.br; o site institucional em nortgo.com. A raiz
+// de nortgo.com.br redireciona para nortgo.com (redirect do próprio Base44);
+// as rotas do app (/login, /home, /assinatura…) seguem no Base44. Se o
+// endereço do app mudar, troque só APP_BASE_URL.
 export const APP_BASE_URL = "https://nortgo.com.br";
 
-// "Começar" e "Já tenho conta" levam os dois à tela de login do app
-// (o app trata cadastro e login na mesma rota /login). Se um dia houver
-// rotas separadas, aponte APP_SIGNUP_URL para a de cadastro.
+// "Começar" leva à tela de login do app (o Base44 trata cadastro e login na
+// mesma rota /login). Se um dia houver rota separada de cadastro, aponte
+// APP_SIGNUP_URL para ela.
 export const APP_SIGNUP_URL = `${APP_BASE_URL}/login`;
-export const APP_LOGIN_URL = `${APP_BASE_URL}/login`;

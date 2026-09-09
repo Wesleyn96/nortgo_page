@@ -44,7 +44,8 @@
 > landing longa deu lugar a uma **tela de entrada curta** (`src/components/Entrada.tsx`):
 > proposta em uma frase + 3 exemplos ("você fala/escreve → o NortGo organiza") +
 > `Começar` / `Já tenho conta` que vão **direto ao app no Base44**. Waitlist e
-> Formspree **removidos** (só pararam de ser importados; arquivos no repo).
+> Formspree **removidos** (nesta data só pararam de ser importados; os arquivos
+> foram de fato apagados do repo em 2026-09-07).
 > Domínio trocado `nortgo.app` → `www.nortgo.com` em todo o código. Política de
 > privacidade reescrita para "site não coleta dados; cadastro é no app".
 > **Aprovado pelo dono e commitado** em `feat/tela-entrada` (2026-09-05, ainda
@@ -152,8 +153,9 @@ Legenda: 🟢 ok · 🟡 atenção · 🔴 pendente/não iniciado
 
 - **Framework:** Next.js `16.3.3` (App Router, `src/app/`). Versão fixada.
 - **UI:** React `19.2.8`, TypeScript `^5` (strict), Tailwind CSS `^4`.
-- **Animação:** Motion `^13.1.1` (`motion/react`); easing `[0.22, 1, 0.36, 1]` em
-  `src/lib/motion.ts`.
+- **Animação:** CSS puro (`@keyframes` / `.animate-rise` em `globals.css`,
+  easing `cubic-bezier(0.22, 1, 0.36, 1)`). **Sem** biblioteca de animação — a
+  dep `motion` foi removida em 2026-09-09 (não era usada).
 - **Imagens:** `next/image` com imports estáticos.
 - **Lint:** ESLint `^9` Flat Config (`npm run lint`).
 - **Type-check:** `npm run typecheck` (`tsc --noEmit`).
@@ -387,6 +389,15 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
 
 > Formato: data — decisão — motivo — impacto. Mais recente no topo.
 
+- **2026-09-09** — **Limpeza de dependências e assets órfãos** (varredura do
+  `/code-review`). Removidos: dep `motion ^13.1.1` (zero imports — animação é CSS
+  puro), devDep `@testing-library/user-event` (zero uso), `public/features/`
+  (6 PNGs), `public/brand/{arrow-right,nortgo-icon,nortgo-wordmark}.png`,
+  `public/nortgo-app-mobile.png` (sobras da landing longa, publicadas sem uso),
+  export `APP_LOGIN_URL` (duplicava `APP_SIGNUP_URL`). `README.md` reescrito
+  (estava com Formspree/Nav/Vercel/headers em next.config); `.gitignore` sem as
+  linhas do vídeo/Vercel; comentários e §4 corrigidos. `npm run verify` passa.
+
 - **2026-09-09** — **Conta Google Play é PESSOAL** (dono confirmou) → exige teste
   fechado de 12 testers × 14 dias antes de publicar. **Plano:** o Ricardo abre um
   **MEI** e converte a conta para "organização" (fica isento do teste, economiza
@@ -564,7 +575,7 @@ Cada camada precisa de um **dono** e um **estado**. (Preencher donos em
   a landing longa contrariava a tese de simplicidade do produto; o problema real
   era o "antes e depois do cadastro", não o cadastro. — Impacto: `Entrada.tsx`
   nova; Nav e as 11 seções antigas + Waitlist/Formspree pararam de ser importados
-  (arquivos mantidos no repo). **Sem lista de e-mails** — "backup dos leads" sai
+  (e foram apagados do repo em 2026-09-07). **Sem lista de e-mails** — "backup dos leads" sai
   do passo 4; reencode do vídeo sai de escopo. Política de privacidade reescrita
   para refletir "site não coleta dados; cadastro é no app". Pré-condição: o app
   no Base44 precisa suportar cadastro público de verdade (passo 5).
